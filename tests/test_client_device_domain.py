@@ -109,6 +109,9 @@ def test_normal_app_upload_uses_client_selector_for_real_device_profile(client, 
     assert plate["client_device_segmentation"]["clinical_claim"] == "NONE"
     assert plate["signal_features"]["response_area_fraction"] > 0.005
     assert plate["signal_features"]["value_mean"] > 160
+    assert plate["qc"]["clinical_claim"] == "NONE"
+    assert plate["qc"]["semantics"] == "engineering client-device acquisition QC; not a clinical assessment"
+    assert "response_touches_valid_edge" in plate["qc"]["metrics"]
 
 
 def test_reference_profile_keeps_publication_analysis_path(client, sample_png, monkeypatch):
