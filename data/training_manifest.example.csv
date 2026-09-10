@@ -1,0 +1,3 @@
+subject_id,image_path,source_id,modality,species,label,label_provenance,split_group,license_tag,tlc_profile_id,device_profile_id
+EXAMPLE-001,/private/data/example-001-view-a.jpg,example_source,infrared,human,HEALTHY,example_only,EXAMPLE-001,UNKNOWN,,
+EXAMPLE-002,/private/data/example-002-view-a.jpg,example_source,infrared,human,CANCER,example_only,EXAMPLE-002,UNKNOWN,,
