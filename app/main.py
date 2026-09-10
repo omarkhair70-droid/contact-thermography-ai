@@ -157,16 +157,29 @@ async def analyze_exam(
     files: List[UploadFile] = File(...),
     exam_id: str | None = Form(default=None),
     metadata_json: str | None = Form(default=None),
+    tlc_profile_id: str | None = Form(default=None),
+    device_profile_id: str | None = Form(default=None),
 ):
     eid = (exam_id or f"exam-{uuid.uuid4().hex[:10]}").replace("/", "_").replace("\\", "_")
     if not files:
         raise HTTPException(status_code=400, detail="At least one image is required")
 
     metadata = parse_metadata(metadata_json)
+    form_tlc_profile_id = normalize_tlc_profile(tlc_profile_id) if tlc_profile_id is not None else None
+    form_device_profile_id = normalize_device_profile(device_profile_id) if device_profile_id is not None else None
+
     resolved = []
     for upload in files:
         name = upload.filename or ""
-        resolved.append((upload, metadata.get(name, _default_file_metadata())))
+        item = dict(metadata.get(name, _default_file_metadata()))
+        # Product UI supplies exam-level TLC/device controls. Explicit form values
+        # intentionally override per-file defaults while API callers can continue
+        # to provide profile provenance only inside metadata_json.
+        if form_tlc_profile_id is not None:
+            item["tlc_profile_id"] = form_tlc_profile_id
+        if device_profile_id is not None:
+            item["device_profile_id"] = form_device_profile_id
+        resolved.append((upload, item))
 
     tlc_profiles = sorted({item["tlc_profile_id"] for _, item in resolved})
     if len(tlc_profiles) != 1:
@@ -177,11 +190,11 @@ async def analyze_exam(
                 f"interchangeable. Submit separate exams per tlc_profile_id: {', '.join(tlc_profiles)}"
             ),
         )
-    tlc_profile_id = tlc_profiles[0]
+    selected_tlc_profile_id = tlc_profiles[0]
     device_profile_ids = sorted({
         item["device_profile_id"] for _, item in resolved if item["device_profile_id"]
     })
-    profile_provenance = build_profile_provenance(tlc_profile_id, device_profile_ids)
+    profile_provenance = build_profile_provenance(selected_tlc_profile_id, device_profile_ids)
 
     sources = []
     total = 0
@@ -229,8 +242,8 @@ async def analyze_exam(
         set(left).intersection(right),
         key=lambda key: tuple("" if value is None else str(value) for value in key),
     )
-    for position, pair_tlc_profile_id, device_profile_id in pair_keys:
-        key = (position, pair_tlc_profile_id, device_profile_id)
+    for position, pair_tlc_profile_id, pair_device_profile_id in pair_keys:
+        key = (position, pair_tlc_profile_id, pair_device_profile_id)
         left_plates = sorted(left[key], key=lambda x: (x.get("sequence_index") or 0, x["plate_id"]))
         right_plates = sorted(right[key], key=lambda x: (x.get("sequence_index") or 0, x["plate_id"]))
         for lp, rp in zip(left_plates, right_plates):
@@ -257,7 +270,7 @@ async def analyze_exam(
                 "bilateral_pair_id": pair_id,
                 "position": position,
                 "tlc_profile_id": pair_tlc_profile_id,
-                "device_profile_id": device_profile_id,
+                "device_profile_id": pair_device_profile_id,
                 "left_plate_id": lp["plate_id"],
                 "right_plate_id": rp["plate_id"],
                 "panel_url": storage.generated_url(eid, "bilateral", metrics.pop("panel_filename")),
@@ -289,7 +302,7 @@ async def analyze_exam(
     result = {
         "exam_id": eid,
         "analysis_type": "contact_liquid_crystal_thermography",
-        "tlc_profile_id": tlc_profile_id,
+        "tlc_profile_id": selected_tlc_profile_id,
         "profile_provenance": profile_provenance,
         "source_images": len(sources),
         "plates_detected": total,
