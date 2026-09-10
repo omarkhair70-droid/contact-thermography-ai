@@ -2,15 +2,15 @@
 
 ## Current client facts
 
-The first real client-device cohort is now available: 9 contact-TLC images (`IMG-20260910-WA0030.jpg` through `IMG-20260910-WA0038.jpg`). The client reports that all animals are tumor-bearing mice, acquisition conditions are approximately the same, body weight is similar, and tumor size is the intended biological variable that differs between animals.
+The first real client-device cohort is available: 9 contact-TLC images (`IMG-20260910-WA0030.jpg` through `IMG-20260910-WA0038.jpg`). The client reports that all animals are tumor-bearing mice, acquisition conditions are approximately the same, body weight is similar, and tumor size is the intended biological variable that differs between animals.
 
-Therefore this cohort is **not** a tumor-vs-control training set. It is useful now for device-domain adaptation, image-quality review, within-cohort response analysis, and a blind tumor-response-burden experiment. Tumor-size measurements should be compared only after the blind ranking is frozen.
+Therefore this cohort is **not** a tumor-vs-control training set. It is useful for device-domain adaptation, image-quality review, within-cohort response analysis, and a blind tumor-response-burden experiment. Tumor-size measurements must be compared only after the blind ranking is frozen.
 
-## First real-device review
+## Real-device selector — implemented in the app
 
-The generic `client-device-tlc-pending` mask inherited the publication reference thresholds (`S > 50`, `V > 38`, 18 px minimum component) and used the central-disk assumption. On the real device images this over-segmented dim saturated background texture. This is a concrete domain-shift failure, not merely a cosmetic difference.
+The generic client profile originally inherited publication-reference thresholds (`S > 50`, `V > 38`, 18 px minimum component) and the publication central-disk assumption. On the real device images that over-segmented dim saturated background texture. This was a concrete domain-shift failure.
 
-A separate experimental client selector was therefore added in `app/services/client_device_domain.py`. Its current provisional values are:
+The client path now uses `app/services/client_device_domain.py` for `client-device-tlc-pending` whole-image fallback uploads. Its current provisional selector is:
 
 - saturation > 55
 - pixel value > 85
@@ -18,7 +18,7 @@ A separate experimental client selector was therefore added in `app/services/cli
 - connected component mean value >= 160
 - 3x3 opening + 5x5 closing
 
-These numbers are **not temperature calibration values** and are not yet promoted into the main analysis path. Their purpose is to isolate visible thermochromic response while rejecting low-brightness saturated background noise. White glare is mostly rejected because it has low saturation; clipped response regions still require QC review.
+These are visible-response selection parameters, **not temperature calibration values**. They are isolated to the client-device profile. Publication-reference uploads retain their original analysis path. White glare is largely rejected through low saturation, while clipped/edge-adjacent response still requires human QC review.
 
 ## Blind response-area ranking
 
@@ -36,13 +36,13 @@ A 45-configuration threshold sweep was run over the 9-image cohort using saturat
 | 8 | WA0031 | 0.0447 | 8 | 7–8.5 |
 | 9 | WA0030 | 0.0378 | 9 | 8–9 |
 
-Semantics: this is a **thermochromic response-area ranking only**. It is not tumor size, tumor probability, cancer risk, or diagnosis. The correct next validation is to freeze this ranking and compare it against the client’s true tumor-size mapping when available.
+Semantics: **thermochromic response-area ranking only**. It is not tumor size, tumor probability, cancer risk, or diagnosis. WA0036 and WA0033 are more threshold-sensitive than WA0037/WA0034/WA0030, so that uncertainty must remain visible.
 
-The broad rank ranges for WA0036 and WA0033 show that their measured area is more threshold-sensitive than WA0037/WA0034/WA0030. That uncertainty must be retained rather than hidden.
+The batch runner now writes `blind_freeze_manifest.json`, hashing every original image plus `blind_response_area_ranking.csv`. This creates an auditable pre-label freeze before any tumor-size mapping is revealed.
 
 ## Measured colour-domain shift vs publication references
 
-Using the 26 publication-derived reference feature rows as the baseline, the first client cohort shows a strong acquisition/colour-domain shift. Median feature differences measured in reference IQR units were approximately:
+Using the 26 publication-derived reference feature rows as baseline, the client cohort shows strong acquisition/colour-domain shift. Median feature differences measured in reference-IQR units were approximately:
 
 - Hue mean: -0.19 IQR
 - Hue spread: +0.85 IQR
@@ -51,36 +51,46 @@ Using the 26 publication-derived reference feature rows as the baseline, the fir
 - Lab a*: **-4.95 IQR**
 - Lab b*: +0.87 IQR
 
-The large brightness and Lab-a shifts are enough to reject the assumption that publication colour thresholds can be treated as interchangeable with the real client device. These shifts can reflect TLC formulation, camera/white-balance, illumination, contact setup, or combinations of them; they do not identify disease.
+This is enough to reject the assumption that publication colour thresholds are interchangeable with the real device. The shift may reflect TLC formulation, camera/white balance, illumination, contact setup, or combinations of them; it does not identify disease.
 
-## DINOv2 gate
+## DINOv2 execution gate — artifact path completed
 
-The batch runner can optionally execute the integrated official DINOv2 path with `--attempt-dino`. DINO outputs must be generated only in an environment where the pinned official backbone is available. Do not substitute surrogate/random embeddings.
+`scripts/client_device_batch.py --attempt-dino` now preserves the live official-DINO outputs instead of discarding the embedding vectors. When the pinned official backbone is available, the run writes:
 
-For the 9-image cohort, the DINO analysis should save:
+1. `client_device_dinov2_embeddings.npy` — 9 x 384 float embeddings;
+2. `client_device_dinov2.csv` — per-image live DINO/reference research outputs;
+3. `client_client_dinov2_cosine_distance.csv` — the 9 x 9 within-client distance matrix;
+4. `client_reference_nearest_dinov2.csv` — nearest publication reference and distance per image;
+5. `dinov2_embedding_domain_shift.json` — client-vs-reference shift relative to the empirical reference self-neighbour distance distribution.
 
-1. 384-d embedding per image,
-2. nearest publication reference plates and cosine distances,
-3. publication-reference unusualness signal,
-4. pairwise 9x9 client-cohort cosine-distance matrix,
-5. a client-vs-reference embedding-domain shift summary.
+The embedding-domain metric is deliberately referenced to the 26-plate corpus's own nearest-neighbour distance distribution. It is a visual/domain-shift measure, not a tumor score.
 
-Because the reference corpus uses a different TLC domain, cross-domain DINO scores remain research signals. Within-client-cohort distances are more directly interpretable for this stage.
+Do not replace the official DINOv2 encoder with surrogate/random embeddings. If the pinned backbone is unavailable, the batch must report DINO unavailable rather than fabricate results.
+
+## Post-freeze tumor-size comparison — ready before labels arrive
+
+`scripts/evaluate_tumor_size_mapping.py` is the only intended first-cohort tumor-size comparison path. It verifies that the ranking CSV still matches the pre-label SHA256 freeze, requires the tumor-size mapping to match the exact frozen cohort, and then reports descriptive association only:
+
+- Spearman response-area vs tumor-size association;
+- Pearson response-area vs tumor-size association;
+- descending-rank agreement;
+- a descriptive straight-line fit and R².
+
+This is **not** model training and must not be presented as clinical validation on 9 animals. The 9 images remain the blind first-cohort evaluation set; they must not be fine-tuned and then reused as their own proof of performance.
 
 ## Literature basis for the experiment design
 
-- Stevens JD, Rogers W. **Liquid Crystal Thermography of Transplantable Mouse Tumors.** Vascular Surgery. 1971;5(4):186–192. DOI `10.1177/153857447100500404`. This is direct historical precedent for cholesteric liquid-crystal thermography over transplantable mouse tumors.
-- Tepper M et al. **Thermographic investigation of tumor size, and its correlation to tumor relative temperature, in mice with transplantable solid breast carcinoma.** Journal of Biomedical Optics. 2013;18(11):111410. DOI `10.1117/1.JBO.18.11.111410`. This is infrared rather than contact TLC, so it is not training data for this product; it supports evaluating thermal-image area against independent caliper tumor-size measurements.
-- TLC calibration literature consistently shows colour-temperature response is sensitive to illumination spectrum, viewing angle, white balance, hysteresis, film thickness and other setup variables. This supports a formulation/device-specific profile rather than one global hue rule.
+- Stevens JD, Rogers W. **Liquid Crystal Thermography of Transplantable Mouse Tumors.** Vascular Surgery. 1971;5(4):186–192. DOI `10.1177/153857447100500404`. Direct historical precedent for cholesteric liquid-crystal thermography over transplantable mouse tumors.
+- Tepper M et al. **Thermographic investigation of tumor size, and its correlation to tumor relative temperature, in mice with transplantable solid breast carcinoma.** Journal of Biomedical Optics. 2013;18(11):111410. DOI `10.1117/1.JBO.18.11.111410`. Infrared rather than contact TLC, so not training data; useful only as experiment-design precedent for comparing independent tumor measurements with thermal-image response.
+- TLC calibration literature shows colour-temperature response sensitivity to illumination spectrum, viewing angle, white balance, hysteresis, film thickness and other setup variables. This supports a formulation/device-specific profile rather than one global hue rule.
 
-No public modern labelled contact-TLC mouse-tumor dataset has been identified in the targeted search to date. Infrared datasets must remain a separate modality and must not be silently mixed into contact-TLC training.
+No public modern labelled contact-TLC mouse-tumor dataset has been identified in the targeted search to date. Infrared datasets remain a separate modality and must not be silently mixed into contact-TLC training.
 
-## Next execution gate
+## Remaining execution gates
 
-1. Run `scripts/client_device_batch.py` on all 9 originals and archive the feature/ranking/contact-sheet outputs.
-2. Review every mask visually; adjust only the client-domain selector if a mask includes setup/background or misses obvious TLC response.
-3. Run official live DINOv2 on the frozen normalized images and save client-client plus client-reference embedding analyses.
-4. Freeze the blind response ranking before tumor-size labels are revealed.
-5. When the client supplies the image-to-tumor-size mapping, calculate Spearman rank association and simple continuous association without fitting and validating on the same 9 animals.
-6. If later control/pre-injection animals arrive, treat them as a separate extension and only then investigate tumor-vs-control classification.
-7. Keep `clinical_claim=NONE` and absolute temperature disabled until the required formulation-specific calibration/clinical evidence exists.
+1. Run the frozen 9 originals through the current batch and archive CSV/JSON/contact-sheet outputs outside the source tree or in approved private experiment storage.
+2. Human-review all 9 masks; do not change the frozen ranking after tumor-size labels are known.
+3. Run official live DINOv2 on the same frozen normalized inputs and archive the five DINO artifacts listed above.
+4. Only then compare against independently supplied tumor sizes through `scripts/evaluate_tumor_size_mapping.py`.
+5. If later controls/pre-injection animals arrive, treat them as a separate dataset extension before investigating tumor-vs-control classification.
+6. Keep `clinical_claim=NONE` and absolute-temperature interpretation disabled until formulation-specific calibration and appropriate validation exist.
