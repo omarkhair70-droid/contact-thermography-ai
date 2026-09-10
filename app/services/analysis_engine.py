@@ -1,38 +1,18 @@
 from pathlib import Path
-import io
 import math
 import uuid
-import json
 
 import cv2
-import joblib
 import numpy as np
-import pandas as pd
-from skimage.feature import hog, local_binary_pattern
 from skimage.morphology import skeletonize
 from skimage.measure import label, regionprops
 from app.services.qc import assess_plate_quality
+from app.services.reference_model import reference_model
 
 ROOT = Path(__file__).resolve().parents[2]
 ARTIFACTS = ROOT / "artifacts"
 STATIC_GENERATED = ROOT / "app" / "static" / "generated"
 STATIC_GENERATED.mkdir(parents=True, exist_ok=True)
-
-MODEL = joblib.load(ARTIFACTS / "plate_reference_model.joblib")
-REF_EMB = pd.read_csv(ARTIFACTS / "plate_embeddings.csv")
-REF_Z = REF_EMB[[c for c in REF_EMB.columns if c.startswith("embedding_")]].to_numpy()
-REF_RAW = -MODEL["isolation_forest"].score_samples(REF_Z)
-
-ENGINEERED_COLS = MODEL["engineered_cols"]
-
-def _safe_float(v):
-    try:
-        f = float(v)
-        if math.isfinite(f):
-            return f
-    except Exception:
-        pass
-    return 0.0
 
 def _circle_iou(c1, c2):
     x1,y1,r1 = c1; x2,y2,r2 = c2
@@ -46,7 +26,7 @@ def _circle_iou(c1, c2):
         a2 = math.acos(np.clip((d*d+r2*r2-r1*r1)/(2*d*r2), -1, 1))
         inter = (
             r1*r1*a1 + r2*r2*a2
-            - 0.5*math.sqrt(max(0,(-d+r1+r2)*(d+r1-r2)*(d-r1+r2)*(d-r1+r2)))
+            - 0.5*math.sqrt(max(0,(-d+r1+r2)*(d+r1-r2)*(d-r1+r2)*(d+r1+r2)))
         )
     union = math.pi*r1*r1 + math.pi*r2*r2 - inter
     return inter/max(union,1e-9)
@@ -219,58 +199,11 @@ def signal_features(bgr):
     }
     return f,morph,clean
 
-def image_descriptor(bgr):
-    hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV)
-    labc=cv2.cvtColor(bgr,cv2.COLOR_BGR2LAB)
-    gray=cv2.cvtColor(bgr,cv2.COLOR_BGR2GRAY)
-    h,w=gray.shape
-    yy,xx=np.ogrid[:h,:w]
-    disk=((xx-w/2)**2+(yy-h/2)**2 <= (min(h,w)*0.46)**2)
-
-    hg=hog(gray,orientations=9,pixels_per_cell=(32,32),cells_per_block=(2,2),
-           block_norm="L2-Hys",feature_vector=True)
-    desc=[]
-    for arr,bins,rng in [
-        (hsv[:,:,0],18,(0,180)),
-        (hsv[:,:,1],16,(0,256)),
-        (hsv[:,:,2],16,(0,256)),
-        (labc[:,:,1],16,(0,256)),
-        (labc[:,:,2],16,(0,256)),
-    ]:
-        vals=arr[disk]
-        hist,_=np.histogram(vals,bins=bins,range=rng,density=True)
-        desc.extend(hist.tolist())
-
-    lbp=local_binary_pattern(gray,P=16,R=2,method="uniform")
-    vals=lbp[disk]
-    hist,_=np.histogram(vals,bins=np.arange(0,19),range=(0,18),density=True)
-    desc.extend(hist.tolist())
-
-    gx=cv2.Sobel(gray,cv2.CV_32F,1,0,ksize=3)
-    gy=cv2.Sobel(gray,cv2.CV_32F,0,1,ksize=3)
-    mag=cv2.magnitude(gx,gy)[disk]
-    desc.extend([float(np.mean(mag)),float(np.std(mag)),float(np.percentile(mag,90))])
-    return np.concatenate([np.asarray(desc,dtype=np.float32),hg.astype(np.float32)])
-
-def _reference_percentile(raw_score):
-    return float((REF_RAW <= raw_score).mean())
-
 def analyze_plate(bgr, plate_id):
     f,morph,mask=signal_features(bgr)
-    eng=np.asarray([_safe_float(f.get(c,0)) for c in ENGINEERED_COLS],dtype=float)[None,:]
-    img=image_descriptor(bgr)[None,:]
-    X=np.hstack([eng,img])
-    Xs=MODEL["scaler"].transform(X)
-    z=MODEL["pca"].transform(Xs)
-    raw=float(-MODEL["isolation_forest"].score_samples(z)[0])
-    percentile=_reference_percentile(raw)
-
-    distances,indices=MODEL["nearest_neighbors"].kneighbors(z, n_neighbors=5)
-    ref_ids=REF_EMB["plate_id"].tolist()
-    neighbors=[
-        {"plate_id":ref_ids[int(i)],"cosine_distance":round(float(d),4)}
-        for i,d in zip(indices[0],distances[0])
-    ]
+    ref = reference_model.analyze(f)
+    percentile=ref["reference_anomaly_percentile"]
+    neighbors=ref["nearest_reference_plates"]
 
     qc = assess_plate_quality(bgr, float(f["response_area_fraction"]))
 
