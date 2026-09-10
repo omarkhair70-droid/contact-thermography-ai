@@ -29,6 +29,23 @@ The Kaggle artifact stores 384 DINO features followed by eight explicit thermal 
 
 Across 20 alternate stratified five-fold seeds, the thermal-only Logistic result remained comparatively stable: mean balanced accuracy 0.906 ± 0.024, AUROC 0.931 ± 0.004, AUPRC 0.973 ± 0.001, Brier 0.092 ± 0.003.
 
+### Offset-removal stress test
+
+A second ablation removed absolute temperature location and retained only offset-invariant spread/shape quantities derived from the same eight summaries: standard deviation, p90-p10, p50-p10, p90-p50, max-min, mean-median, p10-min, and max-p90.
+
+On the same fixed five-fold split, Logistic performance fell to:
+
+- balanced accuracy: **0.626**
+- sensitivity: **0.568**
+- specificity: **0.684**
+- AUROC: **0.626**
+- AUPRC: **0.766**
+- Brier: **0.248**
+
+Across 20 alternate fold seeds, the offset-invariant block averaged balanced accuracy **0.618 ± 0.041** and AUROC **0.636 ± 0.031**.
+
+This is a critical finding: most of the apparent DMR-IR separability is carried by **absolute temperature level**, not only by within-breast thermal shape. That absolute level may contain genuine biology, acquisition/protocol effects, or both. Therefore the strong 0.92–0.93 AUROC thermal-only result must not be treated as transferable evidence until acquisition confounding is investigated.
+
 ### Important interpretation
 
 The strongest signal in DMR-IR currently comes from absolute/summary temperature statistics, not from the generic DINO representation. Subject-level p90, p10, median, and mean temperatures each individually separate the labels strongly in this dataset. This is useful, but it also raises a **dataset/protocol confounding risk**: the result could reflect acquisition-condition or cohort temperature differences in addition to disease biology. It must therefore be stress-tested before any transfer claim.
@@ -38,11 +55,11 @@ The result does **not** mean an 0.92-AUROC cancer model exists for the client de
 ## Next required experiments
 
 1. Reproduce the ablation directly from the stored feature table.
-2. Stress-test temperature-only performance with acquisition-aware covariates where recoverable and with normalization variants that remove absolute temperature offset.
-3. Compare static vs dynamic record subsets and left/right aggregation.
-4. Keep DMR-IR as an auxiliary representation/data source only.
+2. Recover acquisition/session/time metadata where possible and test whether absolute temperature differences track collection protocol rather than disease status.
+3. Build per-subject/per-frame normalized dynamic features and compare static vs dynamic subsets and left/right aggregation.
+4. Keep DMR-IR as an auxiliary representation/data source only; do not transfer its absolute-temperature threshold directly to contact-LCT.
 5. Continue the target-domain contact-LCT data hunt for labeled tumor/control images, especially mouse/contact-LCT material.
-6. Probe the frozen auxiliary heads on client-device images only with an explicit OOD/abstain flag; do not treat those outputs as validation.
+6. Probe auxiliary heads on client-device images only behind an explicit OOD/abstain gate; do not treat those outputs as validation.
 7. Keep the nine client mouse images frozen as target-domain tumor-bearing data and tumor-burden evaluation, not binary train/test evidence.
 
 ## Decision
