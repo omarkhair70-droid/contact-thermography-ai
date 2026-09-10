@@ -5,6 +5,8 @@ venv/
 .env
 .env.*
 !.env.example
+deploy/staging.env
+backups/
 runtime/*
 !runtime/.gitkeep
 app/static/generated/*
