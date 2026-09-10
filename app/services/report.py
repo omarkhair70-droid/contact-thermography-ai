@@ -1,54 +1,70 @@
 from __future__ import annotations
-from pathlib import Path
 from html import escape
+import math
+
+
+def _fmt(value, digits=3):
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return "n/a"
+    return f"{number:.{digits}f}" if math.isfinite(number) else "n/a"
+
 
 def _score_line(label: str, value) -> str:
     if value is None:
         return ""
-    return f"<p><b>{escape(label)}:</b> {float(value):.3f}</p>"
+    return f"<p><b>{escape(label)}:</b> {_fmt(value)}</p>"
+
 
 def build_report_html(result: dict):
-    exam_id=escape(result["exam_id"])
-    plates=[]
-    for src in result.get("sources",[]):
-        for p in src.get("plates",[]):
-            plates.append(p)
+    exam_id = escape(str(result["exam_id"]))
+    profile = result.get("profile_provenance") or {}
+    tlc_profile_id = escape(str(result.get("tlc_profile_id") or profile.get("tlc_profile_id") or "unknown"))
+    device_profiles = profile.get("device_profile_ids") or result.get("device_profile_ids") or []
+    device_text = escape(", ".join(str(item) for item in device_profiles) or "not supplied")
+    domain_status = escape(str(profile.get("domain_status") or "UNKNOWN"))
 
-    body=[]
-    for p in plates:
-        flags=", ".join(p["qc"].get("flags",[])) or "None"
+    plates = []
+    for src in result.get("sources", []):
+        for plate in src.get("plates", []):
+            plates.append(plate)
+
+    body = []
+    for plate in plates:
+        flags = ", ".join(plate.get("qc", {}).get("flags", [])) or "None"
         body.append(f"""
         <article class="card">
-          <img src="{escape(p.get('image_url',''))}" />
+          <img src="{escape(str(plate.get('image_url','')))}" />
           <div>
-            <h3>{escape(p['plate_id'])}</h3>
-            <p><b>Side / position:</b> {escape(str(p.get('side')))} / {escape(str(p.get('position')))}</p>
-            <p><b>TLC profile:</b> {escape(str(p.get('tlc_profile_id', 'unknown')))}</p>
-            <p><b>Device profile:</b> {escape(str(p.get('device_profile_id') or 'not supplied'))}</p>
-            <p><b>QC:</b> {escape(p['qc']['status'])}</p>
+            <h3>{escape(str(plate.get('plate_id', 'plate')))}</h3>
+            <p><b>Side / position:</b> {escape(str(plate.get('side')))} / {escape(str(plate.get('position')))}</p>
+            <p><b>TLC profile:</b> {escape(str(plate.get('tlc_profile_id') or tlc_profile_id))}</p>
+            <p><b>Device profile:</b> {escape(str(plate.get('device_profile_id') or 'not supplied'))}</p>
+            <p><b>QC:</b> {escape(str(plate.get('qc', {}).get('status', 'unknown')))}</p>
             <p><b>QC flags:</b> {escape(flags)}</p>
-            <p><b>Morphology descriptor:</b> {escape(p['morphology_descriptor'])}</p>
-            <p><b>Reference anomaly percentile:</b> {p['reference_anomaly_percentile']:.3f}</p>
-            {_score_line('DINOv2 reference unusualness score', p.get('dinov2_reference_anomaly_score_0_1'))}
-            {_score_line('Fused LCT + DINOv2 reference score', p.get('dinov2_lct_fused_reference_score_0_1'))}
-            <p class="muted">{escape(str(p.get('dinov2_domain_notice', 'Reference unusualness only; not cancer probability.')))}</p>
+            <p><b>Morphology descriptor:</b> {escape(str(plate.get('morphology_descriptor', 'unknown')))}</p>
+            <p><b>Reference anomaly percentile:</b> {_fmt(plate.get('reference_anomaly_percentile'))}</p>
+            {_score_line('DINOv2 reference unusualness score', plate.get('dinov2_reference_anomaly_score_0_1'))}
+            {_score_line('Fused LCT + DINOv2 reference score', plate.get('dinov2_lct_fused_reference_score_0_1'))}
+            <p class="muted">{escape(str(plate.get('dinov2_domain_notice', 'Reference unusualness only; not cancer probability.')))}</p>
           </div>
         </article>
         """)
 
-    pair_blocks=[]
-    for p in result.get("bilateral_analysis",[]):
+    pair_blocks = []
+    for pair in result.get("bilateral_analysis", []):
         pair_blocks.append(f"""
         <article class="pair">
-          <img src="{escape(p.get('panel_url',''))}" />
-          <h3>{escape(p['bilateral_pair_id'])}</h3>
-          <p><b>Position:</b> {escape(str(p.get('position')))}</p>
-          <p><b>TLC profile:</b> {escape(str(p.get('tlc_profile_id', 'unknown')))}</p>
-          <p><b>Device profile:</b> {escape(str(p.get('device_profile_id') or 'not supplied'))}</p>
-          <p><b>Reference bilateral asymmetry score:</b> {p['reference_asymmetry_score_0_1']:.3f}</p>
-          {_score_line('DINOv2 pair reference unusualness score', p.get('dinov2_pair_reference_anomaly_score_0_1'))}
-          <p><b>Response-area delta:</b> {p['absolute_area_fraction_delta']:.3f}</p>
-          <p><b>Jaccard similarity:</b> {p['response_jaccard_similarity']:.3f}</p>
+          <img src="{escape(str(pair.get('panel_url','')))}" />
+          <h3>{escape(str(pair.get('bilateral_pair_id', 'pair')))}</h3>
+          <p><b>Position:</b> {escape(str(pair.get('position')))}</p>
+          <p><b>TLC profile:</b> {escape(str(pair.get('tlc_profile_id') or tlc_profile_id))}</p>
+          <p><b>Device profile:</b> {escape(str(pair.get('device_profile_id') or 'not supplied'))}</p>
+          <p><b>Reference bilateral asymmetry score:</b> {_fmt(pair.get('reference_asymmetry_score_0_1'))}</p>
+          {_score_line('DINOv2 pair reference unusualness score', pair.get('dinov2_pair_reference_anomaly_score_0_1'))}
+          <p><b>Response-area delta:</b> {_fmt(pair.get('absolute_area_fraction_delta'))}</p>
+          <p><b>Jaccard similarity:</b> {_fmt(pair.get('response_jaccard_similarity'))}</p>
         </article>
         """)
 
@@ -66,11 +82,13 @@ body{{font-family:Arial,sans-serif;margin:32px;color:#17202a}}
 <h1>Contact Thermography Analysis Report</h1>
 <div class="banner">
 <p><b>Exam:</b> {exam_id}</p>
-<p><b>Source images:</b> {result['source_images']} &nbsp; <b>Plates:</b> {result['plates_detected']} &nbsp; <b>Bilateral pairs:</b> {result['bilateral_pairs_created']}</p>
-<p><b>TLC profiles:</b> {escape(', '.join(result.get('tlc_profile_ids', [])) or 'not recorded')}</p>
-<p><b>Device profiles:</b> {escape(', '.join(result.get('device_profile_ids', [])) or 'not supplied')}</p>
+<p><b>TLC profile:</b> {tlc_profile_id}</p>
+<p><b>Device profile(s):</b> {device_text}</p>
+<p><b>Profile/domain status:</b> {domain_status}</p>
+<p><b>Source images:</b> {result.get('source_images', 0)} &nbsp; <b>Plates:</b> {result.get('plates_detected', 0)} &nbsp; <b>Bilateral pairs:</b> {result.get('bilateral_pairs_created', 0)}</p>
 <p><b>Clinical claim:</b> NONE</p>
 <p>This report contains engineering/research analysis of liquid-crystal contact thermograms. Current model scores are not cancer probabilities.</p>
+<p>Colour interpretation is profile-dependent. Absolute temperature interpretation remains disabled until the selected TLC formulation is calibrated, and clinical inference remains disabled until a validated clinical model exists.</p>
 </div>
 <h2>Plate analysis</h2><div class="grid">{''.join(body)}</div>
 <h2>Bilateral analysis</h2><div>{''.join(pair_blocks) if pair_blocks else '<p>No true bilateral pairs were created for this exam.</p>'}</div>
