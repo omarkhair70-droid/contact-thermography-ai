@@ -17,6 +17,7 @@ if str(ROOT) not in sys.path:
 from app.services.client_device_domain import (
     DEFAULT_CLIENT_CONFIG,
     analyze_client_image,
+    letterbox_square,
     robust_colour_domain_shift,
     summarize_threshold_sweep,
     threshold_sweep,
@@ -25,6 +26,7 @@ from app.services.client_device_embedding import (
     pairwise_cosine_distance_frame,
     summarize_reference_domain_shift,
 )
+from app.services.client_device_qc import assess_client_device_quality
 
 
 def _contact_sheet(items: list[tuple[str, np.ndarray, np.ndarray]], output: Path) -> None:
@@ -170,16 +172,32 @@ def run(input_dir: Path, output_dir: Path, pattern: str, attempt_dino: bool) -> 
 
     output_dir.mkdir(parents=True, exist_ok=True)
     feature_rows = []
+    qc_rows = []
     visuals = []
     normalized_by_name = {}
     for path in paths:
         features, normalized, mask = analyze_client_image(path, DEFAULT_CLIENT_CONFIG)
+        original = cv2.imread(str(path), cv2.IMREAD_COLOR)
+        if original is None:
+            raise ValueError(f"Could not read image for QC: {path}")
+        _, valid = letterbox_square(original)
+        qc = assess_client_device_quality(normalized, mask, valid)
         feature_rows.append(features)
+        qc_rows.append(
+            {
+                "source_image": path.name,
+                "status": qc["status"],
+                "flags": json.dumps(qc["flags"]),
+                **qc["metrics"],
+                "clinical_claim": "NONE",
+            }
+        )
         normalized_by_name[path.name] = normalized
         visuals.append((path.stem, normalized, mask))
 
     features = pd.DataFrame(feature_rows)
     features.to_csv(output_dir / "client_device_features.csv", index=False)
+    pd.DataFrame(qc_rows).to_csv(output_dir / "client_device_qc.csv", index=False)
 
     sweep = threshold_sweep(paths)
     sweep.to_csv(output_dir / "threshold_sweep.csv", index=False)
@@ -206,6 +224,7 @@ def run(input_dir: Path, output_dir: Path, pattern: str, attempt_dino: bool) -> 
 
     outputs = [
         "client_device_features.csv",
+        "client_device_qc.csv",
         "threshold_sweep.csv",
         "blind_response_area_ranking.csv",
         "blind_freeze_manifest.json",
