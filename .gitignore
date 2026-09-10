@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+runtime/*
+!runtime/.gitkeep
+app/static/generated/*
+!app/static/generated/.gitkeep
+.pytest_cache/
+.coverage
+htmlcov/
+.DS_Store
