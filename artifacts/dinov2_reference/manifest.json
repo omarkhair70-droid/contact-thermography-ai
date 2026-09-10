@@ -1,0 +1,8 @@
+{
+  "backbone": "dinov2_vits14",
+  "images": 26,
+  "embedding_shape": [26, 384],
+  "device_used": "cuda",
+  "clinical_use": false,
+  "score_semantics": "reference/unlabelled unusualness only"
+}
