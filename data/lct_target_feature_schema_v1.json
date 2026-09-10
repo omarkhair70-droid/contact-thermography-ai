@@ -1,0 +1,64 @@
+{
+  "feature_contract_version": "lct-target-v1",
+  "total_features": 417,
+  "groups": {
+    "signal_features": {
+      "start": 0,
+      "count": 18,
+      "names": [
+        "response_area_fraction",
+        "component_count",
+        "largest_component_fraction",
+        "largest_eccentricity",
+        "largest_solidity",
+        "largest_perimeter_px",
+        "largest_elongation",
+        "skeleton_length_px",
+        "branch_pixels",
+        "endpoint_pixels",
+        "response_centroid_x_norm",
+        "response_centroid_y_norm",
+        "hue_mean",
+        "hue_std",
+        "saturation_mean",
+        "value_mean",
+        "lab_a_mean",
+        "lab_b_mean"
+      ]
+    },
+    "qc_features": {
+      "start": 18,
+      "count": 8,
+      "names": [
+        "valid_frame_fraction",
+        "laplacian_variance",
+        "gray_dynamic_range_p95_p5",
+        "bright_clip_fraction",
+        "specular_glare_fraction",
+        "response_touches_valid_edge",
+        "response_edge_fraction",
+        "response_specular_overlap_fraction"
+      ]
+    },
+    "morphology_one_hot": {
+      "start": 26,
+      "count": 7,
+      "names": [
+        "minimal-response",
+        "scattered",
+        "linear-like",
+        "branched/complex",
+        "diffuse/large-region",
+        "focal/irregular-region",
+        "mixed"
+      ]
+    },
+    "dinov2": {
+      "start": 33,
+      "count": 384,
+      "backbone": "dinov2_vits14"
+    }
+  },
+  "semantics": "Profile-specific contact-LCT target features: visible-response morphology, engineering QC, morphology one-hot encoding, and normalized DINOv2 embedding. Colour values are not absolute temperature without formulation calibration.",
+  "clinical_claim": "NONE"
+}
