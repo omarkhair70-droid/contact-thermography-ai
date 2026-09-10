@@ -16,9 +16,9 @@ def assess_client_device_quality(
     """QC for non-circular real-device photographs using the full valid frame.
 
     Publication-plate QC assumes a central circular disk, which is not appropriate
-    for the first client mouse cohort. This gate measures clipping/specular glare
-    over the actual letterboxed image area and reports when selected TLC response
-    reaches the acquisition boundary.
+    for the first client mouse cohort. This gate measures luminance clipping and
+    low-saturation specular glare over the actual letterboxed image area, and it
+    reports when selected TLC response reaches the acquisition boundary.
     """
 
     image = np.asarray(bgr, dtype=np.uint8)
@@ -36,7 +36,11 @@ def assess_client_device_quality(
     saturation = hsv[:, :, 1]
     value = hsv[:, :, 2]
 
-    bright_clip = float((value[valid] >= 252).mean())
+    # Luminance clipping deliberately uses grayscale rather than HSV Value.
+    # A saturated green/cyan TLC response can legitimately have V~=255 because
+    # one colour channel is high; treating that as white clipping would mark the
+    # biological signal itself as an acquisition defect.
+    bright_clip = float((gray[valid] >= 252).mean())
     specular = valid & (value >= 245) & (saturation <= 30)
     specular_fraction = float(specular.sum() / valid.sum())
     dynamic_range = float(
