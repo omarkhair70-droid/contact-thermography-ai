@@ -1,0 +1,49 @@
+{
+  "registry_version": 1,
+  "models": [
+    {
+      "name": "lct-reference-handcrafted",
+      "version": "0.2.0",
+      "status": "ACTIVE_REFERENCE",
+      "clinical_use": false,
+      "artifact": "reconstructed-from-data/features_v0_1.csv"
+    },
+    {
+      "name": "lct-bilateral-reference",
+      "version": "0.1.0",
+      "status": "ACTIVE_REFERENCE",
+      "clinical_use": false,
+      "artifact": "data/bilateral_features_v0_1.csv"
+    },
+    {
+      "name": "lct-dinov2-frozen",
+      "version": "0.1.0",
+      "status": "TRAINED_REFERENCE_KAGGLE_GPU",
+      "clinical_use": false,
+      "backbone": "dinov2_vits14",
+      "embedding_dim": 384,
+      "artifact": "artifacts/dinov2_reference/embeddings.csv"
+    },
+    {
+      "name": "lct-clinical-head",
+      "version": null,
+      "status": "BLOCKED_ON_RELIABLE_LABELS",
+      "clinical_use": false,
+      "artifact": null
+    },
+    {
+      "name": "lct-dinov2-lct-fusion",
+      "version": "0.1.0",
+      "status": "REFERENCE_RESULTS_AVAILABLE",
+      "clinical_use": false,
+      "artifact": "artifacts/dinov2_reference/fused_reference_scores.csv"
+    },
+    {
+      "name": "lct-dinov2-bilateral",
+      "version": "0.1.0",
+      "status": "REFERENCE_RESULTS_AVAILABLE",
+      "clinical_use": false,
+      "artifact": "artifacts/dinov2_reference/bilateral_dinov2_reference_scores.csv"
+    }
+  ]
+}
