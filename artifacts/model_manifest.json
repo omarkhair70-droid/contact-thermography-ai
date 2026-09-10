@@ -1,0 +1,16 @@
+{
+  "name": "LCT Intelligence Reference Layer",
+  "version": "0.2.0",
+  "created_from": "Dataset Zero + Signal Engine v0.1 + Bilateral Engine v0.1",
+  "plates": 26,
+  "bilateral_pairs": 11,
+  "feature_vector_dimension": 1885,
+  "embedding_dimension": 8,
+  "model_type": "RobustScaler + PCA + IsolationForest + cosine nearest-neighbor index",
+  "purpose": "Exercise end-to-end learned/unsupervised AI plumbing on the supplied reference figures.",
+  "clinical_use": false,
+  "score_semantics": "Relative unusualness inside the tiny supplied reference corpus; NOT cancer risk and NOT diagnostic probability.",
+  "planned_backbone_upgrade": "DINOv2 ViT-S/14 frozen embeddings when pretrained weights are available in the deployment/training environment.",
+  "sha256_plate_model": "b1f31e079b853639dffc7c9be0ce916d4decd4446ac4a745772fdf70a0d48038",
+  "sha256_pair_model": "a6412c624590a5f041c00fe5d6c6f9ff63c495d7a7f50215fec7602acf6c160d"
+}
