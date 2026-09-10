@@ -108,11 +108,15 @@ async def analyze_exam(
     files: List[UploadFile] = File(...),
     exam_id: str | None = Form(default=None),
     metadata_json: str | None = Form(default=None),
+    tlc_profile_id: str = Form(default="client-device-tlc-pending"),
+    device_profile_id: str | None = Form(default=None),
 ):
     eid=(exam_id or f"exam-{uuid.uuid4().hex[:10]}").replace("/","_").replace("\\","_")
     if not files:
         raise HTTPException(status_code=400, detail="At least one image is required")
 
+    tlc_profile_id=(tlc_profile_id or "client-device-tlc-pending").strip() or "client-device-tlc-pending"
+    device_profile_id=(device_profile_id or "").strip() or None
     metadata = parse_metadata(metadata_json)
     sources=[]
     total=0
@@ -128,10 +132,14 @@ async def analyze_exam(
             raise HTTPException(status_code=400,detail=f"{upload.filename}: {exc}") from exc
 
         m=metadata.get(upload.filename or "", {"side":"UNKNOWN","position":None,"sequence_index":None})
+        result["tlc_profile_id"]=tlc_profile_id
+        result["device_profile_id"]=device_profile_id
         for idx,p in enumerate(result["plates"], start=1):
             p["side"]=m["side"]
             p["position"]=m["position"] if m["position"] is not None else f"AUTO-{idx:02d}"
             p["sequence_index"]=m["sequence_index"] if m["sequence_index"] is not None else idx
+            p["tlc_profile_id"]=tlc_profile_id
+            p["device_profile_id"]=device_profile_id
             flat_plates.append(p)
 
         sources.append(result)
@@ -165,6 +173,8 @@ async def analyze_exam(
                 "panel_url":f"/static/generated/{eid}/bilateral/{metrics.pop('panel_filename')}",
                 "difference_url":f"/static/generated/{eid}/bilateral/{metrics.pop('difference_filename')}",
                 "right_aligned_url":f"/static/generated/{eid}/bilateral/{metrics.pop('right_aligned_filename')}",
+                "tlc_profile_id":tlc_profile_id,
+                "device_profile_id":device_profile_id,
             })
             bilateral.append(metrics)
 
@@ -174,6 +184,8 @@ async def analyze_exam(
     result = {
         "exam_id":eid,
         "analysis_type":"contact_liquid_crystal_thermography",
+        "tlc_profile_id":tlc_profile_id,
+        "device_profile_id":device_profile_id,
         "source_images":len(sources),
         "plates_detected":total,
         "metadata_items_supplied":len(metadata),
