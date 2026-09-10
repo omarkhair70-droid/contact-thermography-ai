@@ -1,0 +1,24 @@
+{
+  "dataset": "lct_target_dataset_v1",
+  "rows": 11,
+  "subjects": 11,
+  "modality": "contact-LCT",
+  "species": {
+    "human": 2,
+    "mouse": 9
+  },
+  "labels": {
+    "MALIGNANT": 1,
+    "BENIGN": 1,
+    "TUMOR_BEARING": 9
+  },
+  "roles": {
+    "REFERENCE_ONLY": 2,
+    "FROZEN_TARGET_EVAL": 9
+  },
+  "train_eligible_rows": 0,
+  "binary_training_ready": false,
+  "primary_blocker": "No same-domain negative/control client mouse cohort and no sufficiently sized labelled public contact-LCT cohort",
+  "next_data_priority": "Client-device control or pre-injection mouse contact-LCT images under the same acquisition conditions",
+  "clinical_claim": "NONE"
+}
