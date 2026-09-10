@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "profiles": [
+    {
+      "id": "reference-publication-unknown",
+      "label": "Reference publication TLC (unknown formulation)",
+      "manufacturer": null,
+      "product_code": null,
+      "active_temperature_range_c": null,
+      "colour_order": null,
+      "calibration_status": "UNKNOWN",
+      "source": "Publication/reference figures supplied for Dataset Zero",
+      "notes": "Do not interpret absolute Hue as temperature without a formulation-specific calibration curve. Morphology/geometry features may still be used as reference descriptors."
+    },
+    {
+      "id": "client-device-tlc-pending",
+      "label": "Client device TLC — pending exact formulation/calibration",
+      "manufacturer": null,
+      "product_code": null,
+      "active_temperature_range_c": null,
+      "colour_order": null,
+      "calibration_status": "PENDING_CLIENT_DEVICE_IMAGES",
+      "source": "Client-owned contact thermography device",
+      "notes": "Expected appearance may differ from publication figures because the TLC formulation is different. Build colour normalization and calibration per TLC profile rather than hard-coded global thresholds."
+    }
+  ]
+}
