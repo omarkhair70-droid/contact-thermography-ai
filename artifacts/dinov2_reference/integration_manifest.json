@@ -1,0 +1,23 @@
+{
+  "release": "RC0.5",
+  "kaggle_gpu_verified": true,
+  "kaggle_source_manifest": {
+    "backbone": "dinov2_vits14",
+    "images": 26,
+    "embedding_shape": [26, 384],
+    "device_used": "cuda",
+    "clinical_use": false,
+    "score_semantics": "reference/unlabelled unusualness only"
+  },
+  "reference_plates": 26,
+  "reference_bilateral_pairs": 11,
+  "dinov2_embedding_dim": 384,
+  "lct_explicit_dim": 18,
+  "fused_input_dim": 402,
+  "fused_latent_dim": 10,
+  "bilateral_input_dim": 1536,
+  "bilateral_latent_dim": 6,
+  "clinical_use": false,
+  "score_semantics": "reference/unlabelled unusualness only; not cancer probability",
+  "source_artifact_sha256": "5933ebe1feba7dd92b1add077866b8128f1e31bc3be5e35ece63354626fa0cbf"
+}
