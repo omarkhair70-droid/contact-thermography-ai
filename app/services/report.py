@@ -1,7 +1,11 @@
 from __future__ import annotations
 from pathlib import Path
 from html import escape
-import json
+
+def _score_line(label: str, value) -> str:
+    if value is None:
+        return ""
+    return f"<p><b>{escape(label)}:</b> {float(value):.3f}</p>"
 
 def build_report_html(result: dict):
     exam_id=escape(result["exam_id"])
@@ -19,11 +23,15 @@ def build_report_html(result: dict):
           <div>
             <h3>{escape(p['plate_id'])}</h3>
             <p><b>Side / position:</b> {escape(str(p.get('side')))} / {escape(str(p.get('position')))}</p>
+            <p><b>TLC profile:</b> {escape(str(p.get('tlc_profile_id', 'unknown')))}</p>
+            <p><b>Device profile:</b> {escape(str(p.get('device_profile_id') or 'not supplied'))}</p>
             <p><b>QC:</b> {escape(p['qc']['status'])}</p>
             <p><b>QC flags:</b> {escape(flags)}</p>
             <p><b>Morphology descriptor:</b> {escape(p['morphology_descriptor'])}</p>
             <p><b>Reference anomaly percentile:</b> {p['reference_anomaly_percentile']:.3f}</p>
-            <p class="muted">Reference unusualness only; not cancer probability.</p>
+            {_score_line('DINOv2 reference unusualness score', p.get('dinov2_reference_anomaly_score_0_1'))}
+            {_score_line('Fused LCT + DINOv2 reference score', p.get('dinov2_lct_fused_reference_score_0_1'))}
+            <p class="muted">{escape(str(p.get('dinov2_domain_notice', 'Reference unusualness only; not cancer probability.')))}</p>
           </div>
         </article>
         """)
@@ -35,7 +43,10 @@ def build_report_html(result: dict):
           <img src="{escape(p.get('panel_url',''))}" />
           <h3>{escape(p['bilateral_pair_id'])}</h3>
           <p><b>Position:</b> {escape(str(p.get('position')))}</p>
+          <p><b>TLC profile:</b> {escape(str(p.get('tlc_profile_id', 'unknown')))}</p>
+          <p><b>Device profile:</b> {escape(str(p.get('device_profile_id') or 'not supplied'))}</p>
           <p><b>Reference bilateral asymmetry score:</b> {p['reference_asymmetry_score_0_1']:.3f}</p>
+          {_score_line('DINOv2 pair reference unusualness score', p.get('dinov2_pair_reference_anomaly_score_0_1'))}
           <p><b>Response-area delta:</b> {p['absolute_area_fraction_delta']:.3f}</p>
           <p><b>Jaccard similarity:</b> {p['response_jaccard_similarity']:.3f}</p>
         </article>
@@ -56,6 +67,8 @@ body{{font-family:Arial,sans-serif;margin:32px;color:#17202a}}
 <div class="banner">
 <p><b>Exam:</b> {exam_id}</p>
 <p><b>Source images:</b> {result['source_images']} &nbsp; <b>Plates:</b> {result['plates_detected']} &nbsp; <b>Bilateral pairs:</b> {result['bilateral_pairs_created']}</p>
+<p><b>TLC profiles:</b> {escape(', '.join(result.get('tlc_profile_ids', [])) or 'not recorded')}</p>
+<p><b>Device profiles:</b> {escape(', '.join(result.get('device_profile_ids', [])) or 'not supplied')}</p>
 <p><b>Clinical claim:</b> NONE</p>
 <p>This report contains engineering/research analysis of liquid-crystal contact thermograms. Current model scores are not cancer probabilities.</p>
 </div>

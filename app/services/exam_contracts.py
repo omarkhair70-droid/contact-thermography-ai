@@ -19,7 +19,7 @@ class UploadPlateMeta:
 def normalize_side(value: str | None) -> Side:
     if not value:
         return "UNKNOWN"
-    v = value.strip().upper()
+    v = str(value).strip().upper()
     if v in {"L", "LEFT"}:
         return "LEFT"
     if v in {"R", "RIGHT"}:
@@ -31,4 +31,11 @@ def normalize_tlc_profile(value: str | None) -> str:
     """Keep TLC formulation/domain explicit in every analysis contract."""
     if not value:
         return DEFAULT_TLC_PROFILE
-    return value.strip() or DEFAULT_TLC_PROFILE
+    return str(value).strip() or DEFAULT_TLC_PROFILE
+
+
+def normalize_device_profile(value: str | None) -> str | None:
+    if value is None:
+        return None
+    normalized = str(value).strip()
+    return normalized or None

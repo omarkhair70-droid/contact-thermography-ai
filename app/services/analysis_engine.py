@@ -8,6 +8,12 @@ from skimage.morphology import skeletonize
 from skimage.measure import label, regionprops
 from app.services.qc import assess_plate_quality
 from app.services.reference_model import reference_model
+from app.services import dinov2_service
+from app.services.tlc_profiles import (
+    TLCProfile,
+    normalize_plate_bgr,
+    resolve_tlc_profile,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 ARTIFACTS = ROOT / "artifacts"
@@ -107,14 +113,18 @@ def _branch_end_points(skel):
             n += padded[dy:dy+s.shape[0], dx:dx+s.shape[1]]
     return int(((s==1)&(n>=3)).sum()), int(((s==1)&(n==1)).sum())
 
-def signal_features(bgr):
+def signal_features(bgr, profile: TLCProfile):
     hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV)
     labc=cv2.cvtColor(bgr,cv2.COLOR_BGR2LAB)
     h,w=hsv.shape[:2]
     yy,xx=np.ogrid[:h,:w]
     disk=((xx-w/2)**2+(yy-h/2)**2 <= (min(h,w)*0.46)**2)
 
-    active=(disk & (hsv[:,:,1]>50) & (hsv[:,:,2]>38)).astype(np.uint8)*255
+    active=(
+        disk
+        & (hsv[:,:,1] > profile.saturation_min)
+        & (hsv[:,:,2] > profile.value_min)
+    ).astype(np.uint8)*255
     kernel=np.ones((3,3),np.uint8)
     active=cv2.morphologyEx(active,cv2.MORPH_OPEN,kernel)
     active=cv2.morphologyEx(active,cv2.MORPH_CLOSE,kernel)
@@ -122,7 +132,7 @@ def signal_features(bgr):
     nlab,labs,stats,_=cv2.connectedComponentsWithStats(active,8)
     clean=np.zeros_like(active)
     for i in range(1,nlab):
-        if stats[i,cv2.CC_STAT_AREA] >= 18:
+        if stats[i,cv2.CC_STAT_AREA] >= profile.min_component_area_px:
             clean[labs==i]=255
 
     labeled=label(clean>0)
@@ -199,16 +209,27 @@ def signal_features(bgr):
     }
     return f,morph,clean
 
-def analyze_plate(bgr, plate_id):
-    f,morph,mask=signal_features(bgr)
+def analyze_plate(
+    bgr,
+    plate_id,
+    profile: TLCProfile,
+    device_profile_id: str | None = None,
+):
+    f,morph,mask=signal_features(bgr, profile)
     ref = reference_model.analyze(f)
     percentile=ref["reference_anomaly_percentile"]
     neighbors=ref["nearest_reference_plates"]
 
-    qc = assess_plate_quality(bgr, float(f["response_area_fraction"]))
+    qc = assess_plate_quality(bgr, profile, float(f["response_area_fraction"]))
+    dino, embedding = dinov2_service.analyze_plate_rgb(
+        cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB), f, profile.id
+    )
 
     return {
         "plate_id":plate_id,
+        "tlc_profile_id":profile.id,
+        "device_profile_id":device_profile_id,
+        "tlc_profile_provenance":profile.provenance(),
         "qc":qc,
         "morphology_descriptor":morph,
         "signal_features":{k:round(float(v),6) if isinstance(v,(float,np.floating)) else int(v) for k,v in f.items()},
@@ -218,9 +239,18 @@ def analyze_plate(bgr, plate_id):
         "clinical_risk":None,
         "clinical_claim":"NONE",
         "_mask":mask,
+        "_dinov2_embedding":embedding,
+        **dino,
     }
 
-def analyze_uploaded_image(file_bytes, source_name, exam_id):
+def analyze_uploaded_image(
+    file_bytes,
+    source_name,
+    exam_id,
+    tlc_profile_id,
+    device_profile_id=None,
+):
+    profile = resolve_tlc_profile(tlc_profile_id)
     arr=np.frombuffer(file_bytes,dtype=np.uint8)
     img=cv2.imdecode(arr,cv2.IMREAD_COLOR)
     if img is None:
@@ -242,8 +272,9 @@ def analyze_uploaded_image(file_bytes, source_name, exam_id):
         else:
             x,y,r=c
             crop=crop_circle(img,x,y,r)
+        crop=normalize_plate_bgr(crop,profile)
         pid=f"{Path(source_name).stem[:24]}-P{idx:02d}".replace(" ","_")
-        result=analyze_plate(crop,pid)
+        result=analyze_plate(crop,pid,profile,device_profile_id)
         mask=result.pop("_mask")
 
         img_name=f"{uuid.uuid4().hex[:10]}_{pid}.png"
@@ -259,6 +290,9 @@ def analyze_uploaded_image(file_bytes, source_name, exam_id):
 
     return {
         "source_image":source_name,
+        "tlc_profile_id":profile.id,
+        "device_profile_id":device_profile_id,
+        "tlc_profile_provenance":profile.provenance(),
         "extraction_mode":mode,
         "plates_detected":len(plates),
         "plates":plates,

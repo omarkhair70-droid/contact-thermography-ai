@@ -18,6 +18,10 @@ This is a **web application**, not a Flutter/mobile app. A mobile client can be 
 - Real `dinov2_vits14` embeddings generated on Kaggle T4 GPU: **26 x 384**.
 - Fused LCT + DINOv2 reference results.
 - DINOv2 bilateral pair representation on 11 provisional reference pairs.
+- Live `dinov2_vits14` inference for uploaded normalized plates, fused LCT/DINO
+  scoring and learned LEFT/RIGHT pair scoring.
+- TLC/device profile provenance with profile-scoped normalization, segmentation
+  and engineering-QC thresholds.
 - Docker runtime and provider-neutral GPU training harness.
 
 ## Important clinical status
@@ -27,11 +31,24 @@ Current learned scores are **reference/research unusualness signals only**. They
 ## Local setup
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-vision.txt
 uvicorn app.main:app --reload
 ```
 
 Open `http://127.0.0.1:8000`.
+
+The first live analysis downloads the official DINOv2 ViT-S/14 weights from a
+pinned `facebookresearch/dinov2` revision into the standard PyTorch Hub cache.
+Set `DINOV2_DEVICE=cpu` or `DINOV2_DEVICE=cuda` to override automatic device
+selection. TLC profiles are resolved from `config/tlc_profiles.json`; each
+metadata item may carry `tlc_profile_id` and optional `device_profile_id`.
+
+Regression tests:
+
+```bash
+pip install -r requirements-dev.txt
+pytest -q
+```
 
 Docker:
 

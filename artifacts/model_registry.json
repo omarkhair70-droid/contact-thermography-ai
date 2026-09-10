@@ -22,7 +22,7 @@
       "clinical_use": false,
       "backbone": "dinov2_vits14",
       "embedding_dim": 384,
-      "artifact": "artifacts/dinov2_reference/embeddings.csv"
+      "artifact": "artifacts/dinov2_reference/dinov2_embeddings.npy"
     },
     {
       "name": "lct-clinical-head",
