@@ -16,20 +16,17 @@ This is a **web application**, not a Flutter/mobile app. A mobile client can be 
 - LEFT / RIGHT / POSITION metadata and live bilateral registration.
 - FastAPI product shell with history and report generation.
 - Real `dinov2_vits14` embeddings generated on Kaggle T4 GPU: **26 x 384**.
-- Fused LCT + DINOv2 reference head.
+- Fused LCT + DINOv2 reference results.
 - DINOv2 bilateral pair representation on 11 provisional reference pairs.
-- Docker runtime and GPU training harness.
+- Docker runtime and provider-neutral GPU training harness.
 
 ## Important clinical status
 
 Current learned scores are **reference/research unusualness signals only**. They are not cancer probabilities, and no diagnostic sensitivity/specificity claim is made. A supervised clinical head is gated on reliable patient-level ground truth and proper validation.
 
-## Setup
-
-The repository keeps generated runtime files out of Git. Reference images/model artifacts are stored in one compact bundle.
+## Local setup
 
 ```bash
-python scripts/unpack_reference_bundle.py
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
@@ -39,14 +36,20 @@ Open `http://127.0.0.1:8000`.
 Docker:
 
 ```bash
-python scripts/unpack_reference_bundle.py
 docker compose up --build
 ```
+
+The canonical Git source keeps generated examination files and runtime databases out of version control. Small reference ledgers are committed as text so the baseline can be reproduced without carrying forward old ZIP snapshots.
 
 ## Branching
 
 - `main` — last green stable baseline.
 - `integration` — canonical active integration branch.
-- feature branches — isolated parallel agent lanes.
+- `feat/live-dinov2` — live learned-vision inference.
+- `feat/product-ui` — client-demo examination UI.
+- `feat/oracle-deploy` — Oracle/PostgreSQL staging deployment.
+- `feat/qa-hardening` — regression, failure-mode and claim-guardrail tests.
+
+All agent work should open a pull request into `integration`; do not create independent project copies.
 
 See `docs/MASTER_HANDOFF.md` for the current state and agent boundaries.
