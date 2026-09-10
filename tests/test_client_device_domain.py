@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 import pandas as pd
 
+from app.services import analysis_engine
 from app.services.client_device_domain import (
     ClientDeviceSegmentationConfig,
     letterbox_square,
@@ -76,3 +77,49 @@ def test_colour_domain_shift_is_research_only_and_finite():
     assert result["clinical_claim"] == "NONE"
     assert np.isfinite(result["max_abs_shift_iqr"])
     assert result["max_abs_shift_iqr"] > 1.0
+
+
+def test_normal_app_upload_uses_client_selector_for_real_device_profile(client, monkeypatch):
+    monkeypatch.setattr(analysis_engine, "detect_circular_plates", lambda image: [])
+    image = np.zeros((220, 160, 3), dtype=np.uint8)
+    image[:] = (22, 18, 20)
+    # Dim chromatic setup/background nuisance.
+    cv2.rectangle(image, (5, 5), (120, 60), (75, 20, 70), -1)
+    # Bright response deliberately near the image edge; the client path should
+    # analyze the whole valid frame rather than clipping to the publication disk.
+    cv2.ellipse(image, (30, 180), (24, 15), 0, 0, 360, (45, 230, 170), -1)
+    ok, encoded = cv2.imencode(".png", image)
+    assert ok
+
+    response = client.post(
+        "/api/exams/analyze",
+        files=[("files", ("client-mouse.png", encoded.tobytes(), "image/png"))],
+        data={
+            "exam_id": "lane-e-client-selector",
+            "tlc_profile_id": "client-device-tlc-pending",
+            "device_profile_id": "mouse-device-test",
+        },
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    plate = body["sources"][0]["plates"][0]
+    assert body["clinical_claim"] == "NONE"
+    assert body["sources"][0]["extraction_mode"] == "whole_image_fallback"
+    assert plate["client_device_segmentation"]["selector_version"] == "client-device-v0.1"
+    assert plate["client_device_segmentation"]["clinical_claim"] == "NONE"
+    assert plate["signal_features"]["response_area_fraction"] > 0.005
+    assert plate["signal_features"]["value_mean"] > 160
+
+
+def test_reference_profile_keeps_publication_analysis_path(client, sample_png, monkeypatch):
+    monkeypatch.setattr(analysis_engine, "detect_circular_plates", lambda image: [])
+    response = client.post(
+        "/api/exams/analyze",
+        files=[("files", ("reference.png", sample_png, "image/png"))],
+        data={"exam_id": "lane-e-reference-control", "tlc_profile_id": "reference-publication-unknown"},
+    )
+    assert response.status_code == 200, response.text
+    plate = response.json()["sources"][0]["plates"][0]
+    assert "client_device_segmentation" not in plate
+    assert plate["tlc_profile_id"] == "reference-publication-unknown"
+    assert plate["clinical_claim"] == "NONE"
