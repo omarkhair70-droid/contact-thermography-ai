@@ -2,11 +2,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 import cv2
 import numpy as np
 import pandas as pd
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from app.services.client_device_domain import (
     DEFAULT_CLIENT_CONFIG,
@@ -106,7 +111,7 @@ def run(input_dir: Path, output_dir: Path, pattern: str, attempt_dino: bool) -> 
     ranking = summarize_threshold_sweep(sweep)
     ranking.to_csv(output_dir / "blind_response_area_ranking.csv", index=False)
 
-    reference_path = Path(__file__).resolve().parents[1] / "data" / "features_v0_1.csv"
+    reference_path = ROOT / "data" / "features_v0_1.csv"
     reference = pd.read_csv(reference_path)
     domain_shift = robust_colour_domain_shift(reference, features)
     (output_dir / "colour_domain_shift.json").write_text(
