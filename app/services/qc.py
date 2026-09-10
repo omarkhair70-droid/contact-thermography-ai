@@ -1,8 +1,13 @@
 from __future__ import annotations
 import cv2
 import numpy as np
+from app.services.tlc_profiles import TLCProfile
 
-def assess_plate_quality(bgr: np.ndarray, response_area_fraction: float | None=None):
+def assess_plate_quality(
+    bgr: np.ndarray,
+    profile: TLCProfile,
+    response_area_fraction: float | None = None,
+):
     gray=cv2.cvtColor(bgr,cv2.COLOR_BGR2GRAY)
     hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV)
 
@@ -15,9 +20,9 @@ def assess_plate_quality(bgr: np.ndarray, response_area_fraction: float | None=N
     v=hsv[:,:,2][disk]
 
     lap_var=float(cv2.Laplacian(gray,cv2.CV_64F).var())
-    dark_clip=float((g <= 3).mean())
-    bright_clip=float((g >= 252).mean())
-    saturation_clip=float((s >= 252).mean())
+    dark_clip=float((g <= profile.qc_dark_clip_value).mean())
+    bright_clip=float((g >= profile.qc_bright_clip_value).mean())
+    saturation_clip=float((s >= profile.qc_saturation_clip_value).mean())
     low_contrast=float(np.percentile(g,95)-np.percentile(g,5))
 
     flags=[]
@@ -56,5 +61,6 @@ def assess_plate_quality(bgr: np.ndarray, response_area_fraction: float | None=N
             "saturation_clip_fraction":round(saturation_clip,6),
             "gray_dynamic_range_p95_p5":round(low_contrast,4),
         },
+        "tlc_profile_id": profile.id,
         "semantics":"engineering image-quality gate; not a clinical assessment"
     }

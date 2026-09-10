@@ -12,8 +12,16 @@ from fastapi.templating import Jinja2Templates
 
 from app.services.reference_store import store
 from app.services.analysis_engine import analyze_uploaded_image
-from app.services.exam_contracts import normalize_side
+from app.services.exam_contracts import (
+    DEFAULT_TLC_PROFILE,
+    normalize_device_profile,
+    normalize_side,
+    normalize_tlc_profile,
+)
 from app.services.bilateral_live import compare_pair
+from app.services import dinov2_service
+from app.services.dinov2_service import DINOv2UnavailableError
+from app.services.tlc_profiles import resolve_tlc_profile
 from app.services.db import (
     save_exam,
     get_exam,
@@ -37,8 +45,6 @@ app = FastAPI(
     ),
 )
 
-# Preserve the existing generated-image URL shape while placing generated media
-# behind the durable storage adapter. Keep this specific mount before /static.
 app.mount(
     "/static/generated",
     StaticFiles(directory=str(storage.generated_root)),
@@ -58,6 +64,9 @@ def health():
         "version": "0.5.0",
         "clinical_claim": "NONE",
         "live_bilateral_analysis": True,
+        "live_dinov2_analysis": True,
+        "dinov2_backbone": dinov2_service.BACKBONE_NAME,
+        "dinov2_runtime_loaded": dinov2_service.runtime.ready,
         "database": database_backend(),
         "storage": storage.backend,
     }
@@ -66,7 +75,17 @@ def health():
 
 @app.get("/api/model")
 def model_info():
-    return store.manifest
+    return {
+        **store.manifest,
+        "live_dinov2": {
+            "backbone": dinov2_service.BACKBONE_NAME,
+            "embedding_dim": dinov2_service.EMBEDDING_DIM,
+            "source": dinov2_service.DINO_HUB_REPOSITORY,
+            "reference_tlc_profile_id": dinov2_service.REFERENCE_TLC_PROFILE_ID,
+            "clinical_claim": "NONE",
+            "score_semantics": dinov2_service.SCORE_SEMANTICS,
+        },
+    }
 
 
 @app.get("/api/reference/plates")
@@ -127,6 +146,8 @@ def parse_metadata(metadata_json: str | None):
             "side": normalize_side(item.get("side")),
             "position": str(item.get("position")) if item.get("position") is not None else None,
             "sequence_index": item.get("sequence_index"),
+            "tlc_profile_id": normalize_tlc_profile(item.get("tlc_profile_id")),
+            "device_profile_id": normalize_device_profile(item.get("device_profile_id")),
         }
     return lookup
 
@@ -150,12 +171,29 @@ async def analyze_exam(
         raw=await upload.read()
         if not raw:
             raise HTTPException(status_code=400, detail=f"Empty file: {upload.filename}")
+        m=metadata.get(
+            upload.filename or "",
+            {
+                "side":"UNKNOWN",
+                "position":None,
+                "sequence_index":None,
+                "tlc_profile_id":DEFAULT_TLC_PROFILE,
+                "device_profile_id":None,
+            },
+        )
         try:
-            result=analyze_uploaded_image(raw,upload.filename or "image",eid)
+            result=analyze_uploaded_image(
+                raw,
+                upload.filename or "image",
+                eid,
+                m["tlc_profile_id"],
+                m["device_profile_id"],
+            )
         except ValueError as exc:
             raise HTTPException(status_code=400,detail=f"{upload.filename}: {exc}") from exc
+        except DINOv2UnavailableError as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
 
-        m=metadata.get(upload.filename or "", {"side":"UNKNOWN","position":None,"sequence_index":None})
         for idx,p in enumerate(result["plates"], start=1):
             p["side"]=m["side"]
             p["position"]=m["position"] if m["position"] is not None else f"AUTO-{idx:02d}"
@@ -168,26 +206,56 @@ async def analyze_exam(
     left = {}
     right = {}
     for p in flat_plates:
+        pairing_key = (
+            p["position"],
+            p["tlc_profile_id"],
+            p.get("device_profile_id"),
+        )
         if p["side"]=="LEFT":
-            left.setdefault(p["position"], []).append(p)
+            left.setdefault(pairing_key, []).append(p)
         elif p["side"]=="RIGHT":
-            right.setdefault(p["position"], []).append(p)
+            right.setdefault(pairing_key, []).append(p)
 
     bilateral=[]
     pair_dir = storage.generated_exam_dir(eid) / "bilateral"
     pair_index=0
-    for position in sorted(set(left).intersection(right)):
-        L=sorted(left[position], key=lambda x:(x.get("sequence_index") or 0, x["plate_id"]))
-        R=sorted(right[position], key=lambda x:(x.get("sequence_index") or 0, x["plate_id"]))
+    pair_keys = sorted(
+        set(left).intersection(right),
+        key=lambda key: tuple("" if value is None else str(value) for value in key),
+    )
+    for position, tlc_profile_id, device_profile_id in pair_keys:
+        pairing_key = (position, tlc_profile_id, device_profile_id)
+        L=sorted(left[pairing_key], key=lambda x:(x.get("sequence_index") or 0, x["plate_id"]))
+        R=sorted(right[pairing_key], key=lambda x:(x.get("sequence_index") or 0, x["plate_id"]))
         for lp,rp in zip(L,R):
             pair_index += 1
             pair_id=f"{eid}-BP-{pair_index:03d}"
             lbgr=cv2.imread(lp["_generated_image_path"])
             rbgr=cv2.imread(rp["_generated_image_path"])
-            metrics=compare_pair(lbgr,rbgr,pair_dir,pair_id)
+            profile = resolve_tlc_profile(tlc_profile_id)
+            metrics=compare_pair(lbgr,rbgr,pair_dir,pair_id,profile)
+            aligned_bgr = cv2.imread(str(pair_dir / metrics["right_aligned_filename"]))
+            if aligned_bgr is None:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Could not read aligned plate for {pair_id}",
+                )
+            try:
+                aligned_embedding = dinov2_service.runtime.encode_rgb(
+                    cv2.cvtColor(aligned_bgr, cv2.COLOR_BGR2RGB)
+                )
+            except DINOv2UnavailableError as exc:
+                raise HTTPException(status_code=503, detail=str(exc)) from exc
+            metrics.update(
+                dinov2_service.analyze_pair_embeddings(
+                    lp["_dinov2_embedding"], aligned_embedding
+                )
+            )
             metrics.update({
                 "bilateral_pair_id":pair_id,
                 "position":position,
+                "tlc_profile_id":tlc_profile_id,
+                "device_profile_id":device_profile_id,
                 "left_plate_id":lp["plate_id"],
                 "right_plate_id":rp["plate_id"],
                 "panel_url":storage.generated_url(eid, "bilateral", metrics.pop("panel_filename")),
@@ -198,6 +266,12 @@ async def analyze_exam(
 
     for p in flat_plates:
         p.pop("_generated_image_path",None)
+        p.pop("_dinov2_embedding",None)
+
+    tlc_profile_ids=sorted({p["tlc_profile_id"] for p in flat_plates})
+    device_profile_ids=sorted(
+        {p["device_profile_id"] for p in flat_plates if p.get("device_profile_id")}
+    )
 
     result = {
         "exam_id":eid,
@@ -208,6 +282,12 @@ async def analyze_exam(
         "bilateral_pairs_created":len(bilateral),
         "sources":sources,
         "bilateral_analysis":bilateral,
+        "tlc_profile_ids":tlc_profile_ids,
+        "device_profile_ids":device_profile_ids,
+        "tlc_profile_provenance":[
+            resolve_tlc_profile(profile_id).provenance()
+            for profile_id in tlc_profile_ids
+        ],
         "clinical_risk":None,
         "clinical_claim":"NONE",
         "model_status":"RESEARCH_REFERENCE_ANALYSIS",

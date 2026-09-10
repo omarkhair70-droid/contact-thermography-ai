@@ -2,6 +2,8 @@
   "backbone": "dinov2_vits14",
   "images": 26,
   "embedding_shape": [26, 384],
+  "embedding_dtype": "float32",
+  "embedding_artifact_sha256": "cad838124969a4a9d06ad122f44d5cdfa9d200c780e437a00ce6c3abf8163ee9",
   "device_used": "cuda",
   "clinical_use": false,
   "score_semantics": "reference/unlabelled unusualness only"

@@ -21,11 +21,11 @@
         "bright_clip_value": 252,
         "saturation_clip_value": 252
       },
-      "notes": "Do not interpret absolute Hue as temperature without a formulation-specific calibration curve. Morphology/geometry features may still be used as reference descriptors."
+      "notes": "Reference-only thresholds. Do not interpret absolute Hue as temperature without a formulation-specific calibration curve."
     },
     {
       "id": "client-device-tlc-pending",
-      "label": "Client device TLC — pending exact formulation/calibration",
+      "label": "Client device TLC - pending exact formulation/calibration",
       "manufacturer": null,
       "product_code": null,
       "active_temperature_range_c": null,
@@ -43,7 +43,7 @@
         "bright_clip_value": 252,
         "saturation_clip_value": 252
       },
-      "notes": "Expected appearance may differ from publication figures because the TLC formulation is different. Build colour normalization and calibration per TLC profile rather than hard-coded global thresholds."
+      "notes": "Pending client-device calibration. Thresholds are isolated under this profile and must be revised from real device images."
     }
   ]
 }

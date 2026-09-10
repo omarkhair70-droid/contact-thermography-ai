@@ -3,6 +3,7 @@ from pathlib import Path
 import math, uuid
 import cv2
 import numpy as np
+from app.services.tlc_profiles import TLCProfile
 
 def _phase_register(reference_bgr: np.ndarray, moving_bgr: np.ndarray):
     """
@@ -20,22 +21,32 @@ def _phase_register(reference_bgr: np.ndarray, moving_bgr: np.ndarray):
                              flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=0)
     return aligned, {"dx": float(dx), "dy": float(dy), "response": float(response)}
 
-def _signal_mask(bgr: np.ndarray):
+def _signal_mask(bgr: np.ndarray, profile: TLCProfile):
     hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
     h,w = hsv.shape[:2]
     yy,xx = np.ogrid[:h,:w]
     disk = ((xx-w/2)**2+(yy-h/2)**2 <= (min(h,w)*0.46)**2)
-    active = (disk & (hsv[:,:,1] > 50) & (hsv[:,:,2] > 38)).astype(np.uint8)
+    active = (
+        disk
+        & (hsv[:,:,1] > profile.saturation_min)
+        & (hsv[:,:,2] > profile.value_min)
+    ).astype(np.uint8)
     k = np.ones((3,3), np.uint8)
     active = cv2.morphologyEx(active, cv2.MORPH_OPEN, k)
     active = cv2.morphologyEx(active, cv2.MORPH_CLOSE, k)
     return active.astype(bool), disk, hsv
 
-def compare_pair(left_bgr: np.ndarray, right_bgr: np.ndarray, out_dir: Path, pair_id: str):
+def compare_pair(
+    left_bgr: np.ndarray,
+    right_bgr: np.ndarray,
+    out_dir: Path,
+    pair_id: str,
+    profile: TLCProfile,
+):
     aligned_right, reg = _phase_register(left_bgr, right_bgr)
 
-    lmask, disk, lhsv = _signal_mask(left_bgr)
-    rmask, _, rhsv = _signal_mask(aligned_right)
+    lmask, disk, lhsv = _signal_mask(left_bgr, profile)
+    rmask, _, rhsv = _signal_mask(aligned_right, profile)
 
     valid = disk
     union = (lmask | rmask) & valid
@@ -96,6 +107,7 @@ def compare_pair(left_bgr: np.ndarray, right_bgr: np.ndarray, out_dir: Path, pai
         "p90_common_response_hue_distance": round(p90_hue_distance,6) if p90_hue_distance is not None else None,
         "reference_asymmetry_score_0_1": round(reference_asymmetry_score,6),
         "score_semantics": "reference bilateral asymmetry only; not cancer probability",
+        "tlc_profile_id": profile.id,
         "right_aligned_filename": right_name,
         "difference_filename": diff_name,
         "panel_filename": panel_name,
