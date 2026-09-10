@@ -6,6 +6,7 @@ venv/
 .env.*
 !.env.example
 deploy/staging.env
+deploy/shared-host.env
 backups/
 runtime/*
 !runtime/.gitkeep
