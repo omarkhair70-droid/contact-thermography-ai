@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>LCT Intelligence Platform</title>
+  <style>
+    :root { font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif; }
+    body { margin:0; background:#0a0d11; color:#f2f5f7; }
+    header { padding:28px 34px; border-bottom:1px solid #222a33; position:sticky; top:0; background:#0a0d11f2; z-index:2; }
+    h1 { margin:0 0 8px; font-size:24px; }
+    .sub { color:#9aa7b4; max-width:900px; line-height:1.5; }
+    main { padding:28px 34px 60px; max-width:1400px; margin:auto; }
+    .banner { border:1px solid #3a4653; border-radius:14px; padding:16px 18px; margin-bottom:26px; background:#10161c; }
+    .metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin:20px 0 30px; }
+    .metric { background:#111820; border:1px solid #202a34; border-radius:14px; padding:16px; }
+    .metric b { display:block; font-size:26px; margin-top:6px; }
+    h2 { margin-top:34px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
+    .card { background:#10161c; border:1px solid #202a34; border-radius:16px; overflow:hidden; }
+    .card img { width:100%; aspect-ratio:1/1; object-fit:contain; background:#050709; display:block; }
+    .card .body { padding:12px 14px 15px; }
+    .row { display:flex; justify-content:space-between; gap:10px; margin:5px 0; font-size:13px; }
+    .muted { color:#93a0ad; }
+    .score { font-variant-numeric:tabular-nums; }
+    .pair img { aspect-ratio:4/1; }
+    .pill { display:inline-block; border:1px solid #3a4653; border-radius:999px; padding:3px 8px; font-size:12px; color:#bac5cf; }
+    code { color:#d6e4ef; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Contact Thermography Intelligence Platform — RC0.5</h1>
+  <div class="sub">
+    Working product shell built on liquid-crystal contact thermography reference material.
+    Current scores rank research/reference unusualness only; they are not cancer probabilities.
+  </div>
+</header>
+<main>
+  <div class="banner">
+    <span class="pill">Research Analysis</span>
+    <span class="pill">No Clinical Claim</span>
+    <span class="pill">Contact LCT ≠ Infrared Camera</span>
+    <p class="muted">Current reference model: {{ manifest.model_type }}.</p>
+  </div>
+
+  <section class="banner">
+    <h2 style="margin-top:0">Analyze an examination image</h2>
+    <p class="muted">Upload one or more contact-thermography screenshots or cropped plates. The engine extracts circular thermograms, computes LCT signal/morphology features, reference unusualness and bilateral analysis when metadata is supplied.</p>
+    <form id="analyze-form">
+      <input id="exam-id" name="exam_id" placeholder="exam id (optional)" />
+      <input id="files" type="file" name="files" accept="image/*" multiple required />
+      <textarea id="metadata-json" rows="5" style="width:100%;margin-top:10px;background:#070a0d;color:#eaf0f5;border:1px solid #35404b;border-radius:10px;padding:10px" placeholder='Optional metadata JSON, e.g. [{"filename":"left.jpg","side":"LEFT","position":"P1"},{"filename":"right.jpg","side":"RIGHT","position":"P1"}]'></textarea>
+      <button type="submit">Analyze</button>
+    </form>
+    <pre id="analysis-json" style="white-space:pre-wrap;overflow:auto;max-height:360px;background:#070a0d;padding:12px;border-radius:10px;margin-top:14px"></pre>
+    <div id="analysis-images" class="grid" style="margin-top:14px"></div>
+  </section>
+
+  <section class="metrics">
+    <div class="metric">Reference plates<b>{{ manifest.plates }}</b></div>
+    <div class="metric">Bilateral pairs<b>{{ manifest.bilateral_pairs }}</b></div>
+    <div class="metric">Feature dimension<b>{{ manifest.feature_vector_dimension }}</b></div>
+    <div class="metric">Embedding dimension<b>{{ manifest.embedding_dimension }}</b></div>
+  </section>
+
+  <h2>Recent analyzed exams</h2>
+  <div id="history" class="banner"><span class="muted">Loading...</span></div>
+
+  <h2>Plate intelligence</h2>
+  <div class="grid">
+    {% for p in plates %}
+    <article class="card">
+      <img src="{{ p.image_url }}" alt="{{ p.plate_id }}">
+      <div class="body">
+        <div class="row"><strong>{{ p.plate_id }}</strong><span class="score">{{ "%.3f"|format(p.reference_anomaly_score_0_1) }}</span></div>
+        <div class="row"><span class="muted">Morphology</span><span>{{ p.heuristic_morphology_v0 }}</span></div>
+        <div class="row"><span class="muted">Response area</span><span>{{ "%.3f"|format(p.response_area_fraction) }}</span></div>
+        <div class="row"><span class="muted">Components</span><span>{{ p.component_count }}</span></div>
+        <div class="row"><span class="muted">Branches</span><span>{{ p.branch_pixels }}</span></div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+
+  <h2>Bilateral reference comparisons</h2>
+  <div class="grid">
+    {% for p in pairs %}
+    <article class="card pair">
+      <img src="{{ p.visual_url }}" alt="{{ p.bilateral_pair_id }}">
+      <div class="body">
+        <div class="row"><strong>{{ p.bilateral_pair_id }}</strong><span class="score">{{ "%.3f"|format(p.reference_pair_anomaly_score_0_1) }}</span></div>
+        <div class="row"><span class="muted">Reference pair</span><span>{{ p.left_reference_plate }} ↔ {{ p.right_reference_plate }}</span></div>
+        <div class="row"><span class="muted">Area Δ</span><span>{{ "%.3f"|format(p.absolute_area_fraction_delta) }}</span></div>
+        <div class="row"><span class="muted">Jaccard</span><span>{{ "%.3f"|format(p.response_jaccard_similarity) }}</span></div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</main>
+<script>
+const form = document.getElementById('analyze-form');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData();
+  const eid = document.getElementById('exam-id').value.trim();
+  if (eid) fd.append('exam_id', eid);
+  for (const f of document.getElementById('files').files) fd.append('files', f);
+  const metadata = document.getElementById('metadata-json').value.trim();
+  if (metadata) fd.append('metadata_json', metadata);
+  const out = document.getElementById('analysis-json');
+  const images = document.getElementById('analysis-images');
+  out.textContent = 'Analyzing...';
+  images.innerHTML = '';
+  const r = await fetch('/api/exams/analyze', { method:'POST', body:fd });
+  const body = await r.json();
+  out.textContent = JSON.stringify(body, null, 2);
+  if (!r.ok) return;
+  for (const src of body.sources) {
+    for (const p of src.plates) {
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.innerHTML = `<img src="${p.image_url}" alt="${p.plate_id}"><div class="body"><div class="row"><strong>${p.plate_id}</strong><span>${p.reference_anomaly_percentile.toFixed(3)}</span></div><div class="row"><span class="muted">QC</span><span>${p.qc.status}</span></div><div class="row"><span class="muted">Morphology</span><span>${p.morphology_descriptor}</span></div><div class="row"><span class="muted">Response area</span><span>${p.signal_features.response_area_fraction.toFixed(3)}</span></div></div>`;
+      images.appendChild(card);
+    }
+  }
+  for (const p of (body.bilateral_analysis || [])) {
+    const card = document.createElement('article');
+    card.className = 'card pair';
+    card.innerHTML = `<img src="${p.panel_url}" alt="${p.bilateral_pair_id}"><div class="body"><div class="row"><strong>${p.bilateral_pair_id}</strong><span>${p.reference_asymmetry_score_0_1.toFixed(3)}</span></div><div class="row"><span class="muted">Position</span><span>${p.position}</span></div><div class="row"><span class="muted">Area Δ</span><span>${p.absolute_area_fraction_delta.toFixed(3)}</span></div><div class="row"><span class="muted">Jaccard</span><span>${p.response_jaccard_similarity.toFixed(3)}</span></div></div>`;
+    images.appendChild(card);
+  }
+});
+async function loadHistory() {
+  const box=document.getElementById('history');
+  try {
+    const r=await fetch('/api/exams?limit=20');
+    const body=await r.json();
+    if (!body.items.length) { box.innerHTML='<span class="muted">No persisted exams yet.</span>'; return; }
+    box.innerHTML=body.items.map(x => `<div class="row"><a style="color:#eaf0f5" href="/reports/${encodeURIComponent(x.exam_id)}">${x.exam_id}</a><span>${x.plates_detected} plates · ${x.bilateral_pairs_created} pairs</span></div>`).join('');
+  } catch (e) { box.textContent='Could not load history'; }
+}
+loadHistory();
+</script>
+</body>
+</html>
