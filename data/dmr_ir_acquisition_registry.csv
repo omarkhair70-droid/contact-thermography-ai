@@ -1,0 +1,6 @@
+route_id,source_type,location,license_or_access,role,verification_note
+uff_original_page,original_project,https://visual.ic.uff.br/en/proeng/thiagoelias/,public project page,source-of-record metadata,"UFF page describes 20-image dynamic protocol and links image database"
+uff_original_archive,original_archive,https://visual.ic.uff.br/proeng/thiagoelias/database.rar,public download linked by UFF,preferred raw acquisition,"archive linked directly by UFF Visual Lab page; preserve original directory labels and patient IDs"
+figshare_lastdatabase,mirror,https://doi.org/10.6084/m9.figshare.21225389,CC BY 4.0,licensed fallback,"Figshare record identifies DMR-IR and states ethics/consent provenance"
+hf_semillerocv,derived_huggingface,SemilleroCV/DMR-IR,verify dataset card/source terms before redistribution,streaming/reproducible experiment route,"BreastCATT uses this derivative and pins revision 69ffd6240b4a50bc4a05c59b70773f3a506054f2; keep patient_id and audit label mapping"
+breastcatt_code,reproducibility_code,https://github.com/cvail-research/breastcatt,MIT code; data licensing follows source,reference preprocessing/training,"repository documents DMR-IR and Breast Thermography experiments and exact dataset revisions"
