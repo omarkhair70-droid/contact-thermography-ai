@@ -21,6 +21,7 @@ from app.services.client_device_domain import (
     segment_client_response,
     summarize_response,
 )
+from app.services.client_device_qc import assess_client_device_quality
 
 ROOT = Path(__file__).resolve().parents[2]
 ARTIFACTS = ROOT / "artifacts"
@@ -334,6 +335,10 @@ def analyze_uploaded_image(
             morphology_override=client_morph,
             mask_override=client_mask,
         )
+
+        if client_features is not None:
+            result["qc"]=assess_client_device_quality(crop,client_mask,client_valid)
+
         mask=result.pop("_mask")
 
         if client_features is not None:
