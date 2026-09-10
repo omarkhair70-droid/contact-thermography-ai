@@ -20,6 +20,17 @@ The client path now uses `app/services/client_device_domain.py` for `client-devi
 
 These are visible-response selection parameters, **not temperature calibration values**. They are isolated to the client-device profile. Publication-reference uploads retain their original analysis path. White glare is largely rejected through low saturation, while clipped/edge-adjacent response still requires human QC review.
 
+## Measured real-device acquisition QC
+
+The client path now uses a full-valid-frame QC gate rather than applying the publication central-disk QC assumption to these rectangular mouse photographs. On the current 9-image cohort:
+
+- low-saturation bright/specular area is present in all 9 images, approximately **7.8%–9.8%** of the valid frame;
+- grayscale near-white clipping is approximately **4.5%–6.5%**, below the current 8% clipping flag threshold;
+- selected TLC response overlaps the detected specular region by at most about **0.1% of selected response**, supporting the current saturation-based glare rejection;
+- `WA0033` is the only current image whose selected response touches the valid acquisition boundary, with about **0.68%** of selected response in the 3-pixel edge band.
+
+These are engineering acquisition/QC observations only. All 9 are flagged for glare review rather than rejected; `WA0033` additionally carries a frame-edge review flag. The batch runner archives these measurements in `client_device_qc.csv`, and the normal app response uses the same client-device QC for whole-image client uploads.
+
 ## Blind response-area ranking
 
 A 45-configuration threshold sweep was run over the 9-image cohort using saturation values 45–65, pixel-value thresholds 70/85/100, and component-mean-value thresholds 150/160/170. The median within-cohort response-area rank was:
@@ -88,7 +99,7 @@ No public modern labelled contact-TLC mouse-tumor dataset has been identified in
 
 ## Remaining execution gates
 
-1. Run the frozen 9 originals through the current batch and archive CSV/JSON/contact-sheet outputs outside the source tree or in approved private experiment storage.
+1. Archive the frozen 9-image deterministic CSV/JSON/contact-sheet outputs in approved private experiment storage.
 2. Human-review all 9 masks; do not change the frozen ranking after tumor-size labels are known.
 3. Run official live DINOv2 on the same frozen normalized inputs and archive the five DINO artifacts listed above.
 4. Only then compare against independently supplied tumor sizes through `scripts/evaluate_tumor_size_mapping.py`.
