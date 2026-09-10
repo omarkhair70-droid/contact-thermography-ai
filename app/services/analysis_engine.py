@@ -8,11 +8,11 @@ from skimage.morphology import skeletonize
 from skimage.measure import label, regionprops
 from app.services.qc import assess_plate_quality
 from app.services.reference_model import reference_model
+from app.services.storage import storage
 
 ROOT = Path(__file__).resolve().parents[2]
 ARTIFACTS = ROOT / "artifacts"
-STATIC_GENERATED = ROOT / "app" / "static" / "generated"
-STATIC_GENERATED.mkdir(parents=True, exist_ok=True)
+
 
 def _circle_iou(c1, c2):
     x1,y1,r1 = c1; x2,y2,r2 = c2
@@ -31,6 +31,7 @@ def _circle_iou(c1, c2):
     union = math.pi*r1*r1 + math.pi*r2*r2 - inter
     return inter/max(union,1e-9)
 
+
 def _circle_score(img, c):
     x,y,r = c
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -45,6 +46,7 @@ def _circle_score(img, c):
     mr = float(gray[ring].mean())
     dark = float((gray[inside] < 160).mean())
     return mi, mr, mr-mi, dark
+
 
 def detect_circular_plates(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -74,6 +76,7 @@ def detect_circular_plates(img):
     keep.sort(key=lambda z:(z[0][1],z[0][0]))
     return keep
 
+
 def crop_circle(img, x, y, r, out_size=256):
     pad=int(round(r*1.08))
     h,w=img.shape[:2]
@@ -88,6 +91,7 @@ def crop_circle(img, x, y, r, out_size=256):
     canvas=cv2.resize(canvas,(out_size,out_size),interpolation=cv2.INTER_AREA)
     return canvas
 
+
 def whole_image_plate(img, out_size=256):
     h,w=img.shape[:2]
     side=max(h,w)
@@ -95,6 +99,7 @@ def whole_image_plate(img, out_size=256):
     oy=(side-h)//2; ox=(side-w)//2
     canvas[oy:oy+h,ox:ox+w]=img
     return cv2.resize(canvas,(out_size,out_size),interpolation=cv2.INTER_AREA)
+
 
 def _branch_end_points(skel):
     s=skel.astype(np.uint8)
@@ -106,6 +111,7 @@ def _branch_end_points(skel):
                 continue
             n += padded[dy:dy+s.shape[0], dx:dx+s.shape[1]]
     return int(((s==1)&(n>=3)).sum()), int(((s==1)&(n==1)).sum())
+
 
 def signal_features(bgr):
     hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV)
@@ -199,6 +205,7 @@ def signal_features(bgr):
     }
     return f,morph,clean
 
+
 def analyze_plate(bgr, plate_id):
     f,morph,mask=signal_features(bgr)
     ref = reference_model.analyze(f)
@@ -220,11 +227,16 @@ def analyze_plate(bgr, plate_id):
         "_mask":mask,
     }
 
+
 def analyze_uploaded_image(file_bytes, source_name, exam_id):
     arr=np.frombuffer(file_bytes,dtype=np.uint8)
     img=cv2.imdecode(arr,cv2.IMREAD_COLOR)
     if img is None:
         raise ValueError("Unsupported or corrupt image")
+
+    # Keep the original valid upload durably for the examination without
+    # changing the analysis payload or model behavior.
+    storage.persist_upload(exam_id, source_name, file_bytes)
 
     dets=detect_circular_plates(img)
     plates=[]
@@ -233,8 +245,7 @@ def analyze_uploaded_image(file_bytes, source_name, exam_id):
         dets=[([img.shape[1]//2,img.shape[0]//2,min(img.shape[:2])//2],None)]
         mode="whole_image_fallback"
 
-    exam_dir=STATIC_GENERATED/exam_id
-    exam_dir.mkdir(parents=True,exist_ok=True)
+    exam_dir=storage.generated_exam_dir(exam_id)
 
     for idx,(c,_) in enumerate(dets,1):
         if mode=="whole_image_fallback":
@@ -251,8 +262,8 @@ def analyze_uploaded_image(file_bytes, source_name, exam_id):
         cv2.imwrite(str(exam_dir/img_name),crop)
         cv2.imwrite(str(exam_dir/mask_name),mask)
 
-        result["image_url"]=f"/static/generated/{exam_id}/{img_name}"
-        result["response_mask_url"]=f"/static/generated/{exam_id}/{mask_name}"
+        result["image_url"]=storage.generated_url(exam_id, img_name)
+        result["response_mask_url"]=storage.generated_url(exam_id, mask_name)
         result["source_image"]=source_name
         result["_generated_image_path"]=str(exam_dir/img_name)
         plates.append(result)

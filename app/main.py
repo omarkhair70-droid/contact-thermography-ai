@@ -6,7 +6,7 @@ from typing import List
 import cv2
 import pandas as pd
 from fastapi import FastAPI, Request, UploadFile, File, Form, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -14,10 +14,19 @@ from app.services.reference_store import store
 from app.services.analysis_engine import analyze_uploaded_image
 from app.services.exam_contracts import normalize_side
 from app.services.bilateral_live import compare_pair
-from app.services.db import save_exam, get_exam, list_exams
+from app.services.db import (
+    save_exam,
+    get_exam,
+    list_exams,
+    database_backend,
+    database_health,
+)
 from app.services.report import build_report_html
+from app.services.storage import storage
 
 ROOT = Path(__file__).resolve().parents[1]
+STATIC_DIR = ROOT / "app" / "static"
+STATIC_DIR.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(
     title="Contact Thermography Intelligence Platform",
@@ -28,26 +37,42 @@ app = FastAPI(
     ),
 )
 
-app.mount("/static", StaticFiles(directory=str(ROOT / "app" / "static")), name="static")
+# Preserve the existing generated-image URL shape while placing generated media
+# behind the durable storage adapter. Keep this specific mount before /static.
+app.mount(
+    "/static/generated",
+    StaticFiles(directory=str(storage.generated_root)),
+    name="generated",
+)
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 templates = Jinja2Templates(directory=str(ROOT / "app" / "templates"))
+
 
 @app.get("/health")
 def health():
-    return {
-        "status":"ok",
-        "service":"lct-intelligence",
-        "version":"0.5.0",
-        "clinical_claim":"NONE",
-        "live_bilateral_analysis":True,
+    db_ok = database_health()
+    storage_ok = storage.healthcheck()
+    payload = {
+        "status": "ok" if db_ok and storage_ok else "degraded",
+        "service": "lct-intelligence",
+        "version": "0.5.0",
+        "clinical_claim": "NONE",
+        "live_bilateral_analysis": True,
+        "database": database_backend(),
+        "storage": storage.backend,
     }
+    return JSONResponse(payload, status_code=200 if db_ok and storage_ok else 503)
+
 
 @app.get("/api/model")
 def model_info():
     return store.manifest
 
+
 @app.get("/api/reference/plates")
 def reference_plates():
     return {"count":len(store.plates),"items":store.plate_records()}
+
 
 @app.get("/api/reference/dinov2")
 def dinov2_reference():
@@ -73,9 +98,11 @@ def dinov2_reference():
         "bilateral_pairs":clean_df(store.dino_pairs),
     }
 
+
 @app.get("/api/reference/pairs")
 def reference_pairs():
     return {"count":len(store.pairs),"items":store.pair_records()}
+
 
 def parse_metadata(metadata_json: str | None):
     if not metadata_json:
@@ -102,6 +129,7 @@ def parse_metadata(metadata_json: str | None):
             "sequence_index": item.get("sequence_index"),
         }
     return lookup
+
 
 @app.post("/api/exams/analyze")
 async def analyze_exam(
@@ -146,7 +174,7 @@ async def analyze_exam(
             right.setdefault(p["position"], []).append(p)
 
     bilateral=[]
-    pair_dir = ROOT/"app"/"static"/"generated"/eid/"bilateral"
+    pair_dir = storage.generated_exam_dir(eid) / "bilateral"
     pair_index=0
     for position in sorted(set(left).intersection(right)):
         L=sorted(left[position], key=lambda x:(x.get("sequence_index") or 0, x["plate_id"]))
@@ -162,9 +190,9 @@ async def analyze_exam(
                 "position":position,
                 "left_plate_id":lp["plate_id"],
                 "right_plate_id":rp["plate_id"],
-                "panel_url":f"/static/generated/{eid}/bilateral/{metrics.pop('panel_filename')}",
-                "difference_url":f"/static/generated/{eid}/bilateral/{metrics.pop('difference_filename')}",
-                "right_aligned_url":f"/static/generated/{eid}/bilateral/{metrics.pop('right_aligned_filename')}",
+                "panel_url":storage.generated_url(eid, "bilateral", metrics.pop("panel_filename")),
+                "difference_url":storage.generated_url(eid, "bilateral", metrics.pop("difference_filename")),
+                "right_aligned_url":storage.generated_url(eid, "bilateral", metrics.pop("right_aligned_filename")),
             })
             bilateral.append(metrics)
 
@@ -188,10 +216,12 @@ async def analyze_exam(
     result["report_url"] = f"/reports/{eid}"
     return result
 
+
 @app.get("/api/exams")
 def exam_history(limit: int=50):
     items=list_exams(limit)
     return {"count":len(items),"items":items}
+
 
 @app.get("/api/exams/{exam_id}")
 def exam_detail(exam_id: str):
@@ -200,12 +230,14 @@ def exam_detail(exam_id: str):
         raise HTTPException(status_code=404,detail="Exam not found")
     return item
 
+
 @app.get("/reports/{exam_id}", response_class=HTMLResponse)
 def exam_report(exam_id: str):
     item=get_exam(exam_id)
     if item is None:
         raise HTTPException(status_code=404,detail="Exam not found")
     return HTMLResponse(build_report_html(item["result"]))
+
 
 @app.get("/", response_class=HTMLResponse)
 def dashboard(request: Request):
