@@ -25,13 +25,13 @@
     },
     {
       "id": "client-device-tlc-pending",
-      "label": "Client device TLC - pending exact formulation/calibration",
+      "label": "Client device TLC - real images received, calibration pending",
       "manufacturer": null,
       "product_code": null,
       "active_temperature_range_c": null,
       "colour_order": null,
-      "calibration_status": "PENDING_CLIENT_DEVICE_IMAGES",
-      "source": "Client-owned contact thermography device",
+      "calibration_status": "CLIENT_IMAGES_RECEIVED_UNCALIBRATED",
+      "source": "Client-owned contact thermography device; first real mouse cohort received 2026-09-10",
       "normalization": {"mode": "identity-pending-calibration"},
       "active_response_segmentation": {
         "saturation_min": 50,
@@ -43,7 +43,7 @@
         "bright_clip_value": 252,
         "saturation_clip_value": 252
       },
-      "notes": "Pending client-device calibration. Thresholds are isolated under this profile and must be revised from real device images."
+      "notes": "Real client-device images now exist, but the TLC formulation and colour-temperature calibration remain unknown. The generic app thresholds stay unchanged until the Lane E cohort-specific selector is reviewed and promoted deliberately. Absolute temperature interpretation remains disabled."
     }
   ]
 }

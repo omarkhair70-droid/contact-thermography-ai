@@ -15,9 +15,16 @@ from app.services.tlc_profiles import (
     normalize_plate_bgr,
     resolve_tlc_profile,
 )
+from app.services.client_device_domain import (
+    DEFAULT_CLIENT_CONFIG,
+    letterbox_square,
+    segment_client_response,
+    summarize_response,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 ARTIFACTS = ROOT / "artifacts"
+CLIENT_TLC_PROFILE_ID = "client-device-tlc-pending"
 
 
 def _circle_iou(c1, c2):
@@ -221,8 +228,22 @@ def analyze_plate(
     plate_id,
     profile: TLCProfile,
     device_profile_id: str | None = None,
+    feature_override: dict | None = None,
+    morphology_override: str | None = None,
+    mask_override: np.ndarray | None = None,
 ):
-    f,morph,mask=signal_features(bgr, profile)
+    if feature_override is None:
+        f,morph,mask=signal_features(bgr, profile)
+    else:
+        f=dict(feature_override)
+        embedded_morph=f.pop("morphology_descriptor", None)
+        morph=morphology_override or embedded_morph or "mixed"
+        if mask_override is None:
+            raise ValueError("mask_override is required when feature_override is supplied")
+        mask=np.asarray(mask_override,dtype=np.uint8)
+        if mask.shape != bgr.shape[:2]:
+            raise ValueError("mask_override must match the analyzed plate dimensions")
+
     ref = reference_model.analyze(f)
     percentile=ref["reference_anomaly_percentile"]
     neighbors=ref["nearest_reference_plates"]
@@ -278,15 +299,53 @@ def analyze_uploaded_image(
     exam_dir=storage.generated_exam_dir(exam_id)
 
     for idx,(c,_) in enumerate(dets,1):
-        if mode=="whole_image_fallback":
+        client_features=None
+        client_morph=None
+        client_mask=None
+        client_valid=None
+        client_components=None
+
+        if mode=="whole_image_fallback" and profile.id==CLIENT_TLC_PROFILE_ID:
+            # Real client photographs are not circular publication plates. The
+            # Lane E selector uses the complete valid letterboxed field so the
+            # response is not clipped by the publication central-disk assumption.
+            crop,client_valid=letterbox_square(img)
+            crop=normalize_plate_bgr(crop,profile)
+            client_mask,client_components=segment_client_response(
+                crop,client_valid,DEFAULT_CLIENT_CONFIG
+            )
+            client_features=summarize_response(crop,client_mask,client_valid)
+            client_morph=client_features.pop("morphology_descriptor")
+        elif mode=="whole_image_fallback":
             crop=whole_image_plate(img)
+            crop=normalize_plate_bgr(crop,profile)
         else:
             x,y,r=c
             crop=crop_circle(img,x,y,r)
-        crop=normalize_plate_bgr(crop,profile)
+            crop=normalize_plate_bgr(crop,profile)
+
         pid=f"{Path(source_name).stem[:24]}-P{idx:02d}".replace(" ","_")
-        result=analyze_plate(crop,pid,profile,device_profile_id)
+        result=analyze_plate(
+            crop,
+            pid,
+            profile,
+            device_profile_id,
+            feature_override=client_features,
+            morphology_override=client_morph,
+            mask_override=client_mask,
+        )
         mask=result.pop("_mask")
+
+        if client_features is not None:
+            result["client_device_segmentation"]={
+                "selector_version":"client-device-v0.1",
+                "scope":"whole-image client-device fallback",
+                "selected_component_count":len(client_components or []),
+                "valid_frame_fraction":round(float(np.asarray(client_valid,dtype=bool).mean()),6),
+                "config":dict(DEFAULT_CLIENT_CONFIG.__dict__),
+                "semantics":"visible thermochromic response selector; not temperature calibration or diagnosis",
+                "clinical_claim":"NONE",
+            }
 
         img_name=f"{uuid.uuid4().hex[:10]}_{pid}.png"
         mask_name=f"{uuid.uuid4().hex[:10]}_{pid}_mask.png"
