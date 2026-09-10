@@ -1,10 +1,24 @@
 from __future__ import annotations
-from pathlib import Path
 from html import escape
-import json
+import math
+
+
+def _fmt(value, digits=3):
+    try:
+        number=float(value)
+    except (TypeError, ValueError):
+        return "n/a"
+    return f"{number:.{digits}f}" if math.isfinite(number) else "n/a"
+
 
 def build_report_html(result: dict):
-    exam_id=escape(result["exam_id"])
+    exam_id=escape(str(result["exam_id"]))
+    profile=result.get("profile_provenance") or {}
+    tlc_profile_id=escape(str(result.get("tlc_profile_id") or profile.get("tlc_profile_id") or "unknown"))
+    device_profiles=profile.get("device_profile_ids") or []
+    device_text=escape(", ".join(str(item) for item in device_profiles) or "not supplied")
+    domain_status=escape(str(profile.get("domain_status") or "UNKNOWN"))
+
     plates=[]
     for src in result.get("sources",[]):
         for p in src.get("plates",[]):
@@ -17,12 +31,14 @@ def build_report_html(result: dict):
         <article class="card">
           <img src="{escape(p.get('image_url',''))}" />
           <div>
-            <h3>{escape(p['plate_id'])}</h3>
+            <h3>{escape(str(p['plate_id']))}</h3>
             <p><b>Side / position:</b> {escape(str(p.get('side')))} / {escape(str(p.get('position')))}</p>
-            <p><b>QC:</b> {escape(p['qc']['status'])}</p>
+            <p><b>TLC profile:</b> {escape(str(p.get('tlc_profile_id') or tlc_profile_id))}</p>
+            <p><b>Device profile:</b> {escape(str(p.get('device_profile_id') or 'not supplied'))}</p>
+            <p><b>QC:</b> {escape(str(p['qc']['status']))}</p>
             <p><b>QC flags:</b> {escape(flags)}</p>
-            <p><b>Morphology descriptor:</b> {escape(p['morphology_descriptor'])}</p>
-            <p><b>Reference anomaly percentile:</b> {p['reference_anomaly_percentile']:.3f}</p>
+            <p><b>Morphology descriptor:</b> {escape(str(p['morphology_descriptor']))}</p>
+            <p><b>Reference anomaly percentile:</b> {_fmt(p.get('reference_anomaly_percentile'))}</p>
             <p class="muted">Reference unusualness only; not cancer probability.</p>
           </div>
         </article>
@@ -33,11 +49,13 @@ def build_report_html(result: dict):
         pair_blocks.append(f"""
         <article class="pair">
           <img src="{escape(p.get('panel_url',''))}" />
-          <h3>{escape(p['bilateral_pair_id'])}</h3>
+          <h3>{escape(str(p['bilateral_pair_id']))}</h3>
           <p><b>Position:</b> {escape(str(p.get('position')))}</p>
-          <p><b>Reference bilateral asymmetry score:</b> {p['reference_asymmetry_score_0_1']:.3f}</p>
-          <p><b>Response-area delta:</b> {p['absolute_area_fraction_delta']:.3f}</p>
-          <p><b>Jaccard similarity:</b> {p['response_jaccard_similarity']:.3f}</p>
+          <p><b>TLC profile:</b> {escape(str(p.get('tlc_profile_id') or tlc_profile_id))}</p>
+          <p><b>Device profile:</b> {escape(str(p.get('device_profile_id') or 'not supplied'))}</p>
+          <p><b>Reference bilateral asymmetry score:</b> {_fmt(p.get('reference_asymmetry_score_0_1'))}</p>
+          <p><b>Response-area delta:</b> {_fmt(p.get('absolute_area_fraction_delta'))}</p>
+          <p><b>Jaccard similarity:</b> {_fmt(p.get('response_jaccard_similarity'))}</p>
         </article>
         """)
 
@@ -55,9 +73,13 @@ body{{font-family:Arial,sans-serif;margin:32px;color:#17202a}}
 <h1>Contact Thermography Analysis Report</h1>
 <div class="banner">
 <p><b>Exam:</b> {exam_id}</p>
+<p><b>TLC profile:</b> {tlc_profile_id}</p>
+<p><b>Device profile(s):</b> {device_text}</p>
+<p><b>Profile/domain status:</b> {domain_status}</p>
 <p><b>Source images:</b> {result['source_images']} &nbsp; <b>Plates:</b> {result['plates_detected']} &nbsp; <b>Bilateral pairs:</b> {result['bilateral_pairs_created']}</p>
 <p><b>Clinical claim:</b> NONE</p>
 <p>This report contains engineering/research analysis of liquid-crystal contact thermograms. Current model scores are not cancer probabilities.</p>
+<p>Colour interpretation is profile-dependent. Absolute temperature interpretation remains disabled until the selected TLC formulation is calibrated, and clinical inference remains disabled until a validated clinical model exists.</p>
 </div>
 <h2>Plate analysis</h2><div class="grid">{''.join(body)}</div>
 <h2>Bilateral analysis</h2><div>{''.join(pair_blocks) if pair_blocks else '<p>No true bilateral pairs were created for this exam.</p>'}</div>
