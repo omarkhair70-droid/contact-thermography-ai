@@ -95,5 +95,7 @@ def test_manifest_builder_preserves_frozen_target_semantics(tmp_path: Path) -> N
     assert bool(frame.iloc[0]["train_eligible"]) is False
     assert frame.iloc[0]["use_role"] == "FROZEN_TARGET_EVAL"
     assert frame.iloc[0]["clinical_claim"] == "NONE"
-    assert frame.iloc[0]["feature_contract_version"] == FEATURE_CONTRACT_VERSION
-    assert len([c for c in frame.columns if c.startswith("feature_")]) == 417
+    assert frame.iloc[0]["target_feature_contract_version"] == FEATURE_CONTRACT_VERSION
+    numeric_feature_columns = [c for c in frame.columns if c.startswith("feature_")]
+    assert len(numeric_feature_columns) == 417
+    assert numeric_feature_columns == feature_columns()
