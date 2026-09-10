@@ -126,7 +126,9 @@ def build_feature_table(
             "morphology_descriptor": result.morphology_descriptor,
             "qc_status": result.qc_status,
             "qc_flags": ";".join(result.qc_flags),
-            "feature_contract_version": FEATURE_CONTRACT_VERSION,
+            # Keep contract metadata out of the feature_* namespace so downstream
+            # native trainers can safely select feature_* columns as numeric inputs.
+            "target_feature_contract_version": FEATURE_CONTRACT_VERSION,
             "clinical_claim": "NONE",
         }
         record.update(
