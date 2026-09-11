@@ -11,16 +11,16 @@
     "MALIGNANT": 1,
     "BENIGN": 1,
     "TUMOR_BEARING": 8,
-    "PENDING_CLIENT_CLASS_MAP": 1
+    "HEALTHY": 1
   },
   "roles": {
     "REFERENCE_ONLY": 2,
-    "TRAIN_CANDIDATE": 8,
-    "FROZEN_TARGET_EVAL": 1
+    "TRAIN_CANDIDATE": 9
   },
-  "train_eligible_rows": 8,
+  "train_eligible_rows": 9,
   "binary_training_ready": false,
-  "primary_blocker": "No confirmed HEALTHY/NO_TUMOR mouse class is currently available in the client-device training set; WA0038 remains unresolved",
-  "next_data_priority": "Resolve WA0038. If WA0038 is HEALTHY, the cohort becomes 8 tumor vs 1 healthy, which is still too small and imbalanced for a defensible binary validation; acquire additional genuine same-domain controls when possible.",
+  "primary_blocker": "The client-device mouse cohort is fully mapped but contains only one HEALTHY/NO_TUMOR subject versus eight tumor-bearing subjects; the current native binary gate requires at least five trainable subjects per class.",
+  "next_data_priority": "Acquire at least four additional genuine same-domain healthy/control mouse subjects to reach the current 5-negative engineering gate. Do not synthesize negatives or count augmentations as new subjects.",
+  "model_target": "TUMOR_LIKE vs NO_TUMOR_LIKE presence/absence only; tumor-size estimation is explicitly out of scope because TLC visibility can depend on superficial/deep presentation and is not a tumor-size measurement.",
   "clinical_claim": "NONE"
 }
