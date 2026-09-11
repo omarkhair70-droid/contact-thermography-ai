@@ -54,7 +54,7 @@ def test_reference_only_manifest_is_valid_but_not_training_ready(tmp_path: Path)
     assert result["clinical_claim"] == "NONE"
 
 
-def test_client_mouse_negative_label_is_rejected(tmp_path: Path) -> None:
+def test_client_mouse_healthy_label_is_allowed_after_client_clarification(tmp_path: Path) -> None:
     rows = _base_rows()
     row = rows[0].copy()
     row.update(
@@ -64,13 +64,33 @@ def test_client_mouse_negative_label_is_rejected(tmp_path: Path) -> None:
             "species": "mouse",
             "label": "HEALTHY",
             "use_role": "FROZEN_TARGET_EVAL",
-            "split_group": "FROZEN_CLIENT_TARGET",
+            "split_group": "CLIENT-MOUSE-1",
             "train_eligible": False,
         }
     )
     rows.append(row)
-    with pytest.raises(ValueError, match="negative labels are forbidden"):
-        validate(_write(tmp_path, rows))
+    result = validate(_write(tmp_path, rows))
+    assert result["valid"] is True
+
+
+def test_pending_client_class_map_is_valid_but_warned(tmp_path: Path) -> None:
+    rows = _base_rows()
+    row = rows[0].copy()
+    row.update(
+        {
+            "subject_id": "CLIENT-MOUSE-1",
+            "source_id": "client-mice-2026",
+            "species": "mouse",
+            "label": "PENDING_CLIENT_CLASS_MAP",
+            "use_role": "FROZEN_TARGET_EVAL",
+            "split_group": "CLIENT-MOUSE-1",
+            "train_eligible": False,
+        }
+    )
+    rows.append(row)
+    result = validate(_write(tmp_path, rows))
+    assert result["valid"] is True
+    assert any("pending per-image class labels" in warning for warning in result["warnings"])
 
 
 def test_reference_only_row_cannot_be_train_eligible(tmp_path: Path) -> None:
