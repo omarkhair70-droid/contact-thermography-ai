@@ -34,6 +34,23 @@ DIRECT_IDENTIFIER_COLUMNS = {
     "name", "full_name", "patient_name", "email", "phone", "telephone",
     "date_of_birth", "dob", "medical_record_number", "mrn", "national_id",
 }
+DECLARED_FIELDS = [
+    "subject_id",
+    "image_path",
+    "source_id",
+    "modality",
+    "species",
+    "label",
+    "label_provenance",
+    "split_group",
+    "license_tag",
+    "tlc_profile_id",
+    "device_profile_id",
+    "acquisition_profile_id",
+    "data_use_status",
+    "redistribution_status",
+    "use_role",
+]
 
 
 def _as_bool(value: object) -> bool:
@@ -76,7 +93,7 @@ def validate_external_lct_intake(path: Path, *, allow_empty: bool = False) -> di
             "clinical_claim": "NONE",
         }
 
-    for field in ["subject_id", "image_path", "source_id", "modality", "species", "label_provenance", "split_group"]:
+    for field in DECLARED_FIELDS:
         if frame[field].astype(str).str.strip().eq("").any():
             raise ValueError(f"{field} must be populated for every row")
 
@@ -94,10 +111,9 @@ def validate_external_lct_intake(path: Path, *, allow_empty: bool = False) -> di
     _require_consistent_subject_metadata(frame)
 
     train_mask = frame["train_eligible"].map(_as_bool)
-    train = frame[train_mask].copy()
     reasons: list[str] = []
 
-    for idx, row in train.iterrows():
+    for idx, row in frame[train_mask].iterrows():
         prefix = f"row {idx} / subject {row['subject_id']}"
         if str(row["use_role"]).strip() != "TRAIN_CANDIDATE":
             reasons.append(f"{prefix}: train-eligible row must use TRAIN_CANDIDATE")
