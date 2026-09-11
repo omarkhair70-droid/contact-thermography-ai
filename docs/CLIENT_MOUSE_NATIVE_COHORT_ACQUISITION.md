@@ -1,79 +1,85 @@
 # Client mouse native training cohort acquisition
 
-Purpose: define the shortest valid route from the current positive-only client mouse set to a trainable target-domain contact-LCT cohort without synthetic negatives, leakage or acquisition confounding.
+Purpose: define the shortest valid route from the current client mouse set to a first target-domain contact-LCT binary research baseline without synthetic negatives, leakage or false independent-validation claims.
 
-## The important freeze constraint
+## Revised development-positive policy
 
-The original nine client images (`CLIENT-MOUSE-0030` through `CLIENT-MOUSE-0038`) are already preserved as `FROZEN_TARGET_EVAL`. They must remain untouched evaluation evidence and must not be recycled as training positives.
+The original nine client subjects (`CLIENT-MOUSE-0030` through `CLIENT-MOUSE-0038`) are genuine tumor-bearing mouse positives from the client's experiment. The client states that all nine animals were tumor-injected and captured under the same experimental conditions, with broadly similar weights and tumor size as the main biological difference.
 
-Therefore **new controls alone are not sufficient** to open native binary training. The current software readiness gate needs at least:
+The canonical target manifest remains immutable/non-trainable source evidence, but these nine subjects may now be **promoted by the cohort-preparation step into the internal development training manifest** once genuine controls pass the target-domain gate.
 
-- 5 **new** tumor-bearing mouse subjects eligible for training; and
-- 5 genuine control/negative mouse subjects eligible for training.
+This means **new tumor-bearing mice are no longer required to open the first internal binary baseline**. The minimum engineering gate is now:
 
-That 5 + 5 threshold is only a minimum engineering gate for a first research baseline, not a claim of statistically adequate validation. More balanced subjects are strongly preferred.
+- the existing 9 client tumor-bearing development positives; plus
+- at least 5 genuine same-domain control/negative mouse subjects.
 
-## What animals to use
+More controls are strongly preferred; roughly 9 or more would make the first class balance much better.
 
-This repository does not prescribe new animal interventions or modify the client's study design. Use only animals/groups already available under the client's approved experimental/ethics protocol:
+This policy changes the evaluation claim. Because the original nine have already informed development, the first binary result is:
 
-- tumor-bearing animals from the existing approved tumor protocol for the new positive training pool;
-- untreated/control animals already defined by that protocol for the negative pool;
-- sham controls only if a sham group already exists under the approved protocol.
+`INTERNAL_RESEARCH_CROSS_VALIDATION`
 
-Do not create labels from image appearance. Ground truth comes from experimental group assignment/documentation, not from the thermogram.
+It is **not** independent external validation and must not be presented as such.
+
+## What counts as a valid control
+
+This repository does not prescribe new animal interventions or modify the client's study design. Use only controls already available under the client's approved experimental/ethics protocol:
+
+- untreated/control animals already defined by that protocol; or
+- sham controls only if a sham group already exists under that approved protocol.
+
+Do not create negative labels from image appearance. Ground truth comes from experimental group assignment/documentation, not from the thermogram.
 
 ## Same-domain acquisition requirement
 
-The point of this cohort is to train on the client's real target domain, so both classes should be captured under the same imaging domain wherever possible.
+The new control images need to match the nine client positives as closely as the real experiment allows. Keep fixed or explicitly versioned:
 
-Keep fixed or explicitly versioned:
-
-- TLC formulation/profile and TLC batch;
-- device/camera;
+- the same contact-LCT modality;
+- TLC formulation/profile and preferably the same TLC batch;
+- the same physical device/camera setup;
 - camera exposure/white-balance/settings profile;
 - illumination source/profile;
 - acquisition geometry and canonical view;
-- contact placement/pressure procedure and contact duration used by the client system;
-- ambient/acclimatisation procedure used by the existing client protocol;
+- contact placement/pressure procedure and contact duration;
+- ambient/acclimatisation procedure;
 - operator procedure;
 - image encoding/export path.
 
-Contact-LCT colour response is sensitive to foil/formulation, illumination, white balance, contact/handling and ambient conditions. Braster publications likewise use controlled, profile-specific foil and RGB acquisition rather than treating colour as a universal absolute-temperature signal. Useful public background:
+Contact-LCT colour is not a universal RGB temperature code. TLC colour response depends on the crystal formulation/profile and acquisition optics/illumination/viewing geometry, so cross-device or cross-foil controls can become a confound instead of a biological negative class.
 
-- 2026 LCT review / Braster workflow: https://doi.org/10.1186/s43046-026-00383-6
-- 2020 prospective Braster study: https://pmc.ncbi.nlm.nih.gov/articles/PMC7235966/
+Every supplemental training row must explicitly set `matches_client_positive_domain=true`. This is an acquisition/data-curation attestation, not a statement that the exact TLC calibration is already known. The current 417-feature contract therefore remains locked to `client-device-tlc-pending` until the client's exact TLC formulation/calibration is documented.
 
-Human Braster timing/temperature parameters should not be copied blindly onto the mouse experiment. For the client cohort, reproduce and document the **actual client mouse acquisition protocol** so positives and controls occupy the same domain.
+## Historical metadata limitation
 
-## Avoid session confounding
+The original nine positives do not currently carry complete strain/sex/weight/capture-session metadata in the canonical manifest. Their tumor-bearing status and shared experimental context are known, but some detailed acquisition fields were not captured when the source cohort was first ingested.
 
-Do not capture every positive animal in one session/day and every control in another if this can be avoided. Session drift, lighting changes, TLC batch changes, camera settings and operator differences could become easier classification signals than biology.
+Therefore:
 
-Preferred practice:
+- controls must be documented as carefully as possible;
+- matching strain/sex/weight range should be used when available under the existing protocol;
+- this missing historical metadata must remain an explicit limitation in the first baseline report;
+- the first run must not be described as independent validation.
 
-- interleave tumor-bearing and control animals across capture sessions;
-- keep the same TLC batch/settings within a first baseline cohort;
-- record a `capture_session_id` and unique `capture_order`;
-- keep the operator/procedure stable where possible;
-- if multiple sessions are required, include both classes in the same sessions where feasible.
+## Avoid acquisition confounding
 
-The repository validator explicitly blocks a cohort where positive and control classes occupy completely disjoint capture-session sets.
+If new positive animals later become available, do not capture every positive in one session and every control in another. Session drift, lighting changes, TLC batch changes, camera settings and operator differences can become easier classification signals than biology.
+
+For controls-only supplementation, legacy positive session IDs are unavailable, so session confounding against the original nine cannot be fully audited. Record control session IDs and keep the control capture protocol as close as possible to the original experiment.
 
 ## Subject and view contract
 
-The current `lct-target-v1` 417-feature builder is one canonical image per subject. For the first native mouse baseline:
+The current `lct-target-v1` 417-feature builder uses one canonical image per subject for the first native mouse baseline:
 
-- assign one stable de-identified `subject_id` per animal;
-- set `split_group=subject_id`;
-- choose one consistent canonical `view_id` across all trainable animals;
-- keep exactly one canonical training image per animal in the v1 training manifest.
+- one stable de-identified `subject_id` per animal;
+- `split_group=subject_id`;
+- one consistent canonical `view_id`;
+- one canonical training image per animal in the v1 manifest.
 
-Extra raw views may be archived privately for future multi-view work, but they should not silently create duplicate subject rows in the current 417-feature table.
+Extra views may be archived privately for later multi-view work, but must not silently create duplicate subject rows.
 
-## Metadata to record
+## Metadata to record for controls
 
-Start from `data/client_mouse_training_cohort_template.csv`. In addition to the common external-LCT intake fields, record:
+Start from `data/client_mouse_training_cohort_template.csv`. Record:
 
 - `strain_id`;
 - `sex`;
@@ -84,22 +90,23 @@ Start from `data/client_mouse_training_cohort_template.csv`. In addition to the 
 - `camera_settings_id`;
 - `illumination_profile_id`;
 - `view_id`;
-- `capture_order`.
+- `capture_order`;
+- `matches_client_positive_domain=true` only when the curator has confirmed the control belongs to the same client target-domain setup.
 
-For the first baseline, the trainable pool is deliberately strict: one strain, one TLC profile/batch, one device profile, one acquisition profile, one camera-settings profile, one illumination profile and one canonical view. This is intended to reduce avoidable confounding while the cohort is small.
+For the first baseline, the supplemental trainable pool is deliberately strict: one strain, one TLC profile/batch, one device profile, one acquisition profile, one camera-settings profile, one illumination profile and one canonical view.
 
 ## Validation and bridge
 
-Validate and assess readiness with:
+Validate the supplemental cohort with:
 
 ```bash
 python scripts/prepare_client_mouse_training_cohort.py \
   /path/to/private/client_mouse_training_manifest.csv
 ```
 
-The script first runs the general external-data intake gate, then checks the mouse-specific domain/freeze/readiness rules.
+The script validates the supplemental rows, loads the nine canonical tumor-bearing positives from `data/lct_target_dataset_v1_manifest.csv`, and reports readiness.
 
-When the result says `binary_training_ready=true`, write the subject-level manifest that can feed the current feature/training path:
+With at least five valid controls the gate can return `binary_training_ready=true` without requiring any new tumor-bearing animals. Generate the combined internal-development manifest with:
 
 ```bash
 python scripts/prepare_client_mouse_training_cohort.py \
@@ -107,16 +114,26 @@ python scripts/prepare_client_mouse_training_cohort.py \
   --output-native-manifest runtime/client-mouse-native/native_manifest.csv
 ```
 
-Then, with the corresponding private images, run the existing 417-feature builder using the new source ID, followed by the native binary trainer. The exact training/evaluation split must remain subject-level.
+The generated manifest promotes copies of the nine canonical positives to `TRAIN_CANDIDATE` **only for this internal research run**. The canonical source manifest itself stays unchanged and non-trainable.
 
-## Evaluation plan
+Then run the 417-feature builder and `scripts/train_lct_native_binary.py`. Evaluation remains animal/subject-level and uses internal cross-validation.
 
-The original nine positives remain outside the new training pool. After a first native model is selected using only the new training/development cohort, the frozen nine can provide an additional positive target-domain evaluation signal. They still cannot measure specificity because they contain no negatives.
+## What this baseline can and cannot prove
 
-A proper held-out mixed positive/control evaluation set is still required before stronger performance claims.
+It can answer whether, within the small client mouse dataset, the target-domain contact-LCT feature representation contains reproducible signal that separates documented tumor-bearing animals from documented controls.
+
+It cannot establish independent clinical diagnostic performance, cancer probability, human breast-cancer performance, or external validation.
+
+A later held-out mixed positive/control cohort is still needed for an independent test.
+
+## Parallel tumor-burden experiment
+
+The nine positives also remain useful for a separate experiment because the client reports different tumor sizes across otherwise similar experimental conditions. If the client supplies the tumor-size/volume mapping for `WA0030` through `WA0038`, run the existing tumor-burden validation path separately from the binary classifier.
+
+Do not infer tumor sizes from thermogram appearance.
 
 ## Privacy / repository rule
 
-Do not commit raw client animal images or private experimental records by default. Commit only schemas, validators and non-sensitive aggregate artifacts unless the client explicitly authorizes otherwise.
+Do not commit raw client animal images or private experimental records by default. Commit schemas, validators and non-sensitive aggregate artifacts unless the client explicitly authorizes otherwise.
 
 `clinical_claim=NONE` remains mandatory. A research classifier is not a diagnosis or cancer probability.
