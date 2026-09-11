@@ -12,7 +12,12 @@ from sklearn.decomposition import PCA
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import RobustScaler
 
+from app.services.native_classifier_runtime import (
+    native_classifier_status,
+    predict_native_binary,
+)
 from app.services.reference_model import ENGINEERED_COLS
+from app.services.target_feature_builder import feature_schema
 
 ROOT = Path(__file__).resolve().parents[2]
 DINO_DIR = ROOT / "artifacts" / "dinov2_reference"
@@ -21,6 +26,8 @@ DATA_DIR = ROOT / "data"
 BACKBONE_NAME = "dinov2_vits14"
 EMBEDDING_DIM = 384
 REFERENCE_TLC_PROFILE_ID = "reference-publication-unknown"
+CLIENT_TLC_PROFILE_ID = "client-device-tlc-pending"
+EXPERIMENTAL_NATIVE_VERSION = "0.1.0-exp8v1-dino"
 # Pinned to the official facebookresearch/dinov2 main commit retrieved for this lane.
 DINO_HUB_REPOSITORY = (
     "facebookresearch/dinov2:7764ea0f912e53c92e82eb78a2a1631e92725fc8"
@@ -255,6 +262,23 @@ def _normalized_embedding(embedding: np.ndarray) -> np.ndarray:
     return vector / norm
 
 
+def _experimental_native_prediction(vector: np.ndarray, tlc_profile_id: str) -> dict | None:
+    if tlc_profile_id != CLIENT_TLC_PROFILE_ID:
+        return None
+    status = native_classifier_status()
+    # This bridge is intentionally version-locked to the current DINO-only
+    # 8-vs-1 research artifact. A future fused target model must use the full
+    # target-feature builder instead of silently inheriting zero-filled blocks.
+    if not status.get("available") or status.get("version") != EXPERIMENTAL_NATIVE_VERSION:
+        return status
+    schema = feature_schema()
+    total = int(schema["total_features"])
+    dino_start = int(schema["groups"]["dinov2"]["start"])
+    target = np.zeros(total, dtype=np.float32)
+    target[dino_start : dino_start + EMBEDDING_DIM] = vector
+    return predict_native_binary(target)
+
+
 def analyze_embedding(
     embedding: np.ndarray,
     lct_features: dict,
@@ -275,7 +299,7 @@ def analyze_embedding(
     ]
     lct = _lct_vector(lct_features)
     same_domain = tlc_profile_id == REFERENCE_TLC_PROFILE_ID
-    return {
+    payload = {
         "dinov2_backbone": BACKBONE_NAME,
         "dinov2_embedding_dim": EMBEDDING_DIM,
         "dinov2_reference_anomaly_score_0_1": round(_DINO_HEAD.score(vector), 6),
@@ -296,6 +320,10 @@ def analyze_embedding(
         "clinical_risk": None,
         "clinical_claim": "NONE",
     }
+    native = _experimental_native_prediction(vector, tlc_profile_id)
+    if native is not None:
+        payload["native_binary_research"] = native
+    return payload
 
 
 def analyze_plate_rgb(rgb: np.ndarray, lct_features: dict, tlc_profile_id: str):

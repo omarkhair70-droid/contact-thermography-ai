@@ -10,15 +10,17 @@
   "labels": {
     "MALIGNANT": 1,
     "BENIGN": 1,
-    "PENDING_CLIENT_CLASS_MAP": 9
+    "TUMOR_BEARING": 8,
+    "HEALTHY": 1
   },
   "roles": {
     "REFERENCE_ONLY": 2,
-    "FROZEN_TARGET_EVAL": 9
+    "TRAIN_CANDIDATE": 9
   },
-  "train_eligible_rows": 0,
+  "train_eligible_rows": 9,
   "binary_training_ready": false,
-  "primary_blocker": "Exact image-to-class mapping for the already supplied mixed tumor/control client mouse cohort",
-  "next_data_priority": "Map WA0030-WA0038 to TUMOR_BEARING or HEALTHY; no replacement-control request is required unless the resolved class distribution is insufficient",
+  "primary_blocker": "The client-device mouse cohort is fully mapped but contains only one HEALTHY/NO_TUMOR subject versus eight tumor-bearing subjects; the current native binary gate requires at least five trainable subjects per class.",
+  "next_data_priority": "Acquire at least four additional genuine same-domain healthy/control mouse subjects to reach the current 5-negative engineering gate. Do not synthesize negatives or count augmentations as new subjects.",
+  "model_target": "TUMOR_LIKE vs NO_TUMOR_LIKE presence/absence only; tumor-size estimation is explicitly out of scope because TLC visibility can depend on superficial/deep presentation and is not a tumor-size measurement.",
   "clinical_claim": "NONE"
 }

@@ -9,40 +9,38 @@ Read these in order:
 1. `docs/CONTACT_THERMOGRAPHY_MASTER_CONTINUATION_HANDOFF_2026-09-11.md` — full project history and scientific/product context.
 2. `docs/CONTACT_THERMOGRAPHY_CONTINUATION_UPDATE_2026-09-11_LANES_M_P.md` — Lanes M/N/O/P history.
 3. `docs/CONTACT_THERMOGRAPHY_CONTINUATION_UPDATE_2026-09-11_POST_PR33.md` — historical state after PR #33; its all-positive client-cohort assumption is superseded.
-4. `docs/CONTACT_THERMOGRAPHY_CONTINUATION_UPDATE_2026-09-11_MIXED_CLIENT_COHORT.md` — **current source of truth**.
+4. `docs/CONTACT_THERMOGRAPHY_CONTINUATION_UPDATE_2026-09-11_MIXED_CLIENT_COHORT.md` — historical mixed-cohort state before the exact map was resolved.
+5. `docs/CONTACT_THERMOGRAPHY_CONTINUATION_UPDATE_2026-09-11_EXP8V1.md` — **current source of truth**: exact 8/1 map, experimental native model and Coolify continuation.
 
 Repository: `omarkhair70-droid/contact-thermography-ai`
 
-Canonical working branch: `integration`
+Canonical deployment branch after reviewed/green merge: `integration`
 
 ## Current native-mouse rule
 
-The client clarified that the nine already-supplied target-device mouse contact-LCT images include both tumor-bearing and normal/no-tumor animals.
+The exact supplied client mouse map is now resolved:
 
-Therefore the previous assumptions that all nine were tumor-bearing and that new controls were necessarily required are withdrawn.
+- `WA0030` through `WA0037` = `TUMOR_BEARING`
+- `WA0038` = `HEALTHY`
 
-The current blocker is only the exact per-image mapping:
+The current cohort is therefore 8 positive / 1 negative.
 
-`WA0030` ... `WA0038` -> `TUMOR_BEARING` or `HEALTHY`.
+The product target is tumor presence/absence only: `TUMOR_LIKE` vs `NO_TUMOR_LIKE`. Tumor-size estimation is out of scope. The client clarified that visible TLC response can depend on superficial/deeper presentation, so apparent response extent/intensity must not be interpreted as tumor size.
 
-Until that map is recorded, the canonical nine remain non-trainable evidence and `lct-native-binary` remains `BLOCKED_ON_CLIENT_CLASS_MAP`.
+The canonical native trainer remains the path for defensible subject-level internal cross-validation when class counts support it. With only one negative, proper binary CV/specificity estimation is not possible.
 
-Once the mapping is resolved, the cohort-preparation gate can promote the correctly labelled client rows into an internal-development manifest. The first result is `INTERNAL_RESEARCH_CROSS_VALIDATION`, not independent external validation.
+A separate explicit internal demo lane may fit the 8/1 cohort so end-to-end product inference can be exercised now. That artifact must remain marked `ACTIVE_RESEARCH`, `INTERNAL_RESEARCH_DEMO_ONLY`, `NOT_VALIDATED_SINGLE_NEGATIVE` and `clinical_claim=NONE`.
 
-The tiny-cohort engineering gate now permits a first exploratory baseline with at least 2 mapped subjects in each class. This is an engineering minimum, not scientific or clinical sample-size adequacy. Logistic Regression remains the minimum baseline; calibrated Linear SVM is used only when class counts support calibration.
-
-Tumor-size/volume mapping remains useful for the separate tumor-burden experiment but is not required for the first binary classifier.
+Additional genuine same-domain no-tumor mice remain the highest-value data addition. Four more independent controls reach the current five-negative engineering target. Multiple images/augmentations of the same negative animal do not count as additional subjects.
 
 `lct-target-v1` remains profile-locked to `client-device-tlc-pending`. Do not invent a calibrated profile name or silently mix TLC/device/acquisition domains.
 
-Historical/public contact-LCT research remains useful for external evidence and future expansion, but it is not the primary blocker if the client cohort itself supplies both classes.
-
-`clinical_claim=NONE` remains mandatory.
+Historical/public contact-LCT research remains reference/auxiliary evidence unless its domain, subject labels and rights meet the target intake contract.
 
 ## New-chat instruction
 
 Use:
 
-> Read the master continuation files, ending with `docs/CONTACT_THERMOGRAPHY_CONTINUATION_UPDATE_2026-09-11_MIXED_CLIENT_COHORT.md`, in repo `omarkhair70-droid/contact-thermography-ai`. Inspect current `integration`. Do not redo merged lanes and do not assume the nine client mice are all positive. The client clarified that the supplied cohort includes both tumor-bearing and normal/no-tumor mice. Recover/record the exact WA0030-WA0038 class map, then build the internal-development manifest and run the target-native baseline. Preserve `client-device-tlc-pending` and `clinical_claim=NONE`.
+> Read the master continuation files, ending with `docs/CONTACT_THERMOGRAPHY_CONTINUATION_UPDATE_2026-09-11_EXP8V1.md`, in repo `omarkhair70-droid/contact-thermography-ai`. Inspect current `integration` and any open experimental 8-vs-1 PR. The exact client map is WA0030-WA0037 tumor-bearing and WA0038 healthy. Preserve `client-device-tlc-pending`, `clinical_claim=NONE`, and the distinction between the internal demo fit and real subject-level validation. Finish green CI/merge/Coolify smoke validation, then prioritize additional genuine same-domain no-tumor controls.
 
 Do not restart from the old parallel-lane plan or merge stale PR #7/#8; both are closed and superseded.
