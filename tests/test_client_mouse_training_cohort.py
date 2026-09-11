@@ -28,11 +28,7 @@ def _row(index: int, label: str, **overrides) -> dict:
         "modality": "contact-LCT",
         "species": "mouse",
         "label": label,
-        "label_provenance": (
-            "experimentally tumor-bearing under existing approved study protocol"
-            if positive else
-            "documented untreated control under existing approved study protocol"
-        ),
+        "label_provenance": "test fixture",
         "split_group": subject_id,
         "license_tag": "PRIVATE-CLIENT-DATA-AGREEMENT",
         "tlc_profile_id": "client-device-tlc-pending",
@@ -45,9 +41,7 @@ def _row(index: int, label: str, **overrides) -> dict:
         "strain_id": "client-mouse-strain-v1",
         "sex": "F",
         "weight_g": 24.0 + (index % 3),
-        "experimental_group": (
-            "TUMOR_BEARING_EXISTING_PROTOCOL" if positive else "UNTREATED_CONTROL_EXISTING_PROTOCOL"
-        ),
+        "experimental_group": "TUMOR" if positive else "CONTROL",
         "capture_session_id": f"SESSION-{1 + ((index - 1) // 4)}",
         "tlc_batch_id": "TLC-BATCH-A",
         "camera_settings_id": "CAMERA-LOCKED-A",
@@ -61,118 +55,110 @@ def _row(index: int, label: str, **overrides) -> dict:
     return row
 
 
-def _control_rows() -> list[dict]:
-    return [_row(i, "HEALTHY", capture_session_id=f"SESSION-{1 + ((i - 1) // 2)}") for i in range(1, 6)]
-
-
-def _balanced_rows() -> list[dict]:
-    rows = []
-    for pair in range(5):
-        rows.append(_row(pair * 2 + 1, "TUMOR_BEARING", capture_session_id=f"SESSION-{pair // 2 + 1}"))
-        rows.append(_row(pair * 2 + 2, "HEALTHY", capture_session_id=f"SESSION-{pair // 2 + 1}"))
-    return rows
-
-
 def _write(tmp_path: Path, rows: list[dict], name: str = "mouse.csv") -> Path:
     path = tmp_path / name
     pd.DataFrame(rows, columns=COLUMNS).to_csv(path, index=False)
     return path
 
 
-def test_committed_mouse_template_is_empty_and_waits_only_for_controls() -> None:
+def _class_map(tmp_path: Path, labels: list[str]) -> Path:
+    assert len(labels) == 9
+    rows = []
+    for offset, label in enumerate(labels, start=30):
+        rows.append({
+            "subject_id": f"CLIENT-MOUSE-{offset:04d}",
+            "image_id": f"IMG-20260910-WA{offset:04d}.jpg",
+            "tumor_status": label,
+            "tumor_size_value": "",
+            "tumor_size_unit": "",
+            "tumor_volume_value": "",
+            "tumor_volume_unit": "",
+            "measurement_method": "",
+            "measurement_timepoint": "",
+            "control_or_baseline": "",
+            "notes": "test class map",
+        })
+    path = tmp_path / "class_map.csv"
+    pd.DataFrame(rows).to_csv(path, index=False)
+    return path
+
+
+def test_committed_client_map_is_pending_not_positive_only() -> None:
     result, native = assess_mouse_training_cohort(
         ROOT / "data" / "client_mouse_training_cohort_template.csv",
         allow_empty=True,
     )
-    assert result["status"] == "EMPTY_TEMPLATE"
+    assert result["status"] == "CLASS_MAP_PENDING"
     assert result["binary_training_ready"] is False
-    assert result["positive_subjects"] == 9
-    assert result["negative_subjects"] == 0
-    assert result["target_tlc_profile_id"] == "client-device-tlc-pending"
-    assert result["validation_scope"] == "INTERNAL_RESEARCH_CROSS_VALIDATION"
-    assert result["independent_external_validation"] is False
-    assert any("genuine same-domain control" in reason for reason in result["reasons"])
+    assert len(result["pending_subjects"]) == 9
+    assert result["mapped_positive_subjects"] == 0
+    assert result["mapped_negative_subjects"] == 0
+    assert any("contains both tumor-bearing and normal/no-tumor" in reason for reason in result["reasons"])
     assert native is None
-    assert result["clinical_claim"] == "NONE"
 
 
-def test_five_same_domain_controls_open_gate_with_existing_nine_positives(tmp_path: Path) -> None:
-    result, native = assess_mouse_training_cohort(_write(tmp_path, _control_rows()))
+def test_resolved_five_four_client_map_opens_internal_gate_without_new_images(tmp_path: Path) -> None:
+    labels = ["TUMOR_BEARING"] * 5 + ["HEALTHY"] * 4
+    result, native = assess_mouse_training_cohort(
+        ROOT / "data" / "client_mouse_training_cohort_template.csv",
+        allow_empty=True,
+        class_map_path=_class_map(tmp_path, labels),
+    )
     assert result["status"] == "GREEN"
     assert result["binary_training_ready"] is True
-    assert result["positive_subjects"] == 9
-    assert result["existing_development_positive_subjects"] == 9
-    assert result["incoming_positive_subjects"] == 0
-    assert result["negative_subjects"] == 5
-    assert result["promoted_device_profile_id"] == "client-device-v1"
+    assert result["positive_subjects"] == 5
+    assert result["negative_subjects"] == 4
+    assert result["existing_client_subjects"] == 9
+    assert result["supplemental_trainable_subjects"] == 0
     assert native is not None
-    assert len(native) == 14
-    assert native["subject_id"].is_unique
-    assert {f"CLIENT-MOUSE-{number:04d}" for number in range(30, 39)}.issubset(set(native["subject_id"]))
+    assert len(native) == 9
+    assert set(native["label"]) == {"TUMOR_BEARING", "HEALTHY"}
     assert set(native["use_role"]) == {"TRAIN_CANDIDATE"}
-    assert set(native["device_profile_id"]) == {"client-device-v1"}
 
 
-def test_optional_new_positives_can_join_internal_development_pool(tmp_path: Path) -> None:
-    result, native = assess_mouse_training_cohort(_write(tmp_path, _balanced_rows()))
-    assert result["status"] == "GREEN"
-    assert result["positive_subjects"] == 14
-    assert result["incoming_positive_subjects"] == 5
-    assert result["negative_subjects"] == 5
-    assert native is not None
-    assert len(native) == 19
+def test_one_unmapped_client_subject_keeps_gate_closed(tmp_path: Path) -> None:
+    labels = ["TUMOR_BEARING"] * 4 + ["HEALTHY"] * 4 + ["PENDING_CLASS_MAP"]
+    result, native = assess_mouse_training_cohort(
+        ROOT / "data" / "client_mouse_training_cohort_template.csv",
+        allow_empty=True,
+        class_map_path=_class_map(tmp_path, labels),
+    )
+    assert result["status"] == "CLASS_MAP_PENDING"
+    assert result["pending_subjects"] == ["CLIENT-MOUSE-0038"]
+    assert native is None
 
 
-def test_canonical_client_positive_cannot_be_duplicated_in_supplemental_manifest(tmp_path: Path) -> None:
-    rows = _control_rows()
+def test_client_subject_cannot_be_duplicated_in_supplemental_manifest(tmp_path: Path) -> None:
+    labels = ["TUMOR_BEARING"] * 5 + ["HEALTHY"] * 4
+    rows = [_row(1, "HEALTHY")]
     rows[0]["subject_id"] = "CLIENT-MOUSE-0030"
     rows[0]["split_group"] = "CLIENT-MOUSE-0030"
-    with pytest.raises(ValueError, match="injected automatically"):
-        assess_mouse_training_cohort(_write(tmp_path, rows))
+    with pytest.raises(ValueError, match="must not be duplicated"):
+        assess_mouse_training_cohort(
+            _write(tmp_path, rows),
+            class_map_path=_class_map(tmp_path, labels),
+        )
 
 
-def test_non_target_tlc_profile_is_blocked_by_417_feature_contract(tmp_path: Path) -> None:
-    rows = _control_rows()
-    for row in rows:
-        row["tlc_profile_id"] = "reference-publication-unknown"
-    result, native = assess_mouse_training_cohort(_write(tmp_path, rows))
+def test_non_target_tlc_profile_in_supplemental_rows_is_blocked(tmp_path: Path) -> None:
+    labels = ["TUMOR_BEARING"] * 5 + ["HEALTHY"] * 4
+    rows = [_row(1, "HEALTHY", tlc_profile_id="reference-publication-unknown")]
+    result, native = assess_mouse_training_cohort(
+        _write(tmp_path, rows),
+        class_map_path=_class_map(tmp_path, labels),
+    )
     assert result["binary_training_ready"] is False
-    assert any("lct-target-v1 is currently profile-locked" in reason for reason in result["reasons"])
+    assert any("profile-locked" in reason for reason in result["reasons"])
     assert native is None
 
 
-def test_unconfirmed_domain_match_blocks_control_promotion(tmp_path: Path) -> None:
-    rows = _control_rows()
-    rows[-1]["matches_client_positive_domain"] = False
-    result, native = assess_mouse_training_cohort(_write(tmp_path, rows))
+def test_unconfirmed_domain_match_blocks_supplemental_rows(tmp_path: Path) -> None:
+    labels = ["TUMOR_BEARING"] * 5 + ["HEALTHY"] * 4
+    rows = [_row(1, "HEALTHY", matches_client_positive_domain=False)]
+    result, native = assess_mouse_training_cohort(
+        _write(tmp_path, rows),
+        class_map_path=_class_map(tmp_path, labels),
+    )
     assert result["binary_training_ready"] is False
     assert any("matches_client_positive_domain=true" in reason for reason in result["reasons"])
-    assert native is None
-
-
-def test_mixed_strain_blocks_same_domain_controls(tmp_path: Path) -> None:
-    rows = _control_rows()
-    rows[-1]["strain_id"] = "OTHER-STRAIN"
-    result, native = assess_mouse_training_cohort(_write(tmp_path, rows))
-    assert result["binary_training_ready"] is False
-    assert any("one mouse strain" in reason for reason in result["reasons"])
-    assert native is None
-
-
-def test_mixed_sex_blocks_strict_v1_controls(tmp_path: Path) -> None:
-    rows = _control_rows()
-    rows[-1]["sex"] = "M"
-    result, native = assess_mouse_training_cohort(_write(tmp_path, rows))
-    assert result["binary_training_ready"] is False
-    assert any("one mouse sex" in reason for reason in result["reasons"])
-    assert native is None
-
-
-def test_class_separated_sessions_are_flagged_when_new_positives_are_supplied(tmp_path: Path) -> None:
-    rows = _balanced_rows()
-    for row in rows:
-        row["capture_session_id"] = "POSITIVE-DAY" if row["label"] == "TUMOR_BEARING" else "CONTROL-DAY"
-    result, native = assess_mouse_training_cohort(_write(tmp_path, rows))
-    assert result["binary_training_ready"] is False
-    assert any("disjoint capture sessions" in reason for reason in result["reasons"])
     assert native is None
