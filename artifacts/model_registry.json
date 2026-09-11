@@ -32,6 +32,18 @@
       "artifact": null
     },
     {
+      "name": "lct-native-binary",
+      "version": null,
+      "status": "BLOCKED_ON_GENUINE_SAME_DOMAIN_CONTROLS",
+      "clinical_use": false,
+      "clinical_claim": "NONE",
+      "target_feature_contract_version": "lct-target-v1",
+      "tlc_profile_id": "client-device-tlc-pending",
+      "activation_scope": "INTERNAL_RESEARCH_CROSS_VALIDATION",
+      "blocked_reason": "Need genuine same-domain mouse controls before native binary training and activation",
+      "artifact": null
+    },
+    {
       "name": "lct-dinov2-lct-fusion",
       "version": "0.1.0",
       "status": "REFERENCE_RESULTS_AVAILABLE",
