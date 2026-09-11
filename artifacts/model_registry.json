@@ -34,13 +34,13 @@
     {
       "name": "lct-native-binary",
       "version": null,
-      "status": "BLOCKED_ON_GENUINE_SAME_DOMAIN_CONTROLS",
+      "status": "BLOCKED_ON_CLIENT_CLASS_MAP",
       "clinical_use": false,
       "clinical_claim": "NONE",
       "target_feature_contract_version": "lct-target-v1",
       "tlc_profile_id": "client-device-tlc-pending",
       "activation_scope": "INTERNAL_RESEARCH_CROSS_VALIDATION",
-      "blocked_reason": "Need genuine same-domain mouse controls before native binary training and activation",
+      "blocked_reason": "Client clarified the supplied nine mouse images include both tumor-bearing and normal/no-tumor animals; need exact WA0030-WA0038 image-to-class mapping before training",
       "artifact": null
     },
     {

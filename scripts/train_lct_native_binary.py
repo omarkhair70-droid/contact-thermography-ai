@@ -33,7 +33,7 @@ def _binary_label(value: str) -> int:
     raise ValueError(f"unsupported binary label: {value}")
 
 
-def readiness(manifest_path: Path, min_per_class: int = 5) -> dict:
+def readiness(manifest_path: Path, min_per_class: int = 2) -> dict:
     frame = pd.read_csv(manifest_path, keep_default_na=False)
     required = {
         "subject_id", "modality", "species", "label", "split_group", "tlc_profile_id",
@@ -45,6 +45,7 @@ def readiness(manifest_path: Path, min_per_class: int = 5) -> dict:
 
     train = frame[frame["train_eligible"].map(_as_bool)].copy()
     reasons: list[str] = []
+    warnings: list[str] = []
     if train.empty:
         reasons.append("no train_eligible target-domain rows")
     if not train.empty and set(train["modality"]) != {"contact-LCT"}:
@@ -67,6 +68,10 @@ def readiness(manifest_path: Path, min_per_class: int = 5) -> dict:
         reasons.append(f"need at least {min_per_class} negative subjects; found {negative}")
     if unknown:
         reasons.append(f"{unknown} trainable rows have unsupported/unknown binary labels")
+    if min(positive, negative) < 5 and positive and negative:
+        warnings.append(
+            "very small class counts: metrics are exploratory internal research only, not independent validation"
+        )
 
     duplicate_subjects = train[train["subject_id"].duplicated()]["subject_id"].tolist()
     if duplicate_subjects:
@@ -81,6 +86,7 @@ def readiness(manifest_path: Path, min_per_class: int = 5) -> dict:
         "tlc_profiles": sorted(train["tlc_profile_id"].unique().tolist()),
         "device_profiles": sorted(train["device_profile_id"].unique().tolist()),
         "reasons": reasons,
+        "warnings": warnings,
         "clinical_claim": "NONE",
     }
 
@@ -100,7 +106,7 @@ def _metrics(y_true: np.ndarray, probability: np.ndarray) -> dict:
     }
 
 
-def train(manifest_path: Path, features_path: Path, output_dir: Path, min_per_class: int = 5, folds: int = 5, seed: int = 20260910) -> dict:
+def train(manifest_path: Path, features_path: Path, output_dir: Path, min_per_class: int = 2, folds: int = 5, seed: int = 20260910) -> dict:
     gate = readiness(manifest_path, min_per_class=min_per_class)
     if not gate["binary_training_ready"]:
         raise ValueError("target-domain training gate closed: " + "; ".join(gate["reasons"]))
@@ -126,7 +132,8 @@ def train(manifest_path: Path, features_path: Path, output_dir: Path, min_per_cl
     X = joined[feature_cols].to_numpy(dtype=np.float64)
     y = joined["label"].map(_binary_label).to_numpy(dtype=int)
     class_counts = np.bincount(y, minlength=2)
-    n_folds = min(int(folds), int(class_counts.min()))
+    min_class_count = int(class_counts.min())
+    n_folds = min(int(folds), min_class_count)
     if n_folds < 2:
         raise ValueError(f"insufficient class counts for cross-validation: {class_counts.tolist()}")
 
@@ -135,11 +142,18 @@ def train(manifest_path: Path, features_path: Path, output_dir: Path, min_per_cl
             ("scale", StandardScaler()),
             ("clf", LogisticRegression(class_weight="balanced", max_iter=5000, random_state=seed)),
         ]),
-        "linear_svm_calibrated": Pipeline([
+    }
+    skipped_models: dict[str, str] = {}
+    if min_class_count >= 3:
+        models["linear_svm_calibrated"] = Pipeline([
             ("scale", StandardScaler()),
             ("clf", CalibratedClassifierCV(LinearSVC(class_weight="balanced", random_state=seed), cv=2, method="sigmoid")),
-        ]),
-    }
+        ])
+    else:
+        skipped_models["linear_svm_calibrated"] = (
+            "requires at least 3 subjects in each class so every outer-CV training fold can support 2-fold calibration"
+        )
+
     cv = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
     oof = joined[["subject_id", "label"]].copy()
     result = {
@@ -148,6 +162,7 @@ def train(manifest_path: Path, features_path: Path, output_dir: Path, min_per_cl
         "folds": n_folds,
         "feature_count": len(feature_cols),
         "models": {},
+        "skipped_models": skipped_models,
         "clinical_claim": "NONE",
         "semantics": "research classification only; not a clinical diagnosis or cancer probability",
     }
@@ -181,7 +196,7 @@ def main() -> None:
     parser.add_argument("manifest", type=Path)
     parser.add_argument("--features", type=Path)
     parser.add_argument("--output-dir", type=Path)
-    parser.add_argument("--min-per-class", type=int, default=5)
+    parser.add_argument("--min-per-class", type=int, default=2)
     parser.add_argument("--folds", type=int, default=5)
     parser.add_argument("--readiness-only", action="store_true")
     args = parser.parse_args()

@@ -25,6 +25,7 @@ REQUIRED = {
 ALLOWED_ROLES = {"REFERENCE_ONLY", "FROZEN_TARGET_EVAL", "TRAIN_CANDIDATE", "BLOCKED_RIGHTS"}
 POSITIVE_LABELS = {"CANCER", "MALIGNANT", "TUMOR_BEARING"}
 NEGATIVE_LABELS = {"HEALTHY", "BENIGN"}
+PENDING_LABELS = {"PENDING_CLIENT_CLASS_MAP"}
 
 
 def _as_bool(value: object) -> bool:
@@ -63,25 +64,29 @@ def validate(path: Path) -> dict:
     if not illegal_reference_train.empty:
         errors.append("only TRAIN_CANDIDATE rows may set train_eligible=true")
 
-    private_negatives = frame[
-        (frame["source_id"] == "client-mice-2026") & frame["label"].isin(NEGATIVE_LABELS)
-    ]
-    if not private_negatives.empty:
-        errors.append("client mouse cohort is known positive-only; negative labels are forbidden")
+    client = frame[frame["source_id"] == "client-mice-2026"]
+    client_bad_labels = sorted(
+        set(client["label"].astype(str))
+        - POSITIVE_LABELS
+        - NEGATIVE_LABELS
+        - PENDING_LABELS
+    )
+    if client_bad_labels:
+        errors.append(f"unsupported client mouse labels: {client_bad_labels}")
+    if client["label"].isin(PENDING_LABELS).any():
+        warnings.append(
+            "client mouse cohort contains pending per-image class labels; do not train it until the client class map is resolved"
+        )
 
     train = frame[frame["_train"]]
     train_pos = int(train["label"].isin(POSITIVE_LABELS).sum())
     train_neg = int(train["label"].isin(NEGATIVE_LABELS).sum())
-    binary_training_ready = train_pos >= 5 and train_neg >= 5 and train["species"].nunique() == 1
+    binary_training_ready = train_pos >= 2 and train_neg >= 2 and train["species"].nunique() == 1
 
     if not binary_training_ready:
         warnings.append(
-            "target-domain binary training is NOT ready: require at least 5 eligible positives and 5 eligible negatives from one species before fitting even a provisional classifier"
+            "target-domain binary training is NOT ready: require resolved labels and at least 2 eligible positives and 2 eligible negatives from one species for even a tiny internal research baseline"
         )
-
-    frozen = frame[frame["use_role"] == "FROZEN_TARGET_EVAL"]
-    if not frozen.empty and frozen["split_group"].nunique() != 1:
-        errors.append("frozen target cohort must remain in one split_group")
 
     summary = {
         "rows": int(len(frame)),

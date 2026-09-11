@@ -19,21 +19,21 @@ def _base_entry() -> dict:
     return {
         "name": "lct-native-binary",
         "version": None,
-        "status": "BLOCKED_ON_GENUINE_SAME_DOMAIN_CONTROLS",
+        "status": "BLOCKED_ON_CLIENT_CLASS_MAP",
         "clinical_use": False,
         "clinical_claim": "NONE",
         "target_feature_contract_version": "lct-target-v1",
         "tlc_profile_id": "client-device-tlc-pending",
         "activation_scope": "INTERNAL_RESEARCH_CROSS_VALIDATION",
-        "blocked_reason": "Need genuine same-domain mouse controls",
+        "blocked_reason": "Need exact WA0030-WA0038 image-to-class mapping",
         "artifact": None,
     }
 
 
-def test_committed_registry_is_data_blocked_and_emits_no_class() -> None:
+def test_committed_registry_is_class_map_blocked_and_emits_no_class() -> None:
     status = native_classifier_status(ROOT / "artifacts" / "model_registry.json")
     assert status["available"] is False
-    assert status["status"] == "BLOCKED_ON_GENUINE_SAME_DOMAIN_CONTROLS"
+    assert status["status"] == "BLOCKED_ON_CLIENT_CLASS_MAP"
     assert status["research_binary_class"] is None
     assert status["feature_contract_version"] == "lct-target-v1"
     assert status["tlc_profile_id"] == "client-device-tlc-pending"
