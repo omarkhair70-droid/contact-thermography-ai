@@ -17,6 +17,32 @@ def _score_line(label: str, value) -> str:
     return f"<p><b>{escape(label)}:</b> {_fmt(value)}</p>"
 
 
+def _native_research_block(plate: dict) -> str:
+    native = plate.get("native_binary_research")
+    if not isinstance(native, dict):
+        return ""
+    if not native.get("available") or not native.get("research_binary_class"):
+        return ""
+    cls = escape(str(native.get("research_binary_class")))
+    score = _fmt(native.get("model_score"))
+    validation = escape(str(native.get("validation_status") or "UNVALIDATED_RESEARCH"))
+    warning = escape(
+        str(
+            native.get("warning")
+            or "Experimental research model; current training cohort contains one no-tumor subject."
+        )
+    )
+    return f"""
+            <div class="native-research">
+              <p><b>Experimental native class:</b> {cls}</p>
+              <p><b>Research model score:</b> {score}</p>
+              <p><b>Validation status:</b> {validation}</p>
+              <p class="muted">{warning}</p>
+              <p class="muted">This score is not a cancer probability, diagnosis, or tumor-size estimate.</p>
+            </div>
+    """
+
+
 def build_report_html(result: dict):
     exam_id = escape(str(result["exam_id"]))
     profile = result.get("profile_provenance") or {}
@@ -47,6 +73,7 @@ def build_report_html(result: dict):
             <p><b>Reference anomaly percentile:</b> {_fmt(plate.get('reference_anomaly_percentile'))}</p>
             {_score_line('DINOv2 reference unusualness score', plate.get('dinov2_reference_anomaly_score_0_1'))}
             {_score_line('Fused LCT + DINOv2 reference score', plate.get('dinov2_lct_fused_reference_score_0_1'))}
+            {_native_research_block(plate)}
             <p class="muted">{escape(str(plate.get('dinov2_domain_notice', 'Reference unusualness only; not cancer probability.')))}</p>
           </div>
         </article>
@@ -77,6 +104,7 @@ body{{font-family:Arial,sans-serif;margin:32px;color:#17202a}}
 .card,.pair{{border:1px solid #ddd;border-radius:10px;padding:14px}}
 .card img{{width:100%;max-height:260px;object-fit:contain;background:#111}}
 .pair img{{width:100%;object-fit:contain;background:#111}}
+.native-research{{margin:12px 0;padding:10px;border:1px solid #d1a84d;border-radius:8px;background:#fff9e9}}
 .muted{{color:#6c757d}}
 </style></head><body>
 <h1>Contact Thermography Analysis Report</h1>
