@@ -1,0 +1,1 @@
+subject_id,image_path,source_id,modality,species,label,label_provenance,split_group,license_tag,tlc_profile_id,device_profile_id,acquisition_profile_id,data_use_status,redistribution_status,use_role,train_eligible,notes
