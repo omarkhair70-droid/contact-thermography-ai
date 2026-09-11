@@ -10,6 +10,7 @@ from scripts.validate_external_lct_intake import validate_external_lct_intake
 
 POSITIVE_LABEL = "TUMOR_BEARING"
 NEGATIVE_LABEL = "HEALTHY"
+TARGET_TLC_PROFILE_ID = "client-device-tlc-pending"
 FROZEN_EVAL_SUBJECTS = {f"CLIENT-MOUSE-{number:04d}" for number in range(30, 39)}
 MOUSE_REQUIRED_COLUMNS = {
     "strain_id",
@@ -79,6 +80,7 @@ def assess_mouse_training_cohort(
             "binary_training_ready": False,
             "positive_subjects": 0,
             "negative_subjects": 0,
+            "target_tlc_profile_id": TARGET_TLC_PROFILE_ID,
             "reasons": ["no new mouse training subjects supplied"],
             "clinical_claim": "NONE",
         }, None)
@@ -119,12 +121,18 @@ def assess_mouse_training_cohort(
         reasons.append("no train_eligible new mouse subjects")
     if not train.empty and not (train["use_role"] == "TRAIN_CANDIDATE").all():
         reasons.append("all trainable mouse rows must use TRAIN_CANDIDATE")
+    if not train.empty and set(train["tlc_profile_id"].astype(str)) != {TARGET_TLC_PROFILE_ID}:
+        reasons.append(
+            f"lct-target-v1 is currently profile-locked to {TARGET_TLC_PROFILE_ID}; "
+            f"found {sorted(train['tlc_profile_id'].astype(str).unique().tolist())}"
+        )
 
     for field, description in [
         ("tlc_profile_id", "TLC profile"),
         ("device_profile_id", "device profile"),
         ("acquisition_profile_id", "acquisition profile"),
         ("strain_id", "mouse strain"),
+        ("sex", "mouse sex"),
         ("tlc_batch_id", "TLC batch"),
         ("camera_settings_id", "camera settings"),
         ("illumination_profile_id", "illumination profile"),
@@ -164,6 +172,7 @@ def assess_mouse_training_cohort(
         "positive_subjects": positive_subjects,
         "negative_subjects": negative_subjects,
         "min_per_class": int(min_per_class),
+        "target_tlc_profile_id": TARGET_TLC_PROFILE_ID,
         "frozen_eval_subjects_preserved": sorted(FROZEN_EVAL_SUBJECTS),
         "sessions_by_label": sessions_by_label,
         "reasons": reasons,
