@@ -1,0 +1,1 @@
+subject_id,image_path,source_id,modality,species,label,label_provenance,split_group,license_tag,tlc_profile_id,device_profile_id,acquisition_profile_id,data_use_status,redistribution_status,use_role,train_eligible,strain_id,sex,weight_g,experimental_group,capture_session_id,tlc_batch_id,camera_settings_id,illumination_profile_id,view_id,capture_order,notes
