@@ -61,6 +61,33 @@ def test_safe_non_trainable_external_row_is_accepted(tmp_path: Path) -> None:
     assert result["train_eligible_rows"] == 0
 
 
+def test_reference_rows_must_declare_rights_and_domain_fields(tmp_path: Path) -> None:
+    for field in (
+        "license_tag",
+        "tlc_profile_id",
+        "device_profile_id",
+        "acquisition_profile_id",
+        "data_use_status",
+        "redistribution_status",
+        "use_role",
+    ):
+        path = _write(tmp_path, [_row(**{field: ""})], name=f"missing-{field}.csv")
+        with pytest.raises(ValueError, match=f"{field} must be populated"):
+            validate_external_lct_intake(path)
+
+
+def test_reference_rows_may_explicitly_declare_unknown_domain(tmp_path: Path) -> None:
+    result = validate_external_lct_intake(_write(tmp_path, [_row(
+        tlc_profile_id="unknown",
+        device_profile_id="unknown",
+        acquisition_profile_id="pending",
+        data_use_status="REFERENCE_USE_ONLY",
+        license_tag="RIGHTS-UNKNOWN",
+    )]))
+    assert result["status"] == "GREEN"
+    assert result["train_eligible_rows"] == 0
+
+
 def test_training_candidate_requires_explicit_model_use_permission(tmp_path: Path) -> None:
     path = _write(tmp_path, [_row(
         use_role="TRAIN_CANDIDATE",
