@@ -2,7 +2,10 @@ FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1
+    PIP_NO_CACHE_DIR=1 \
+    HOME=/app/runtime \
+    TORCH_HOME=/var/lib/lct/storage/torch-cache \
+    XDG_CACHE_HOME=/var/lib/lct/storage/.cache
 
 WORKDIR /app
 
@@ -27,7 +30,12 @@ RUN pip install --no-cache-dir -r requirements.txt 'pillow>=10' \
 COPY . .
 RUN addgroup --system app \
     && adduser --system --ingroup app app \
-    && mkdir -p /app/runtime /app/app/static /var/lib/lct/storage \
+    && mkdir -p \
+       /app/runtime \
+       /app/app/static \
+       /var/lib/lct/storage \
+       /var/lib/lct/storage/torch-cache \
+       /var/lib/lct/storage/.cache \
     && chown -R app:app /app/runtime /app/app/static /var/lib/lct/storage
 
 USER app
