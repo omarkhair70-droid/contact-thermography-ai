@@ -1,0 +1,10 @@
+subject_id,image_id,blind_prediction,response_area_pct,confidence_group,rank_or_note,ground_truth_seen,training_label_allowed,notes
+CLIENT-MOUSE-0030,IMG-20260910-WA0030.jpg,LIKELY_NO_TUMOR,3.8,strong_no_tumor,one of lowest TLC response areas,false,false,"Blind working hypothesis only; freeze before client class-map reveal"
+CLIENT-MOUSE-0031,IMG-20260910-WA0031.jpg,LIKELY_NO_TUMOR,5.7,strong_no_tumor,low TLC response area,false,false,"Blind working hypothesis only; freeze before client class-map reveal"
+CLIENT-MOUSE-0032,IMG-20260910-WA0032.jpg,LIKELY_TUMOR,,moderate_tumor,lower-confidence tumor-side candidate,false,false,"Blind working hypothesis only; threshold-sweep separation placed this image on tumor side"
+CLIENT-MOUSE-0033,IMG-20260910-WA0033.jpg,LIKELY_TUMOR,,moderate_tumor,lower-confidence tumor-side candidate,false,false,"Blind working hypothesis only; threshold-sweep separation placed this image on tumor side"
+CLIENT-MOUSE-0034,IMG-20260910-WA0034.jpg,LIKELY_TUMOR,,strong_tumor,top tumor candidate after 0037 and 0036,false,false,"Blind working hypothesis only; freeze before client class-map reveal"
+CLIENT-MOUSE-0035,IMG-20260910-WA0035.jpg,LIKELY_TUMOR,,moderate_tumor,lower-confidence tumor-side candidate,false,false,"Blind working hypothesis only; threshold-sweep separation placed this image on tumor side"
+CLIENT-MOUSE-0036,IMG-20260910-WA0036.jpg,LIKELY_TUMOR,,strong_tumor,second strongest tumor candidate,false,false,"Blind working hypothesis only; freeze before client class-map reveal"
+CLIENT-MOUSE-0037,IMG-20260910-WA0037.jpg,LIKELY_TUMOR,14.3,strong_tumor,strongest tumor candidate,false,false,"Blind working hypothesis only; highest reported TLC response area among candidates"
+CLIENT-MOUSE-0038,IMG-20260910-WA0038.jpg,LIKELY_NO_TUMOR,6.2,strong_no_tumor,low TLC response area,false,false,"Blind working hypothesis only; freeze before client class-map reveal"
