@@ -13,7 +13,16 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt requirements-vision.txt ./
-RUN pip install --no-cache-dir -r requirements-vision.txt
+
+# Production runs on the CPU-only Oracle/Coolify host. Installing torch from
+# the default PyPI index pulls multi-gigabyte CUDA/NVIDIA dependencies on
+# Linux ARM64, which are unused here and can exhaust the host disk during
+# image export. Keep the normal app dependencies from PyPI, then install the
+# official CPU-only PyTorch wheels explicitly.
+RUN pip install --no-cache-dir -r requirements.txt 'pillow>=10' \
+    && pip install --no-cache-dir \
+       --index-url https://download.pytorch.org/whl/cpu \
+       'torch==2.14.0+cpu' 'torchvision==0.29.0+cpu'
 
 COPY . .
 RUN addgroup --system app \
