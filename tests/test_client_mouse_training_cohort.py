@@ -83,17 +83,20 @@ def _class_map(tmp_path: Path, labels: list[str]) -> Path:
     return path
 
 
-def test_committed_client_map_is_pending_not_positive_only() -> None:
+def test_committed_client_map_is_resolved_8v1_but_normal_gate_stays_closed() -> None:
     result, native = assess_mouse_training_cohort(
         ROOT / "data" / "client_mouse_training_cohort_template.csv",
         allow_empty=True,
     )
-    assert result["status"] == "CLASS_MAP_PENDING"
+    assert result["status"] == "BLOCKED"
     assert result["binary_training_ready"] is False
-    assert len(result["pending_subjects"]) == 9
-    assert result["mapped_positive_subjects"] == 0
-    assert result["mapped_negative_subjects"] == 0
-    assert any("contains both tumor-bearing and normal/no-tumor" in reason for reason in result["reasons"])
+    assert result["positive_subjects"] == 8
+    assert result["negative_subjects"] == 1
+    assert result["existing_client_subjects"] == 9
+    assert result["supplemental_trainable_subjects"] == 0
+    assert result["min_per_class"] == 2
+    assert any("need at least 2 mapped normal/no-tumor subjects; found 1" in reason for reason in result["reasons"])
+    assert any("very small" in warning for warning in result["warnings"])
     assert native is None
 
 
