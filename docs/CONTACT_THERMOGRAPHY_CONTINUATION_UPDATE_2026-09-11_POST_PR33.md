@@ -73,6 +73,20 @@ Ohio Journal of Science 73(1):55-58.
 
 The study reports 10 apparently healthy women examined with liquid-crystal breast thermography every day for 28 to 45 consecutive days. A public/institutional PDF is available. This is useful evidence about repeated healthy contact-LCT patterns and acquisition stability, but it is not a verified raw machine-learning dataset and image reuse/training rights still require verification.
 
+### Bichara 1975/1976 thesis
+
+`Liquid Crystal Thermography: A New System for Breast Cancer Detection`
+
+The Oregon State doctoral work describes a comparative study of 75 volunteer women using:
+
+- liquid-crystal thermography with an elastic thin film;
+- liquid-crystal thermography by direct spray over a blackened surface;
+- infrared thermography.
+
+The thesis figure list explicitly includes **Figure 28: a comparative thermogram of a normal pattern**, with both liquid-crystal views and an infrared view. This is currently the clearest discovered published lead to an actual normal/negative contact-LCT image, not merely a cohort count.
+
+Treat it as a candidate reference only until an official repository copy, image-level provenance and reuse/model-training rights are verified. A third-party preview or accessible thesis scan is not sufficient by itself to authorize commercial model training.
+
 ### Malaysia observed cases 2026
 
 The open-access 2026 LCT review provides one pathology-linked malignant contact-LCT exemplar and one biopsy-confirmed benign/fibrocystic true-negative exemplar under CC BY 4.0, subject to figure-specific attribution. These are useful reference exemplars, not a training cohort.
