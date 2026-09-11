@@ -10,15 +10,17 @@
   "labels": {
     "MALIGNANT": 1,
     "BENIGN": 1,
-    "PENDING_CLIENT_CLASS_MAP": 9
+    "TUMOR_BEARING": 8,
+    "PENDING_CLIENT_CLASS_MAP": 1
   },
   "roles": {
     "REFERENCE_ONLY": 2,
-    "FROZEN_TARGET_EVAL": 9
+    "TRAIN_CANDIDATE": 8,
+    "FROZEN_TARGET_EVAL": 1
   },
-  "train_eligible_rows": 0,
+  "train_eligible_rows": 8,
   "binary_training_ready": false,
-  "primary_blocker": "Exact image-to-class mapping for the already supplied mixed tumor/control client mouse cohort",
-  "next_data_priority": "Map WA0030-WA0038 to TUMOR_BEARING or HEALTHY; no replacement-control request is required unless the resolved class distribution is insufficient",
+  "primary_blocker": "No confirmed HEALTHY/NO_TUMOR mouse class is currently available in the client-device training set; WA0038 remains unresolved",
+  "next_data_priority": "Resolve WA0038. If WA0038 is HEALTHY, the cohort becomes 8 tumor vs 1 healthy, which is still too small and imbalanced for a defensible binary validation; acquire additional genuine same-domain controls when possible.",
   "clinical_claim": "NONE"
 }
