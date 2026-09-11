@@ -10,7 +10,7 @@
   "labels": {
     "MALIGNANT": 1,
     "BENIGN": 1,
-    "TUMOR_BEARING": 9
+    "PENDING_CLIENT_CLASS_MAP": 9
   },
   "roles": {
     "REFERENCE_ONLY": 2,
@@ -18,7 +18,7 @@
   },
   "train_eligible_rows": 0,
   "binary_training_ready": false,
-  "primary_blocker": "No same-domain negative/control client mouse cohort and no sufficiently sized labelled public contact-LCT cohort",
-  "next_data_priority": "Client-device control or pre-injection mouse contact-LCT images under the same acquisition conditions",
+  "primary_blocker": "Exact image-to-class mapping for the already supplied mixed tumor/control client mouse cohort",
+  "next_data_priority": "Map WA0030-WA0038 to TUMOR_BEARING or HEALTHY; no replacement-control request is required unless the resolved class distribution is insufficient",
   "clinical_claim": "NONE"
 }
