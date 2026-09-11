@@ -34,7 +34,7 @@ def _row(index: int, label: str, **overrides) -> dict:
         ),
         "split_group": subject_id,
         "license_tag": "PRIVATE-CLIENT-DATA-AGREEMENT",
-        "tlc_profile_id": "client-device-tlc-v1",
+        "tlc_profile_id": "client-device-tlc-pending",
         "device_profile_id": "client-device-v1",
         "acquisition_profile_id": "client-mouse-acq-v1",
         "data_use_status": "MODEL_RESEARCH_ALLOWED",
@@ -80,6 +80,7 @@ def test_committed_mouse_template_is_empty_and_blocked() -> None:
     )
     assert result["status"] == "EMPTY_TEMPLATE"
     assert result["binary_training_ready"] is False
+    assert result["target_tlc_profile_id"] == "client-device-tlc-pending"
     assert native is None
     assert result["clinical_claim"] == "NONE"
 
@@ -90,6 +91,7 @@ def test_balanced_new_same_domain_cohort_opens_technical_gate(tmp_path: Path) ->
     assert result["binary_training_ready"] is True
     assert result["positive_subjects"] == 5
     assert result["negative_subjects"] == 5
+    assert result["target_tlc_profile_id"] == "client-device-tlc-pending"
     assert native is not None
     assert len(native) == 10
     assert native["subject_id"].is_unique
@@ -113,12 +115,31 @@ def test_frozen_client_subject_cannot_be_reused_for_training(tmp_path: Path) -> 
         assess_mouse_training_cohort(_write(tmp_path, rows))
 
 
+def test_non_target_tlc_profile_is_blocked_by_417_feature_contract(tmp_path: Path) -> None:
+    rows = _balanced_rows()
+    for row in rows:
+        row["tlc_profile_id"] = "reference-publication-unknown"
+    result, native = assess_mouse_training_cohort(_write(tmp_path, rows))
+    assert result["binary_training_ready"] is False
+    assert any("lct-target-v1 is currently profile-locked" in reason for reason in result["reasons"])
+    assert native is None
+
+
 def test_mixed_strain_blocks_same_domain_training(tmp_path: Path) -> None:
     rows = _balanced_rows()
     rows[-1]["strain_id"] = "OTHER-STRAIN"
     result, native = assess_mouse_training_cohort(_write(tmp_path, rows))
     assert result["binary_training_ready"] is False
     assert any("one mouse strain" in reason for reason in result["reasons"])
+    assert native is None
+
+
+def test_mixed_sex_blocks_strict_v1_training_pool(tmp_path: Path) -> None:
+    rows = _balanced_rows()
+    rows[-1]["sex"] = "M"
+    result, native = assess_mouse_training_cohort(_write(tmp_path, rows))
+    assert result["binary_training_ready"] is False
+    assert any("one mouse sex" in reason for reason in result["reasons"])
     assert native is None
 
 
