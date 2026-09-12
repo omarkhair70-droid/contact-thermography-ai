@@ -11,6 +11,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.services.reference_store import store
 from app.services.analysis_engine import analyze_uploaded_image
+from app.services.acquisition_context import AcquisitionContextError, normalize_acquisition_context
 from app.services.exam_contracts import (
     DEFAULT_TLC_PROFILE,
     normalize_device_profile,
@@ -71,6 +72,8 @@ def health():
         "clinical_claim": "NONE",
         "live_bilateral_analysis": True,
         "mumguard_session_fusion": True,
+        "human_exam_ui": True,
+        "human_decision_contract": True,
         "live_dinov2_analysis": True,
         "dinov2_backbone": dinov2_service.BACKBONE_NAME,
         "dinov2_runtime_loaded": dinov2_service.runtime.ready,
@@ -92,6 +95,13 @@ def model_info():
                 "core_hyperthermia",
                 "bilateral_asymmetry",
                 "abnormal_skin_thermal_behavior",
+            ],
+            "decision_statuses": [
+                "INCONCLUSIVE",
+                "NOT_CALIBRATED",
+                "INDICATION_LOW",
+                "INDICATION_INTERMEDIATE",
+                "INDICATION_HIGH",
             ],
             "clinical_claim": "NONE",
         },
@@ -149,7 +159,17 @@ def parse_metadata(metadata_json: str | None):
     for item in items:
         if not isinstance(item, dict) or "filename" not in item:
             continue
-        lookup[str(item["filename"])] = {
+        filename = str(item["filename"])
+        if filename in lookup:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Duplicate metadata filename is ambiguous: {filename}. Use unique capture filenames.",
+            )
+        try:
+            acquisition_context = normalize_acquisition_context(item)
+        except AcquisitionContextError as exc:
+            raise HTTPException(status_code=400, detail=f"{filename}: {exc}") from exc
+        lookup[filename] = {
             "side": normalize_side(item.get("side")),
             "position": str(item.get("position")) if item.get("position") is not None else None,
             "sequence_index": item.get("sequence_index"),
@@ -157,6 +177,7 @@ def parse_metadata(metadata_json: str | None):
             "device_profile_id": normalize_device_profile(item.get("device_profile_id")),
             "species": item.get("species") if item.get("species") in ("mouse", "human") else None,
             "acquisition_type": item.get("acquisition_type") if item.get("acquisition_type") in ("contact-LCT", "radiometric-IR") else None,
+            "acquisition_context": acquisition_context,
         }
     return lookup
 
@@ -170,6 +191,7 @@ def _default_file_metadata():
         "device_profile_id": None,
         "species": None,
         "acquisition_type": None,
+        "acquisition_context": normalize_acquisition_context({}),
     }
 
 
@@ -200,6 +222,13 @@ async def analyze_exam(
     metadata = parse_metadata(metadata_json)
     form_tlc_profile_id = normalize_tlc_profile(tlc_profile_id) if tlc_profile_id is not None else None
     form_device_profile_id = normalize_device_profile(device_profile_id) if device_profile_id is not None else None
+
+    upload_names = [upload.filename or "" for upload in files]
+    if len(upload_names) != len(set(upload_names)):
+        raise HTTPException(
+            status_code=400,
+            detail="Duplicate uploaded filenames are ambiguous for per-capture metadata. Rename captures uniquely.",
+        )
 
     resolved = []
     for upload in files:
@@ -248,6 +277,7 @@ async def analyze_exam(
                     source_name=upload.filename or f"image-{upload_index}",
                     side=m["side"],
                     sequence_index=sequence_index,
+                    acquisition_context=m.get("acquisition_context"),
                 )
             )
 
@@ -433,6 +463,14 @@ def exam_report(exam_id: str):
     if item is None:
         raise HTTPException(status_code=404, detail="Exam not found")
     return HTMLResponse(build_report_html(item["result"]))
+
+
+@app.get("/human-exam", response_class=HTMLResponse)
+def human_exam_ui():
+    page = STATIC_DIR / "human-exam.html"
+    if not page.exists():
+        raise HTTPException(status_code=404, detail="Human examination UI not available")
+    return HTMLResponse(page.read_text(encoding="utf-8"))
 
 
 @app.get("/", response_class=HTMLResponse)
