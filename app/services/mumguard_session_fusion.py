@@ -8,6 +8,10 @@ from typing import Sequence
 import cv2
 import numpy as np
 
+from app.services.acquisition_context import (
+    acquisition_context_completeness,
+    normalize_acquisition_context,
+)
 from app.services.bilateral_session_engine import (
     SideFieldResult,
     build_three_channel_session_evidence,
@@ -16,6 +20,7 @@ from app.services.bilateral_session_engine import (
 )
 from app.services.client_device_domain import segment_client_response
 from app.services.contact_field import normalize_field
+from app.services.human_decision import HumanDecisionInput, build_human_decision
 from app.services.thermal_anomaly_engine import fuse_evidence_maps
 from app.services.tlc_signal_processing import build_relative_thermal_map
 
@@ -26,6 +31,7 @@ class SessionFrameInput:
     source_name: str
     side: str
     sequence_index: int
+    acquisition_context: dict | None = None
 
 
 def _normalized_bgr(source: bytes) -> tuple[np.ndarray, np.ndarray, dict]:
@@ -82,6 +88,7 @@ def _prepare_frame(frame: SessionFrameInput, tlc_profile_id: str, include_dino: 
     side = str(frame.side).upper()
     if side not in {"LEFT", "RIGHT"}:
         raise ValueError("Each session frame side must be LEFT or RIGHT")
+    acquisition_context = normalize_acquisition_context(frame.acquisition_context)
     bgr, valid, transform = _normalized_bgr(frame.source)
     response_mask_u8, components = segment_client_response(bgr, valid)
     response_mask = response_mask_u8 > 0
@@ -103,6 +110,8 @@ def _prepare_frame(frame: SessionFrameInput, tlc_profile_id: str, include_dino: 
         "visual_provenance": visual_provenance,
         "component_count": len(components),
         "transform": transform,
+        "acquisition_context": acquisition_context,
+        "acquisition_context_completeness": acquisition_context_completeness(acquisition_context),
     }
 
 
@@ -177,6 +186,15 @@ def analyze_bilateral_session(
         visual_evidence=right_visual.signal_map if right_visual is not None else None,
     )
 
+    ai_evidence_available = left_visual is not None and right_visual is not None
+    human_decision = build_human_decision(
+        HumanDecisionInput(
+            measurement_status=session.status,
+            measurement_scores=dict(session.scores),
+            ai_evidence_available=ai_evidence_available,
+        )
+    ).as_dict()
+
     result = {
         "status": session.status,
         "architecture": "mumguard_session_fusion_v1",
@@ -187,6 +205,7 @@ def analyze_bilateral_session(
         "contact_annotation_required_for_measurement": False,
         "response_support_semantics": "PROVISIONAL_VISIBLE_TLC_RESPONSE_NOT_CONFIRMED_TISSUE_CONTACT",
         "three_channel_scores": dict(session.scores),
+        "human_decision": human_decision,
         "left": _serialize_side(left_field),
         "right": _serialize_side(right_field),
         "bilateral": {
@@ -204,12 +223,14 @@ def analyze_bilateral_session(
                 "signal_provenance": dict(item["signal"].provenance),
                 "visual_provenance": item["visual_provenance"],
                 "geometry": dict(item["transform"]),
+                "acquisition_context": item["acquisition_context"],
+                "acquisition_context_completeness": item["acquisition_context_completeness"],
             }
             for item in prepared
         ],
         "left_offsets_xy": [list(value) for value in left_offsets],
         "right_offsets_xy": [list(value) for value in right_offsets],
-        "ai_evidence_available": left_visual is not None and right_visual is not None,
+        "ai_evidence_available": ai_evidence_available,
         "clinical_claim": "NONE",
     }
     arrays = {
@@ -228,16 +249,60 @@ def analyze_bilateral_session(
     return result, arrays
 
 
+def _render_map_preview(array: np.ndarray, path: Path) -> None:
+    """Render a viewable PNG for an evidence array while keeping NaN support black."""
+    values = np.asarray(array, dtype=np.float32)
+    if values.ndim != 2:
+        raise ValueError("Session map previews require 2-D arrays")
+    finite = np.isfinite(values)
+    gray = np.zeros(values.shape, dtype=np.uint8)
+    if finite.any():
+        selected = values[finite]
+        lo, hi = np.percentile(selected, [5, 95])
+        if not np.isfinite([lo, hi]).all() or hi <= lo:
+            lo = float(np.min(selected))
+            hi = float(np.max(selected))
+        if hi > lo:
+            normalized = np.clip((values - float(lo)) / float(hi - lo), 0.0, 1.0)
+            gray[finite] = np.round(normalized[finite] * 255.0).astype(np.uint8)
+        else:
+            gray[finite] = 127
+    preview = cv2.applyColorMap(gray, cv2.COLORMAP_TURBO)
+    preview[~finite] = 0
+    if not cv2.imwrite(str(path), preview):
+        raise OSError(f"Could not write session map preview: {path}")
+
+
 def persist_session_evidence(result: dict, arrays: dict[str, np.ndarray], directory: str | Path) -> dict:
-    """Persist numerical session evidence and return filenames for API/report wiring."""
+    """Persist numerical evidence plus viewable session-map previews."""
     out = Path(directory)
     out.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(out / "session_maps.npz", **arrays)
+
+    preview_keys = (
+        "left_thermal_evidence",
+        "right_thermal_evidence",
+        "left_fused_evidence",
+        "right_fused_evidence",
+        "bilateral_asymmetry",
+    )
+    preview_filenames = {}
+    for key in preview_keys:
+        if key not in arrays:
+            continue
+        filename = f"{key}.png"
+        _render_map_preview(arrays[key], out / filename)
+        preview_filenames[key] = filename
+
+    # Persist preview identity inside the same evidence object returned by the API.
+    result["preview_filenames"] = dict(preview_filenames)
     (out / "session_evidence.json").write_text(
         json.dumps(result, indent=2, allow_nan=False),
         encoding="utf-8",
     )
+
     return {
         "evidence_filename": "session_evidence.json",
         "maps_filename": "session_maps.npz",
+        "preview_filenames": preview_filenames,
     }
