@@ -8,6 +8,10 @@ from typing import Sequence
 import cv2
 import numpy as np
 
+from app.services.acquisition_context import (
+    acquisition_context_completeness,
+    normalize_acquisition_context,
+)
 from app.services.bilateral_session_engine import (
     SideFieldResult,
     build_three_channel_session_evidence,
@@ -27,6 +31,7 @@ class SessionFrameInput:
     source_name: str
     side: str
     sequence_index: int
+    acquisition_context: dict | None = None
 
 
 def _normalized_bgr(source: bytes) -> tuple[np.ndarray, np.ndarray, dict]:
@@ -83,6 +88,7 @@ def _prepare_frame(frame: SessionFrameInput, tlc_profile_id: str, include_dino: 
     side = str(frame.side).upper()
     if side not in {"LEFT", "RIGHT"}:
         raise ValueError("Each session frame side must be LEFT or RIGHT")
+    acquisition_context = normalize_acquisition_context(frame.acquisition_context)
     bgr, valid, transform = _normalized_bgr(frame.source)
     response_mask_u8, components = segment_client_response(bgr, valid)
     response_mask = response_mask_u8 > 0
@@ -104,6 +110,8 @@ def _prepare_frame(frame: SessionFrameInput, tlc_profile_id: str, include_dino: 
         "visual_provenance": visual_provenance,
         "component_count": len(components),
         "transform": transform,
+        "acquisition_context": acquisition_context,
+        "acquisition_context_completeness": acquisition_context_completeness(acquisition_context),
     }
 
 
@@ -215,6 +223,8 @@ def analyze_bilateral_session(
                 "signal_provenance": dict(item["signal"].provenance),
                 "visual_provenance": item["visual_provenance"],
                 "geometry": dict(item["transform"]),
+                "acquisition_context": item["acquisition_context"],
+                "acquisition_context_completeness": item["acquisition_context_completeness"],
             }
             for item in prepared
         ],
