@@ -2,6 +2,23 @@
   "registry_version": 1,
   "models": [
     {
+      "name": "mumguard-local-evidence",
+      "version": "0.1.0",
+      "status": "INACTIVE_RESEARCH_CANDIDATE",
+      "clinical_use": false,
+      "clinical_claim": "NONE",
+      "feature_contract_version": "mumguard-local-v1",
+      "target_species": "human",
+      "development_challenge_species": ["mouse"],
+      "tlc_profile_id": "client-device-tlc-pending",
+      "device_profile_id": "client-device-unknown",
+      "contact_certainty": "UNKNOWN",
+      "decision_head": null,
+      "threshold": null,
+      "human_binary_inference": "DISABLED_PENDING_HUMAN_HEAD_AND_CALIBRATION",
+      "artifact": "artifacts/mumguard-local-v1/model_card.json"
+    },
+    {
       "name": "lct-reference-handcrafted",
       "version": "0.2.0",
       "status": "ACTIVE_REFERENCE",

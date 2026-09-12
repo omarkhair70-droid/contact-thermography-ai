@@ -138,6 +138,8 @@ def parse_metadata(metadata_json: str | None):
             "sequence_index": item.get("sequence_index"),
             "tlc_profile_id": normalize_tlc_profile(item.get("tlc_profile_id")),
             "device_profile_id": normalize_device_profile(item.get("device_profile_id")),
+            "species": item.get("species") if item.get("species") in ("mouse", "human") else None,
+            "acquisition_type": item.get("acquisition_type") if item.get("acquisition_type") in ("contact-LCT", "radiometric-IR") else None,
         }
     return lookup
 
@@ -211,6 +213,8 @@ async def analyze_exam(
                 eid,
                 m["tlc_profile_id"],
                 m["device_profile_id"],
+                m.get("acquisition_type"),
+                m.get("species"),
             )
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=f"{upload.filename}: {exc}") from exc

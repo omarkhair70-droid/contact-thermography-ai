@@ -98,3 +98,11 @@ def test_reference_only_row_cannot_be_train_eligible(tmp_path: Path) -> None:
     rows[0]["train_eligible"] = True
     with pytest.raises(ValueError, match="only TRAIN_CANDIDATE"):
         validate(_write(tmp_path, rows))
+
+
+def test_benign_train_candidate_requires_explicit_presence_endpoint(tmp_path: Path) -> None:
+    rows = _base_rows()
+    rows[1]["use_role"] = "TRAIN_CANDIDATE"
+    rows[1]["train_eligible"] = True
+    with pytest.raises(ValueError, match="BENIGN cannot be mapped"):
+        validate(_write(tmp_path, rows))

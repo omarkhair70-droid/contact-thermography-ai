@@ -59,6 +59,13 @@ def build_report_html(result: dict):
     body = []
     for plate in plates:
         flags = ", ".join(plate.get("qc", {}).get("flags", [])) or "None"
+        local = plate.get("local_research_evidence")
+        local_html = ""
+        if isinstance(local, dict):
+            local_html = ('<p><b>MumGuard local research:</b> '
+                + escape(str(local.get('status', 'UNAVAILABLE')))
+                + '</p><p>Contact certainty: unknown. Disease decision: abstain.</p><p>'
+                + escape(', '.join(str(r) for r in local.get('quality_reasons', []))) + '</p>')
         body.append(f"""
         <article class="card">
           <img src="{escape(str(plate.get('image_url','')))}" />
@@ -74,6 +81,7 @@ def build_report_html(result: dict):
             {_score_line('DINOv2 reference unusualness score', plate.get('dinov2_reference_anomaly_score_0_1'))}
             {_score_line('Fused LCT + DINOv2 reference score', plate.get('dinov2_lct_fused_reference_score_0_1'))}
             {_native_research_block(plate)}
+            {local_html}
             <p class="muted">{escape(str(plate.get('dinov2_domain_notice', 'Reference unusualness only; not cancer probability.')))}</p>
           </div>
         </article>

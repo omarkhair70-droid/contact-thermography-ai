@@ -23,7 +23,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import LinearSVC
 
 POSITIVE_LABELS = {"CANCER", "MALIGNANT", "TUMOR_LIKE"}
-NEGATIVE_LABELS = {"HEALTHY", "BENIGN", "NO_TUMOR_LIKE"}
+NEGATIVE_LABELS = {"HEALTHY", "NO_TUMOR_LIKE"}
 
 
 def _binary_label(value: str) -> int:

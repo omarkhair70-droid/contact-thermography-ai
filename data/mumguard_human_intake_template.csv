@@ -1,0 +1,1 @@
+subject_id,acquisition_id,source_sha256,species,anatomy,tlc_profile_id,device_profile_id,protocol_revision,feature_contract_version,lesion_presence,malignancy,reference_verification,data_use,contact_review,split,repeat_pair_id,features_json

@@ -1,0 +1,243 @@
+{
+  "name": "mumguard-local-evidence",
+  "feature_contract_version": "mumguard-local-v1",
+  "status": "INACTIVE_RESEARCH_CANDIDATE",
+  "clinical_claim": "NONE",
+  "clinical_use": false,
+  "selected_architecture": "label-free local sensing with explicit abstention",
+  "selected_disease_head": null,
+  "selection_reason": "No disease candidate clears contact/provenance and shortcut gates; retain reusable sensing per program kill criteria.",
+  "validation_status": "EXPLORATORY_DEVELOPMENT_ONLY_SINGLE_NEGATIVE",
+  "target_species": "human",
+  "development_challenge_species": "mouse",
+  "human_binary_inference": "DISABLED_PENDING_HUMAN_HEAD_AND_CALIBRATION",
+  "threshold": null,
+  "subjects": [
+    "CLIENT-MOUSE-0030",
+    "CLIENT-MOUSE-0031",
+    "CLIENT-MOUSE-0032",
+    "CLIENT-MOUSE-0033",
+    "CLIENT-MOUSE-0034",
+    "CLIENT-MOUSE-0035",
+    "CLIENT-MOUSE-0036",
+    "CLIENT-MOUSE-0037",
+    "CLIENT-MOUSE-0038"
+  ],
+  "positive_subjects": 8,
+  "negative_subjects": 1,
+  "comparisons": {
+    "A_saved_global": {
+      "improved_paired_margins": 0,
+      "median_improvement": 0.0,
+      "contact_eligibility_pass": null,
+      "selection_eligible": false,
+      "shortcut_clearance": "NOT_CLEARED; SETUP_ARTIFACT_PROBES_REPORTED"
+    },
+    "M_response_morphology": {
+      "improved_paired_margins": 0,
+      "median_improvement": -0.7291422510789771,
+      "contact_eligibility_pass": false,
+      "selection_eligible": false,
+      "shortcut_clearance": "NOT_ESTABLISHED_WITHOUT_CONTACT_TRUTH"
+    },
+    "D_0038_global_anchor": {
+      "improved_paired_margins": 0,
+      "median_improvement": -0.5435873517463057,
+      "contact_eligibility_pass": false,
+      "selection_eligible": false,
+      "shortcut_clearance": "NOT_ESTABLISHED_WITHOUT_CONTACT_TRUTH"
+    },
+    "B_physical_unknown_full_field": {
+      "improved_paired_margins": 0,
+      "median_improvement": -0.7293753584892649,
+      "contact_eligibility_pass": false,
+      "selection_eligible": false,
+      "shortcut_clearance": "NOT_ESTABLISHED_WITHOUT_CONTACT_TRUTH"
+    },
+    "C_fixed_pool_unknown_full_field": {
+      "improved_paired_margins": 0,
+      "median_improvement": -0.536074672164184,
+      "contact_eligibility_pass": false,
+      "selection_eligible": false,
+      "shortcut_clearance": "NOT_ESTABLISHED_WITHOUT_CONTACT_TRUTH"
+    },
+    "C_mean_unknown_full_field": {
+      "improved_paired_margins": 0,
+      "median_improvement": -0.673509895478608,
+      "contact_eligibility_pass": false,
+      "selection_eligible": false,
+      "shortcut_clearance": "NOT_ESTABLISHED_WITHOUT_CONTACT_TRUTH"
+    },
+    "C_max_unknown_full_field": {
+      "improved_paired_margins": 0,
+      "median_improvement": -0.8276925366115235,
+      "contact_eligibility_pass": false,
+      "selection_eligible": false,
+      "shortcut_clearance": "NOT_ESTABLISHED_WITHOUT_CONTACT_TRUTH"
+    },
+    "C_top3_unknown_full_field": {
+      "improved_paired_margins": 0,
+      "median_improvement": -0.8567605689390865,
+      "contact_eligibility_pass": false,
+      "selection_eligible": false,
+      "shortcut_clearance": "NOT_ESTABLISHED_WITHOUT_CONTACT_TRUTH"
+    },
+    "F_photometric_unknown_full_field": {
+      "improved_paired_margins": 0,
+      "median_improvement": -0.5639841618385186,
+      "contact_eligibility_pass": false,
+      "selection_eligible": false,
+      "shortcut_clearance": "NOT_ESTABLISHED_WITHOUT_CONTACT_TRUTH"
+    },
+    "F_photometric_0038_anchor_unknown_full_field": {
+      "improved_paired_margins": 0,
+      "median_improvement": -0.4200159586115378,
+      "contact_eligibility_pass": false,
+      "selection_eligible": false,
+      "shortcut_clearance": "NOT_ESTABLISHED_WITHOUT_CONTACT_TRUTH"
+    },
+    "A_reencoded_global": {
+      "improved_paired_margins": 5,
+      "median_improvement": 0.02686473788789928,
+      "contact_eligibility_pass": null,
+      "selection_eligible": false,
+      "shortcut_clearance": "NOT_CLEARED; SETUP_ARTIFACT_PROBES_REPORTED"
+    }
+  },
+  "skipped_candidates": {
+    "B_physical_conservative_chromatic": {
+      "reason": "MISSING_USABLE_COMPARATOR_OR_DINO; no imputation",
+      "subjects": [
+        "CLIENT-MOUSE-0030",
+        "CLIENT-MOUSE-0031",
+        "CLIENT-MOUSE-0032",
+        "CLIENT-MOUSE-0033",
+        "CLIENT-MOUSE-0038"
+      ]
+    },
+    "C_fixed_pool_conservative_chromatic": {
+      "reason": "MISSING_USABLE_COMPARATOR_OR_DINO; no imputation",
+      "subjects": [
+        "CLIENT-MOUSE-0030",
+        "CLIENT-MOUSE-0031",
+        "CLIENT-MOUSE-0032",
+        "CLIENT-MOUSE-0033",
+        "CLIENT-MOUSE-0038"
+      ]
+    },
+    "C_mean_conservative_chromatic": {
+      "reason": "MISSING_USABLE_COMPARATOR_OR_DINO; no imputation",
+      "subjects": [
+        "CLIENT-MOUSE-0030",
+        "CLIENT-MOUSE-0031",
+        "CLIENT-MOUSE-0032",
+        "CLIENT-MOUSE-0033",
+        "CLIENT-MOUSE-0038"
+      ]
+    },
+    "C_max_conservative_chromatic": {
+      "reason": "MISSING_USABLE_COMPARATOR_OR_DINO; no imputation",
+      "subjects": [
+        "CLIENT-MOUSE-0030",
+        "CLIENT-MOUSE-0031",
+        "CLIENT-MOUSE-0032",
+        "CLIENT-MOUSE-0033",
+        "CLIENT-MOUSE-0038"
+      ]
+    },
+    "C_top3_conservative_chromatic": {
+      "reason": "MISSING_USABLE_COMPARATOR_OR_DINO; no imputation",
+      "subjects": [
+        "CLIENT-MOUSE-0030",
+        "CLIENT-MOUSE-0031",
+        "CLIENT-MOUSE-0032",
+        "CLIENT-MOUSE-0033",
+        "CLIENT-MOUSE-0038"
+      ]
+    },
+    "F_photometric_conservative_chromatic": {
+      "reason": "MISSING_USABLE_COMPARATOR_OR_DINO; no imputation",
+      "subjects": [
+        "CLIENT-MOUSE-0030",
+        "CLIENT-MOUSE-0031",
+        "CLIENT-MOUSE-0032",
+        "CLIENT-MOUSE-0033",
+        "CLIENT-MOUSE-0038"
+      ]
+    },
+    "B_dino_conservative_chromatic": {
+      "reason": "MISSING_USABLE_COMPARATOR_OR_DINO; no imputation",
+      "subjects": [
+        "CLIENT-MOUSE-0030",
+        "CLIENT-MOUSE-0031",
+        "CLIENT-MOUSE-0032",
+        "CLIENT-MOUSE-0033",
+        "CLIENT-MOUSE-0034",
+        "CLIENT-MOUSE-0035",
+        "CLIENT-MOUSE-0036",
+        "CLIENT-MOUSE-0037",
+        "CLIENT-MOUSE-0038"
+      ]
+    },
+    "F_local_fusion_conservative_chromatic": {
+      "reason": "MISSING_USABLE_COMPARATOR_OR_DINO; no imputation",
+      "subjects": [
+        "CLIENT-MOUSE-0030",
+        "CLIENT-MOUSE-0031",
+        "CLIENT-MOUSE-0032",
+        "CLIENT-MOUSE-0033",
+        "CLIENT-MOUSE-0034",
+        "CLIENT-MOUSE-0035",
+        "CLIENT-MOUSE-0036",
+        "CLIENT-MOUSE-0037",
+        "CLIENT-MOUSE-0038"
+      ]
+    },
+    "F_photometric_0038_anchor_conservative_chromatic": {
+      "reason": "MISSING_USABLE_COMPARATOR_OR_DINO; no imputation",
+      "subjects": [
+        "CLIENT-MOUSE-0030",
+        "CLIENT-MOUSE-0031",
+        "CLIENT-MOUSE-0032",
+        "CLIENT-MOUSE-0033",
+        "CLIENT-MOUSE-0038"
+      ]
+    },
+    "B_dino_unknown_full_field": {
+      "reason": "MISSING_USABLE_COMPARATOR_OR_DINO; no imputation",
+      "subjects": [
+        "CLIENT-MOUSE-0030",
+        "CLIENT-MOUSE-0031",
+        "CLIENT-MOUSE-0038"
+      ]
+    },
+    "F_local_fusion_unknown_full_field": {
+      "reason": "MISSING_USABLE_COMPARATOR_OR_DINO; no imputation",
+      "subjects": [
+        "CLIENT-MOUSE-0030",
+        "CLIENT-MOUSE-0031",
+        "CLIENT-MOUSE-0038"
+      ]
+    }
+  },
+  "negative_holdout": "SKIPPED_BINARY_FIT_NO_NEGATIVE_IN_TRAIN",
+  "E1": "BLOCKED_MISSING_INDEPENDENT_CONTACT_ANNOTATIONS",
+  "E2": "EXECUTED_WHERE_COMPARATORS_EXIST; COMPLETE-COHORT_HEADS_SKIP_MISSING_CHANNELS",
+  "E3": "GLOBAL_OCCLUSION_STRESS_EXECUTED; TRUE_CONTACT_VS_BACKGROUND_BLOCKED",
+  "E4": "FIXED_Q90_MEDIAN_MEAN_MAX_TOP3_POOLING_EXECUTED_ON_UNKNOWN_FULL_FIELD",
+  "E5": "0038 ANCHOR AND LABEL_FREE INTERNAL COMPARISON EXECUTED SEPARATELY; ANCHOR DELETION REMOVES THAT CANDIDATE",
+  "E6": "LABEL_FREE_SELF_COMPARISON_EXECUTED",
+  "E7": "RESPONSE_MORPHOLOGY, DINO, LOCAL_PHOTOMETRY, AND AVAILABLE_FUSION COMPARED",
+  "E8": "NOT_EXECUTED_NO_GENUINE_REPEAT_PAIRS; ADAPTER REMAINS IDENTITY",
+  "E9": "HUMAN_FIRST_INTAKE_ADAPTATION_HEAD_CALIBRATION CONTRACTS READY; NO TARGET HUMAN OUTCOMES",
+  "local_crop_ablation": "NOT_EXECUTED_NO_CREDIBLE_CONTACT_ROI_RING_PAIRS",
+  "baseline_sha256": "a69e2a1c20f8c2118f8e7d180d868de8304129a43bc0e836da98448694c39c84",
+  "manifest_sha256": "4fdee5ad4cb08de79c3d62897a77e09d11db1f4feb322b03601508b323c11e2e",
+  "private_assets_committed": false,
+  "runtime_seconds": 49.112706400002935,
+  "environment": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "device": "cpu"
+  }
+}

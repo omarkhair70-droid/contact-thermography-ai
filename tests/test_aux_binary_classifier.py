@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 from scripts.train_aux_binary_from_embeddings import evaluate_models, load_subject_features
+import pytest
 
 
 def _make_separable_frame() -> pd.DataFrame:
@@ -60,3 +61,12 @@ def test_inconsistent_subject_label_is_rejected(tmp_path: Path):
         assert "inconsistent labels" in str(exc).lower()
     else:
         raise AssertionError("expected inconsistent subject labels to fail")
+
+
+def test_benign_is_not_a_generic_negative_endpoint(tmp_path: Path):
+    frame = _make_separable_frame()
+    frame.loc[frame["subject_id"] == "S00", "label"] = "BENIGN"
+    path = tmp_path / "benign.csv"
+    frame.to_csv(path, index=False)
+    with pytest.raises(ValueError, match="Unsupported binary label"):
+        load_subject_features(path)

@@ -1,0 +1,7 @@
+{
+  "status": "AWAITING_TARGET_ACQUISITIONS",
+  "assignments": {},
+  "signature": null,
+  "feature_names": [],
+  "policy": "Freeze subject assignments and exact sensor/feature signature before extraction or fitting. All derivatives and repeats inherit their subject split. Adaptation/train/calibration/test are disjoint. Template cannot train or calibrate."
+}

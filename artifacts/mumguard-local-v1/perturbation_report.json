@@ -1,0 +1,991 @@
+{
+  "semantics": "engineering stress; not confidence intervals, causal localization, or genuine device generalization",
+  "rows": [
+    {
+      "subject_id": "CLIENT-MOUSE-0030",
+      "support_arm": "conservative_chromatic",
+      "variant": "identity",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0030",
+      "support_arm": "unknown_full_field",
+      "variant": "identity",
+      "score": 0.2703708772926136,
+      "candidate_count": 79,
+      "analyzed_support_fraction": 0.26360544217687076,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0030",
+      "support_arm": "conservative_chromatic",
+      "variant": "jpeg75",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0030",
+      "support_arm": "unknown_full_field",
+      "variant": "jpeg75",
+      "score": 0.3104720775849482,
+      "candidate_count": 53,
+      "analyzed_support_fraction": 0.17687074829931973,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0030",
+      "support_arm": "conservative_chromatic",
+      "variant": "blur05",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0030",
+      "support_arm": "unknown_full_field",
+      "variant": "blur05",
+      "score": 0.2837845123013985,
+      "candidate_count": 74,
+      "analyzed_support_fraction": 0.2568027210884354,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0030",
+      "support_arm": "conservative_chromatic",
+      "variant": "exposure095",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0030",
+      "support_arm": "unknown_full_field",
+      "variant": "exposure095",
+      "score": 0.2552291064205917,
+      "candidate_count": 73,
+      "analyzed_support_fraction": 0.23979591836734693,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0031",
+      "support_arm": "conservative_chromatic",
+      "variant": "identity",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0031",
+      "support_arm": "unknown_full_field",
+      "variant": "identity",
+      "score": 0.31988597732546864,
+      "candidate_count": 170,
+      "analyzed_support_fraction": 0.41836734693877553,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0031",
+      "support_arm": "conservative_chromatic",
+      "variant": "jpeg75",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0031",
+      "support_arm": "unknown_full_field",
+      "variant": "jpeg75",
+      "score": 0.35870395044522574,
+      "candidate_count": 149,
+      "analyzed_support_fraction": 0.38945578231292516,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0031",
+      "support_arm": "conservative_chromatic",
+      "variant": "blur05",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0031",
+      "support_arm": "unknown_full_field",
+      "variant": "blur05",
+      "score": 0.3224767234125243,
+      "candidate_count": 170,
+      "analyzed_support_fraction": 0.41836734693877553,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0031",
+      "support_arm": "conservative_chromatic",
+      "variant": "exposure095",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0031",
+      "support_arm": "unknown_full_field",
+      "variant": "exposure095",
+      "score": 0.2973954942401734,
+      "candidate_count": 163,
+      "analyzed_support_fraction": 0.43537414965986393,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0032",
+      "support_arm": "conservative_chromatic",
+      "variant": "identity",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0032",
+      "support_arm": "unknown_full_field",
+      "variant": "identity",
+      "score": 0.23662101414212994,
+      "candidate_count": 93,
+      "analyzed_support_fraction": 0.2687074829931973,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0032",
+      "support_arm": "conservative_chromatic",
+      "variant": "jpeg75",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0032",
+      "support_arm": "unknown_full_field",
+      "variant": "jpeg75",
+      "score": 0.22039661222093407,
+      "candidate_count": 87,
+      "analyzed_support_fraction": 0.24829931972789115,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0032",
+      "support_arm": "conservative_chromatic",
+      "variant": "blur05",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0032",
+      "support_arm": "unknown_full_field",
+      "variant": "blur05",
+      "score": 0.23694108364344701,
+      "candidate_count": 94,
+      "analyzed_support_fraction": 0.27040816326530615,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0032",
+      "support_arm": "conservative_chromatic",
+      "variant": "exposure095",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0032",
+      "support_arm": "unknown_full_field",
+      "variant": "exposure095",
+      "score": 0.1801421733970956,
+      "candidate_count": 110,
+      "analyzed_support_fraction": 0.2925170068027211,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0033",
+      "support_arm": "conservative_chromatic",
+      "variant": "identity",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0033",
+      "support_arm": "unknown_full_field",
+      "variant": "identity",
+      "score": 0.2510608307510023,
+      "candidate_count": 178,
+      "analyzed_support_fraction": 0.4064625850340136,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0033",
+      "support_arm": "conservative_chromatic",
+      "variant": "jpeg75",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0033",
+      "support_arm": "unknown_full_field",
+      "variant": "jpeg75",
+      "score": 0.263305257734506,
+      "candidate_count": 163,
+      "analyzed_support_fraction": 0.38605442176870747,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0033",
+      "support_arm": "conservative_chromatic",
+      "variant": "blur05",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0033",
+      "support_arm": "unknown_full_field",
+      "variant": "blur05",
+      "score": 0.2568689690739128,
+      "candidate_count": 178,
+      "analyzed_support_fraction": 0.4013605442176871,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0033",
+      "support_arm": "conservative_chromatic",
+      "variant": "exposure095",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0033",
+      "support_arm": "unknown_full_field",
+      "variant": "exposure095",
+      "score": 0.26061147337380464,
+      "candidate_count": 199,
+      "analyzed_support_fraction": 0.45068027210884354,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0034",
+      "support_arm": "conservative_chromatic",
+      "variant": "identity",
+      "score": 0.07416004049734362,
+      "candidate_count": 7,
+      "analyzed_support_fraction": 0.2139957009792214,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0034",
+      "support_arm": "unknown_full_field",
+      "variant": "identity",
+      "score": 0.2012632098947802,
+      "candidate_count": 114,
+      "analyzed_support_fraction": 0.2687074829931973,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0034",
+      "support_arm": "conservative_chromatic",
+      "variant": "jpeg75",
+      "score": 0.07671329969340054,
+      "candidate_count": 6,
+      "analyzed_support_fraction": 0.20852130325814536,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0034",
+      "support_arm": "unknown_full_field",
+      "variant": "jpeg75",
+      "score": 0.2175080212713036,
+      "candidate_count": 112,
+      "analyzed_support_fraction": 0.2653061224489796,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0034",
+      "support_arm": "conservative_chromatic",
+      "variant": "blur05",
+      "score": 0.07316352805856782,
+      "candidate_count": 7,
+      "analyzed_support_fraction": 0.21440536013400335,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0034",
+      "support_arm": "unknown_full_field",
+      "variant": "blur05",
+      "score": 0.20178206635927548,
+      "candidate_count": 113,
+      "analyzed_support_fraction": 0.26700680272108845,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0034",
+      "support_arm": "conservative_chromatic",
+      "variant": "exposure095",
+      "score": 0.07438689727064199,
+      "candidate_count": 7,
+      "analyzed_support_fraction": 0.21471363527438295,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0034",
+      "support_arm": "unknown_full_field",
+      "variant": "exposure095",
+      "score": 0.23045126442476754,
+      "candidate_count": 130,
+      "analyzed_support_fraction": 0.31462585034013607,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0035",
+      "support_arm": "conservative_chromatic",
+      "variant": "identity",
+      "score": 0.1607120725257896,
+      "candidate_count": 1,
+      "analyzed_support_fraction": 0.07235726399095534,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0035",
+      "support_arm": "unknown_full_field",
+      "variant": "identity",
+      "score": 0.3188665895167879,
+      "candidate_count": 130,
+      "analyzed_support_fraction": 0.3826530612244898,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0035",
+      "support_arm": "conservative_chromatic",
+      "variant": "jpeg75",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0035",
+      "support_arm": "unknown_full_field",
+      "variant": "jpeg75",
+      "score": 0.3324255724177888,
+      "candidate_count": 112,
+      "analyzed_support_fraction": 0.30272108843537415,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0035",
+      "support_arm": "conservative_chromatic",
+      "variant": "blur05",
+      "score": 0.16132710342199916,
+      "candidate_count": 1,
+      "analyzed_support_fraction": 0.07197076187798707,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0035",
+      "support_arm": "unknown_full_field",
+      "variant": "blur05",
+      "score": 0.32150168834587356,
+      "candidate_count": 131,
+      "analyzed_support_fraction": 0.3826530612244898,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0035",
+      "support_arm": "conservative_chromatic",
+      "variant": "exposure095",
+      "score": 0.15868013571141196,
+      "candidate_count": 1,
+      "analyzed_support_fraction": 0.07413843035041992,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0035",
+      "support_arm": "unknown_full_field",
+      "variant": "exposure095",
+      "score": 0.2793745613282911,
+      "candidate_count": 131,
+      "analyzed_support_fraction": 0.3707482993197279,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0036",
+      "support_arm": "conservative_chromatic",
+      "variant": "identity",
+      "score": 0.094457048122593,
+      "candidate_count": 2,
+      "analyzed_support_fraction": 0.06335981398953691,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0036",
+      "support_arm": "unknown_full_field",
+      "variant": "identity",
+      "score": 0.23861802949311198,
+      "candidate_count": 207,
+      "analyzed_support_fraction": 0.4387755102040816,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0036",
+      "support_arm": "conservative_chromatic",
+      "variant": "jpeg75",
+      "score": 0.09558878283732614,
+      "candidate_count": 2,
+      "analyzed_support_fraction": 0.06334841628959276,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0036",
+      "support_arm": "unknown_full_field",
+      "variant": "jpeg75",
+      "score": 0.287268308764469,
+      "candidate_count": 197,
+      "analyzed_support_fraction": 0.4302721088435374,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0036",
+      "support_arm": "conservative_chromatic",
+      "variant": "blur05",
+      "score": 0.09442967764527922,
+      "candidate_count": 2,
+      "analyzed_support_fraction": 0.06265568116497414,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0036",
+      "support_arm": "unknown_full_field",
+      "variant": "blur05",
+      "score": 0.24171165402262546,
+      "candidate_count": 207,
+      "analyzed_support_fraction": 0.4387755102040816,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0036",
+      "support_arm": "conservative_chromatic",
+      "variant": "exposure095",
+      "score": 0.0962052137768129,
+      "candidate_count": 2,
+      "analyzed_support_fraction": 0.06952879581151833,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0036",
+      "support_arm": "unknown_full_field",
+      "variant": "exposure095",
+      "score": 0.22861107073424553,
+      "candidate_count": 206,
+      "analyzed_support_fraction": 0.4608843537414966,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0037",
+      "support_arm": "conservative_chromatic",
+      "variant": "identity",
+      "score": 0.1253011945740504,
+      "candidate_count": 11,
+      "analyzed_support_fraction": 0.246675660050106,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0037",
+      "support_arm": "unknown_full_field",
+      "variant": "identity",
+      "score": 0.2745373732234827,
+      "candidate_count": 176,
+      "analyzed_support_fraction": 0.4200680272108844,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0037",
+      "support_arm": "conservative_chromatic",
+      "variant": "jpeg75",
+      "score": 0.13096000235086522,
+      "candidate_count": 11,
+      "analyzed_support_fraction": 0.23743275830087182,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0037",
+      "support_arm": "unknown_full_field",
+      "variant": "jpeg75",
+      "score": 0.3036869095799492,
+      "candidate_count": 166,
+      "analyzed_support_fraction": 0.4098639455782313,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0037",
+      "support_arm": "conservative_chromatic",
+      "variant": "blur05",
+      "score": 0.126533729803149,
+      "candidate_count": 11,
+      "analyzed_support_fraction": 0.24601191620219104,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0037",
+      "support_arm": "unknown_full_field",
+      "variant": "blur05",
+      "score": 0.27689156200490117,
+      "candidate_count": 175,
+      "analyzed_support_fraction": 0.41836734693877553,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0037",
+      "support_arm": "conservative_chromatic",
+      "variant": "exposure095",
+      "score": 0.12529812189789585,
+      "candidate_count": 10,
+      "analyzed_support_fraction": 0.24117413724712417,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0037",
+      "support_arm": "unknown_full_field",
+      "variant": "exposure095",
+      "score": 0.261515173048157,
+      "candidate_count": 182,
+      "analyzed_support_fraction": 0.4302721088435374,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0038",
+      "support_arm": "conservative_chromatic",
+      "variant": "identity",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0038",
+      "support_arm": "unknown_full_field",
+      "variant": "identity",
+      "score": 0.22512454484446132,
+      "candidate_count": 136,
+      "analyzed_support_fraction": 0.39625850340136054,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0038",
+      "support_arm": "conservative_chromatic",
+      "variant": "jpeg75",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0038",
+      "support_arm": "unknown_full_field",
+      "variant": "jpeg75",
+      "score": 0.26686369581284247,
+      "candidate_count": 100,
+      "analyzed_support_fraction": 0.31462585034013607,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0038",
+      "support_arm": "conservative_chromatic",
+      "variant": "blur05",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0038",
+      "support_arm": "unknown_full_field",
+      "variant": "blur05",
+      "score": 0.2298521179591347,
+      "candidate_count": 135,
+      "analyzed_support_fraction": 0.39625850340136054,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0038",
+      "support_arm": "conservative_chromatic",
+      "variant": "exposure095",
+      "score": null,
+      "candidate_count": 0,
+      "analyzed_support_fraction": 0.0,
+      "independent_contact": false
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0038",
+      "support_arm": "unknown_full_field",
+      "variant": "exposure095",
+      "score": 0.22884983518003124,
+      "candidate_count": 121,
+      "analyzed_support_fraction": 0.3843537414965986,
+      "independent_contact": false
+    }
+  ],
+  "global_held_out_probes": [
+    {
+      "subject_id": "CLIENT-MOUSE-0030",
+      "variant": "identity",
+      "held_out_score": 0.8641946047786602,
+      "delta_from_identity": 0.0,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0031",
+      "variant": "identity",
+      "held_out_score": 0.9272978579851267,
+      "delta_from_identity": 0.0,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0032",
+      "variant": "identity",
+      "held_out_score": 0.9326460170707076,
+      "delta_from_identity": 0.0,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0033",
+      "variant": "identity",
+      "held_out_score": 0.9780319418015128,
+      "delta_from_identity": 0.0,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0034",
+      "variant": "identity",
+      "held_out_score": 0.8588223748568758,
+      "delta_from_identity": 0.0,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0035",
+      "variant": "identity",
+      "held_out_score": 0.8612356957817525,
+      "delta_from_identity": 0.0,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0036",
+      "variant": "identity",
+      "held_out_score": 0.8692448947656309,
+      "delta_from_identity": 0.0,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0037",
+      "variant": "identity",
+      "held_out_score": 0.9665298128245907,
+      "delta_from_identity": 0.0,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0030",
+      "variant": "jpeg75",
+      "held_out_score": 0.8392844584586155,
+      "delta_from_identity": -0.024910146320044624,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0031",
+      "variant": "jpeg75",
+      "held_out_score": 0.9150680436729827,
+      "delta_from_identity": -0.012229814312143983,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0032",
+      "variant": "jpeg75",
+      "held_out_score": 0.9360720269314085,
+      "delta_from_identity": 0.0034260098607008516,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0033",
+      "variant": "jpeg75",
+      "held_out_score": 0.9790098010945886,
+      "delta_from_identity": 0.0009778592930758112,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0034",
+      "variant": "jpeg75",
+      "held_out_score": 0.8525423885554108,
+      "delta_from_identity": -0.00627998630146509,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0035",
+      "variant": "jpeg75",
+      "held_out_score": 0.9189824260513147,
+      "delta_from_identity": 0.05774673026956223,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0036",
+      "variant": "jpeg75",
+      "held_out_score": 0.8821809909426088,
+      "delta_from_identity": 0.012936096176977885,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0037",
+      "variant": "jpeg75",
+      "held_out_score": 0.9726831616210525,
+      "delta_from_identity": 0.006153348796461788,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0030",
+      "variant": "blur05",
+      "held_out_score": 0.8946883085760982,
+      "delta_from_identity": 0.030493703797437988,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0031",
+      "variant": "blur05",
+      "held_out_score": 0.9318881940576674,
+      "delta_from_identity": 0.004590336072540779,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0032",
+      "variant": "blur05",
+      "held_out_score": 0.9364956761566912,
+      "delta_from_identity": 0.003849659085983559,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0033",
+      "variant": "blur05",
+      "held_out_score": 0.9757502856763869,
+      "delta_from_identity": -0.002281656125125875,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0034",
+      "variant": "blur05",
+      "held_out_score": 0.8425014545281038,
+      "delta_from_identity": -0.01632092032877208,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0035",
+      "variant": "blur05",
+      "held_out_score": 0.8640754701528679,
+      "delta_from_identity": 0.0028397743711153778,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0036",
+      "variant": "blur05",
+      "held_out_score": 0.8718638662137482,
+      "delta_from_identity": 0.002618971448117291,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0037",
+      "variant": "blur05",
+      "held_out_score": 0.9679728949133747,
+      "delta_from_identity": 0.0014430820887839646,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0030",
+      "variant": "exposure095",
+      "held_out_score": 0.8767497082241625,
+      "delta_from_identity": 0.012555103445502369,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0031",
+      "variant": "exposure095",
+      "held_out_score": 0.9287609658929711,
+      "delta_from_identity": 0.0014631079078444298,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0032",
+      "variant": "exposure095",
+      "held_out_score": 0.9304584930523907,
+      "delta_from_identity": -0.0021875240183169,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0033",
+      "variant": "exposure095",
+      "held_out_score": 0.9793505241896479,
+      "delta_from_identity": 0.0013185823881350922,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0034",
+      "variant": "exposure095",
+      "held_out_score": 0.856187222896573,
+      "delta_from_identity": -0.0026351519603028395,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0035",
+      "variant": "exposure095",
+      "held_out_score": 0.8592724444950185,
+      "delta_from_identity": -0.0019632512867340246,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0036",
+      "variant": "exposure095",
+      "held_out_score": 0.8767660261734254,
+      "delta_from_identity": 0.007521131407794424,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0037",
+      "variant": "exposure095",
+      "held_out_score": 0.9672114817380971,
+      "delta_from_identity": 0.0006816689135064058,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0030",
+      "variant": "center_occlusion",
+      "held_out_score": 0.9201539817604901,
+      "delta_from_identity": 0.055959376981829956,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0031",
+      "variant": "center_occlusion",
+      "held_out_score": 0.9234669174424212,
+      "delta_from_identity": -0.0038309405427054966,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0032",
+      "variant": "center_occlusion",
+      "held_out_score": 0.908388059312693,
+      "delta_from_identity": -0.024257957758014648,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0033",
+      "variant": "center_occlusion",
+      "held_out_score": 0.9726485713260488,
+      "delta_from_identity": -0.005383370475464,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0034",
+      "variant": "center_occlusion",
+      "held_out_score": 0.9164543117879468,
+      "delta_from_identity": 0.05763193693107094,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0035",
+      "variant": "center_occlusion",
+      "held_out_score": 0.8182850545912282,
+      "delta_from_identity": -0.042950641190524275,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0036",
+      "variant": "center_occlusion",
+      "held_out_score": 0.9233533276981412,
+      "delta_from_identity": 0.05410843293251022,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0037",
+      "variant": "center_occlusion",
+      "held_out_score": 0.9693025370124894,
+      "delta_from_identity": 0.0027727241878986453,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0030",
+      "variant": "corner_occlusion",
+      "held_out_score": 0.8355150256340628,
+      "delta_from_identity": -0.0286795791445974,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0031",
+      "variant": "corner_occlusion",
+      "held_out_score": 0.8925755761380164,
+      "delta_from_identity": -0.03472228184711024,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0032",
+      "variant": "corner_occlusion",
+      "held_out_score": 0.9622827565960232,
+      "delta_from_identity": 0.029636739525315647,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0033",
+      "variant": "corner_occlusion",
+      "held_out_score": 0.9783310603043859,
+      "delta_from_identity": 0.00029911850287311914,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0034",
+      "variant": "corner_occlusion",
+      "held_out_score": 0.9200340170024118,
+      "delta_from_identity": 0.06121164214553598,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0035",
+      "variant": "corner_occlusion",
+      "held_out_score": 0.9015623799167458,
+      "delta_from_identity": 0.040326684134993296,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0036",
+      "variant": "corner_occlusion",
+      "held_out_score": 0.915727557046729,
+      "delta_from_identity": 0.0464826622810981,
+      "contact_certainty": "UNKNOWN"
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0037",
+      "variant": "corner_occlusion",
+      "held_out_score": 0.9682057171569936,
+      "delta_from_identity": 0.0016759043324028333,
+      "contact_certainty": "UNKNOWN"
+    }
+  ]
+}

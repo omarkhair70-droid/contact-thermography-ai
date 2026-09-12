@@ -1,0 +1,60 @@
+{
+  "artifact_sha256": "13ae37942785ba9d7b81fbd9d7f901b310b36d5a3fd49c8060e211b33c4327d7",
+  "role": "resubstitution only; no independent validation",
+  "rows": [
+    {
+      "subject_id": "CLIENT-MOUSE-0030",
+      "computed_score": 0.5701325233426089,
+      "stored_score": 0.570133,
+      "absolute_difference": 4.766573911130223e-07
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0031",
+      "computed_score": 0.5682229105888348,
+      "stored_score": 0.568223,
+      "absolute_difference": 8.941116524940895e-08
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0032",
+      "computed_score": 0.5982744407397762,
+      "stored_score": 0.598274,
+      "absolute_difference": 4.4073977623071414e-07
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0033",
+      "computed_score": 0.619351243522657,
+      "stored_score": 0.619351,
+      "absolute_difference": 2.4352265703964093e-07
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0034",
+      "computed_score": 0.5676076095311557,
+      "stored_score": 0.567608,
+      "absolute_difference": 3.90468844257974e-07
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0035",
+      "computed_score": 0.5552804282308114,
+      "stored_score": 0.55528,
+      "absolute_difference": 4.28230811366781e-07
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0036",
+      "computed_score": 0.5639671693037638,
+      "stored_score": 0.563967,
+      "absolute_difference": 1.6930376378621048e-07
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0037",
+      "computed_score": 0.5967183148678316,
+      "stored_score": 0.596718,
+      "absolute_difference": 3.1486783158563014e-07
+    },
+    {
+      "subject_id": "CLIENT-MOUSE-0038",
+      "computed_score": 0.40032438300375683,
+      "stored_score": 0.400324,
+      "absolute_difference": 3.830037568208766e-07
+    }
+  ]
+}

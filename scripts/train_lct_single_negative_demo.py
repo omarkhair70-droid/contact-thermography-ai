@@ -9,7 +9,7 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 
 POSITIVE_LABELS = {"CANCER", "MALIGNANT", "TUMOR_BEARING", "TUMOR_LIKE"}
-NEGATIVE_LABELS = {"HEALTHY", "BENIGN", "NO_TUMOR_LIKE"}
+NEGATIVE_LABELS = {"HEALTHY", "NO_TUMOR_LIKE"}
 FEATURE_CONTRACT_VERSION = "lct-target-v1"
 TLC_PROFILE_ID = "client-device-tlc-pending"
 DINO_DIM = 384

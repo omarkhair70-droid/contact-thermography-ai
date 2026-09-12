@@ -1,0 +1,254 @@
+[
+  {
+    "subject_id": "CLIENT-MOUSE-0030",
+    "source_sha256": "be1fa897c744189957aa5bde3e6f90349b0cf59d8e7e23f09f8022eda3499365",
+    "contact_certainty": "UNKNOWN",
+    "missing_contact_status": [
+      "DINO_CHANNEL_UNAVAILABLE",
+      "INSUFFICIENT_CONTACT_FIELD",
+      "MISSING_INDEPENDENT_CONTACT_MASK",
+      "NO_USABLE_LOCAL_COMPARATORS",
+      "UNCALIBRATED_TLC",
+      "UNCONFIRMED_CONTACT_ANNOTATION",
+      "UNRESOLVED_DEVICE_PROFILE"
+    ],
+    "arms": {
+      "conservative_chromatic": {
+        "candidate_count": 0,
+        "local_contrast_score": null,
+        "analyzed_support_fraction": 0.0,
+        "dino_candidate_count": 0
+      },
+      "unknown_full_field": {
+        "candidate_count": 79,
+        "local_contrast_score": 0.2703708772926136,
+        "analyzed_support_fraction": 0.26360544217687076,
+        "dino_candidate_count": 0
+      }
+    }
+  },
+  {
+    "subject_id": "CLIENT-MOUSE-0031",
+    "source_sha256": "ac60d4ceb9bef4cb8ba8c2931a1a2abfec556e9fd10f9ded53a0182ae45d9d0b",
+    "contact_certainty": "UNKNOWN",
+    "missing_contact_status": [
+      "DINO_CHANNEL_UNAVAILABLE",
+      "INSUFFICIENT_CONTACT_FIELD",
+      "MISSING_INDEPENDENT_CONTACT_MASK",
+      "NO_USABLE_LOCAL_COMPARATORS",
+      "UNCALIBRATED_TLC",
+      "UNCONFIRMED_CONTACT_ANNOTATION",
+      "UNRESOLVED_DEVICE_PROFILE"
+    ],
+    "arms": {
+      "conservative_chromatic": {
+        "candidate_count": 0,
+        "local_contrast_score": null,
+        "analyzed_support_fraction": 0.0,
+        "dino_candidate_count": 0
+      },
+      "unknown_full_field": {
+        "candidate_count": 170,
+        "local_contrast_score": 0.31988597732546864,
+        "analyzed_support_fraction": 0.41836734693877553,
+        "dino_candidate_count": 0
+      }
+    }
+  },
+  {
+    "subject_id": "CLIENT-MOUSE-0032",
+    "source_sha256": "ffcaf4fb0659868221dff001c8254b9039f3664e432b3e8117ca0b9ab2e353c7",
+    "contact_certainty": "UNKNOWN",
+    "missing_contact_status": [
+      "DINO_CHANNEL_UNAVAILABLE",
+      "INSUFFICIENT_CONTACT_FIELD",
+      "MISSING_INDEPENDENT_CONTACT_MASK",
+      "NO_USABLE_LOCAL_COMPARATORS",
+      "UNCALIBRATED_TLC",
+      "UNCONFIRMED_CONTACT_ANNOTATION",
+      "UNRESOLVED_DEVICE_PROFILE"
+    ],
+    "arms": {
+      "conservative_chromatic": {
+        "candidate_count": 0,
+        "local_contrast_score": null,
+        "analyzed_support_fraction": 0.0,
+        "dino_candidate_count": 0
+      },
+      "unknown_full_field": {
+        "candidate_count": 93,
+        "local_contrast_score": 0.23662101414212994,
+        "analyzed_support_fraction": 0.2687074829931973,
+        "dino_candidate_count": 3
+      }
+    }
+  },
+  {
+    "subject_id": "CLIENT-MOUSE-0033",
+    "source_sha256": "e21a13a30e2a472ea126cd3d4302c0572692802e7d7feec07234d858dd62503f",
+    "contact_certainty": "UNKNOWN",
+    "missing_contact_status": [
+      "DINO_CHANNEL_UNAVAILABLE",
+      "INSUFFICIENT_CONTACT_FIELD",
+      "MISSING_INDEPENDENT_CONTACT_MASK",
+      "NO_USABLE_LOCAL_COMPARATORS",
+      "UNCALIBRATED_TLC",
+      "UNCONFIRMED_CONTACT_ANNOTATION",
+      "UNRESOLVED_DEVICE_PROFILE"
+    ],
+    "arms": {
+      "conservative_chromatic": {
+        "candidate_count": 0,
+        "local_contrast_score": null,
+        "analyzed_support_fraction": 0.0,
+        "dino_candidate_count": 0
+      },
+      "unknown_full_field": {
+        "candidate_count": 178,
+        "local_contrast_score": 0.2510608307510023,
+        "analyzed_support_fraction": 0.4064625850340136,
+        "dino_candidate_count": 4
+      }
+    }
+  },
+  {
+    "subject_id": "CLIENT-MOUSE-0034",
+    "source_sha256": "03822d5a04747d8913100b3db672fc28f3122ff2ad691e5cba7126db0c199243",
+    "contact_certainty": "UNKNOWN",
+    "missing_contact_status": [
+      "DINO_CHANNEL_UNAVAILABLE",
+      "INSUFFICIENT_CONTACT_FIELD",
+      "MISSING_INDEPENDENT_CONTACT_MASK",
+      "NO_USABLE_LOCAL_COMPARATORS",
+      "UNCALIBRATED_TLC",
+      "UNCONFIRMED_CONTACT_ANNOTATION",
+      "UNRESOLVED_DEVICE_PROFILE"
+    ],
+    "arms": {
+      "conservative_chromatic": {
+        "candidate_count": 7,
+        "local_contrast_score": 0.07416004049734362,
+        "analyzed_support_fraction": 0.2139957009792214,
+        "dino_candidate_count": 0
+      },
+      "unknown_full_field": {
+        "candidate_count": 114,
+        "local_contrast_score": 0.2012632098947802,
+        "analyzed_support_fraction": 0.2687074829931973,
+        "dino_candidate_count": 12
+      }
+    }
+  },
+  {
+    "subject_id": "CLIENT-MOUSE-0035",
+    "source_sha256": "b721f421364c3c6b01e027bb1e27d994b1312583eefaf657902df77ef00dcf99",
+    "contact_certainty": "UNKNOWN",
+    "missing_contact_status": [
+      "DINO_CHANNEL_UNAVAILABLE",
+      "INSUFFICIENT_CONTACT_FIELD",
+      "MISSING_INDEPENDENT_CONTACT_MASK",
+      "NO_USABLE_LOCAL_COMPARATORS",
+      "UNCALIBRATED_TLC",
+      "UNCONFIRMED_CONTACT_ANNOTATION",
+      "UNRESOLVED_DEVICE_PROFILE"
+    ],
+    "arms": {
+      "conservative_chromatic": {
+        "candidate_count": 1,
+        "local_contrast_score": 0.1607120725257896,
+        "analyzed_support_fraction": 0.07235726399095534,
+        "dino_candidate_count": 0
+      },
+      "unknown_full_field": {
+        "candidate_count": 130,
+        "local_contrast_score": 0.3188665895167879,
+        "analyzed_support_fraction": 0.3826530612244898,
+        "dino_candidate_count": 9
+      }
+    }
+  },
+  {
+    "subject_id": "CLIENT-MOUSE-0036",
+    "source_sha256": "e1891cfda8666603091fcc1b80f3423589f28aab569d128d2fc3978f8b8ffe8d",
+    "contact_certainty": "UNKNOWN",
+    "missing_contact_status": [
+      "DINO_CHANNEL_UNAVAILABLE",
+      "INSUFFICIENT_CONTACT_FIELD",
+      "MISSING_INDEPENDENT_CONTACT_MASK",
+      "NO_USABLE_LOCAL_COMPARATORS",
+      "UNCALIBRATED_TLC",
+      "UNCONFIRMED_CONTACT_ANNOTATION",
+      "UNRESOLVED_DEVICE_PROFILE"
+    ],
+    "arms": {
+      "conservative_chromatic": {
+        "candidate_count": 2,
+        "local_contrast_score": 0.094457048122593,
+        "analyzed_support_fraction": 0.06335981398953691,
+        "dino_candidate_count": 0
+      },
+      "unknown_full_field": {
+        "candidate_count": 207,
+        "local_contrast_score": 0.23861802949311198,
+        "analyzed_support_fraction": 0.4387755102040816,
+        "dino_candidate_count": 4
+      }
+    }
+  },
+  {
+    "subject_id": "CLIENT-MOUSE-0037",
+    "source_sha256": "154bd89f9c29abbb16233dcb0687409b2079c6f5a3752d3fb6400229e46426bd",
+    "contact_certainty": "UNKNOWN",
+    "missing_contact_status": [
+      "DINO_CHANNEL_UNAVAILABLE",
+      "INSUFFICIENT_CONTACT_FIELD",
+      "MISSING_INDEPENDENT_CONTACT_MASK",
+      "NO_USABLE_LOCAL_COMPARATORS",
+      "UNCALIBRATED_TLC",
+      "UNCONFIRMED_CONTACT_ANNOTATION",
+      "UNRESOLVED_DEVICE_PROFILE"
+    ],
+    "arms": {
+      "conservative_chromatic": {
+        "candidate_count": 11,
+        "local_contrast_score": 0.1253011945740504,
+        "analyzed_support_fraction": 0.246675660050106,
+        "dino_candidate_count": 0
+      },
+      "unknown_full_field": {
+        "candidate_count": 176,
+        "local_contrast_score": 0.2745373732234827,
+        "analyzed_support_fraction": 0.4200680272108844,
+        "dino_candidate_count": 10
+      }
+    }
+  },
+  {
+    "subject_id": "CLIENT-MOUSE-0038",
+    "source_sha256": "50bf802d0407a7a6f9194b5ca62c02ad4b45a38eaf9f8df18b1bd6ff4a053d6a",
+    "contact_certainty": "UNKNOWN",
+    "missing_contact_status": [
+      "DINO_CHANNEL_UNAVAILABLE",
+      "INSUFFICIENT_CONTACT_FIELD",
+      "MISSING_INDEPENDENT_CONTACT_MASK",
+      "NO_USABLE_LOCAL_COMPARATORS",
+      "UNCALIBRATED_TLC",
+      "UNCONFIRMED_CONTACT_ANNOTATION",
+      "UNRESOLVED_DEVICE_PROFILE"
+    ],
+    "arms": {
+      "conservative_chromatic": {
+        "candidate_count": 0,
+        "local_contrast_score": null,
+        "analyzed_support_fraction": 0.0,
+        "dino_candidate_count": 0
+      },
+      "unknown_full_field": {
+        "candidate_count": 136,
+        "local_contrast_score": 0.22512454484446132,
+        "analyzed_support_fraction": 0.39625850340136054,
+        "dino_candidate_count": 0
+      }
+    }
+  }
+]

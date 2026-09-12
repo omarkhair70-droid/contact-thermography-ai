@@ -1,0 +1,21 @@
+{
+  "execution_date": "2026-09-12",
+  "source_originals_verified": 9,
+  "private_assets_committed": false,
+  "dinov2_checkpoint_execution": "PASS_CPU_NINE_ORIGINALS",
+  "biological_image_ablations": "EXECUTED_WITH_UNKNOWN_CONTACT_AND_CONSERVATIVE_OPTICAL_SUPPORT",
+  "fitted_diagnostic_candidates": 11,
+  "skipped_incomplete_candidates": 11,
+  "selected_disease_head": null,
+  "candidate_status": "INACTIVE_RESEARCH_CANDIDATE",
+  "human_target": true,
+  "clinical_claim": "NONE",
+  "compileall": "PASS",
+  "pytest": {
+    "passed": 134,
+    "skipped": 1,
+    "warnings": 2,
+    "note": "Full repository suite. The single skipped legacy pairing test is superseded by the active HTTP 400 mixed-profile policy test. Two dependency deprecation warnings remain."
+  },
+  "deployment": "NOT_RUN"
+}
