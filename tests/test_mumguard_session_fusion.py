@@ -3,7 +3,11 @@ import io
 import numpy as np
 from PIL import Image
 
-from app.services.mumguard_session_fusion import SessionFrameInput, analyze_bilateral_session
+from app.services.mumguard_session_fusion import (
+    SessionFrameInput,
+    analyze_bilateral_session,
+    persist_session_evidence,
+)
 
 
 def _png_bytes(rgb: np.ndarray) -> bytes:
@@ -56,3 +60,34 @@ def test_session_fusion_detects_one_sided_relative_signal_change():
     assert scores["bilateral_asymmetry_score"] > 0.0
     assert scores["core_hyperthermia_score"] >= 0.0
     assert scores["abnormal_skin_behavior_score"] >= 0.0
+
+
+def test_persist_session_evidence_writes_viewable_preview_maps(tmp_path):
+    left = _base_rgb()
+    right = _base_rgb()
+    left[80:140, 50:120] = [220, 0, 0]
+    result, arrays = analyze_bilateral_session(
+        [
+            SessionFrameInput(_png_bytes(left), "left.png", "LEFT", 1),
+            SessionFrameInput(_png_bytes(right), "right.png", "RIGHT", 1),
+        ],
+        include_dino=False,
+    )
+
+    persisted = persist_session_evidence(result, arrays, tmp_path)
+    assert (tmp_path / persisted["evidence_filename"]).exists()
+    assert (tmp_path / persisted["maps_filename"]).exists()
+    previews = persisted["preview_filenames"]
+    assert set(previews) == {
+        "left_thermal_evidence",
+        "right_thermal_evidence",
+        "left_fused_evidence",
+        "right_fused_evidence",
+        "bilateral_asymmetry",
+    }
+    assert result["preview_filenames"] == previews
+    for filename in previews.values():
+        path = tmp_path / filename
+        assert path.exists()
+        image = Image.open(path)
+        assert image.width > 0 and image.height > 0
