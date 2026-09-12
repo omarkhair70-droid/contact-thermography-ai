@@ -32,6 +32,11 @@ from app.services.report import build_report_html
 from app.services.storage import storage
 from app.services.json_safety import sanitize_for_json
 from app.services.tlc_domain import build_profile_provenance
+from app.services.mumguard_session_fusion import (
+    SessionFrameInput,
+    analyze_bilateral_session,
+    persist_session_evidence,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 STATIC_DIR = ROOT / "app" / "static"
@@ -39,7 +44,7 @@ STATIC_DIR.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(
     title="Contact Thermography Intelligence Platform",
-    version="0.5.0",
+    version="0.6.0",
     description=(
         "Research analysis platform for contact liquid-crystal thermography. "
         "Current bundled models are reference-only and have no clinical diagnostic claim."
@@ -62,9 +67,10 @@ def health():
     payload = {
         "status": "ok" if db_ok and storage_ok else "degraded",
         "service": "lct-intelligence",
-        "version": "0.5.0",
+        "version": "0.6.0",
         "clinical_claim": "NONE",
         "live_bilateral_analysis": True,
+        "mumguard_session_fusion": True,
         "live_dinov2_analysis": True,
         "dinov2_backbone": dinov2_service.BACKBONE_NAME,
         "dinov2_runtime_loaded": dinov2_service.runtime.ready,
@@ -78,6 +84,17 @@ def health():
 def model_info():
     return sanitize_for_json({
         **store.manifest,
+        "mumguard_session_fusion": {
+            "architecture": "mumguard_session_fusion_v1",
+            "target_species": "human",
+            "measurement_mode": "relative_tlc_signal",
+            "channels": [
+                "core_hyperthermia",
+                "bilateral_asymmetry",
+                "abnormal_skin_thermal_behavior",
+            ],
+            "clinical_claim": "NONE",
+        },
         "live_dinov2": {
             "backbone": dinov2_service.BACKBONE_NAME,
             "embedding_dim": dinov2_service.EMBEDDING_DIM,
@@ -151,7 +168,21 @@ def _default_file_metadata():
         "sequence_index": None,
         "tlc_profile_id": DEFAULT_TLC_PROFILE,
         "device_profile_id": None,
+        "species": None,
+        "acquisition_type": None,
     }
+
+
+def _sequence_index(value, fallback: int) -> int:
+    if value is None:
+        return int(fallback)
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=f"Invalid sequence_index: {value!r}") from exc
+    if parsed < 0:
+        raise HTTPException(status_code=400, detail="sequence_index must be >= 0")
+    return parsed
 
 
 @app.post("/api/exams/analyze")
@@ -174,9 +205,6 @@ async def analyze_exam(
     for upload in files:
         name = upload.filename or ""
         item = dict(metadata.get(name, _default_file_metadata()))
-        # Product UI supplies exam-level TLC/device controls. Explicit form values
-        # intentionally override per-file defaults while API callers can continue
-        # to provide profile provenance only inside metadata_json.
         if form_tlc_profile_id is not None:
             item["tlc_profile_id"] = form_tlc_profile_id
         if device_profile_id is not None:
@@ -201,11 +229,28 @@ async def analyze_exam(
     sources = []
     total = 0
     flat_plates = []
+    session_frames: list[SessionFrameInput] = []
 
-    for upload, m in resolved:
+    for upload_index, (upload, m) in enumerate(resolved, start=1):
         raw = await upload.read()
         if not raw:
             raise HTTPException(status_code=400, detail=f"Empty file: {upload.filename}")
+
+        sequence_index = _sequence_index(m.get("sequence_index"), upload_index)
+        if (
+            selected_tlc_profile_id == "client-device-tlc-pending"
+            and m.get("side") in {"LEFT", "RIGHT"}
+            and m.get("acquisition_type") in {None, "contact-LCT"}
+        ):
+            session_frames.append(
+                SessionFrameInput(
+                    source=raw,
+                    source_name=upload.filename or f"image-{upload_index}",
+                    side=m["side"],
+                    sequence_index=sequence_index,
+                )
+            )
+
         try:
             result = analyze_uploaded_image(
                 raw,
@@ -224,7 +269,7 @@ async def analyze_exam(
         for idx, plate in enumerate(result["plates"], start=1):
             plate["side"] = m["side"]
             plate["position"] = m["position"] if m["position"] is not None else f"AUTO-{idx:02d}"
-            plate["sequence_index"] = m["sequence_index"] if m["sequence_index"] is not None else idx
+            plate["sequence_index"] = sequence_index
             flat_plates.append(plate)
 
         sources.append(result)
@@ -294,6 +339,39 @@ async def analyze_exam(
             "message": "LEFT/RIGHT plates were not paired across incompatible or unmatched device provenance.",
         })
 
+    mumguard_session = None
+    session_sides = {frame.side for frame in session_frames}
+    if session_sides == {"LEFT", "RIGHT"}:
+        try:
+            mumguard_session, session_arrays = analyze_bilateral_session(
+                session_frames,
+                tlc_profile_id=selected_tlc_profile_id,
+                include_dino=bool(dinov2_service.runtime.ready),
+            )
+        except ValueError as exc:
+            pairing_warnings.append({
+                "position": "SESSION",
+                "reason": "MUMGUARD_SESSION_FUSION_FAILED",
+                "message": str(exc),
+            })
+        else:
+            session_folder = "mumguard-session"
+            persisted = persist_session_evidence(
+                mumguard_session,
+                session_arrays,
+                storage.generated_exam_dir(eid) / session_folder,
+            )
+            mumguard_session.update({
+                "evidence_url": storage.generated_url(eid, session_folder, persisted["evidence_filename"]),
+                "maps_url": storage.generated_url(eid, session_folder, persisted["maps_filename"]),
+            })
+    elif session_frames:
+        pairing_warnings.append({
+            "position": "SESSION",
+            "reason": "MUMGUARD_BILATERAL_SESSION_INCOMPLETE",
+            "message": "Session fusion requires at least one LEFT and one RIGHT MumGuard capture.",
+        })
+
     for plate in flat_plates:
         plate.pop("_generated_image_path", None)
         plate.pop("_dinov2_embedding", None)
@@ -315,6 +393,7 @@ async def analyze_exam(
         "bilateral_pairing_warnings": pairing_warnings,
         "sources": sources,
         "bilateral_analysis": bilateral,
+        "mumguard_session_evidence": mumguard_session,
         "tlc_profile_ids": tlc_profile_ids,
         "device_profile_ids": device_profile_ids,
         "tlc_profile_provenance": [
@@ -322,7 +401,11 @@ async def analyze_exam(
         ],
         "clinical_risk": None,
         "clinical_claim": "NONE",
-        "model_status": "RESEARCH_REFERENCE_ANALYSIS",
+        "model_status": (
+            "MUMGUARD_SESSION_EVIDENCE_RESEARCH"
+            if mumguard_session is not None
+            else "RESEARCH_REFERENCE_ANALYSIS"
+        ),
     }
     result = sanitize_for_json(result)
     result["saved_at"] = save_exam(result)
