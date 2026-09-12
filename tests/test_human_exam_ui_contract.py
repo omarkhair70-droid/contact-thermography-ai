@@ -12,7 +12,8 @@ def test_human_exam_ui_exists_and_uses_bilateral_contract():
     assert "RIGHT breast captures" in text
     assert "species:'human'" in text
     assert "acquisition_type:'contact-LCT'" in text
-    assert "/api/exams/analyze" in text
+    assert "/api/human-exams/analyze" in text
+    assert "/api/exams/analyze" not in text
 
 
 def test_human_exam_ui_records_environment_and_preparation_context():
@@ -60,6 +61,13 @@ def test_human_exam_ui_makes_upload_names_unique_and_escapes_display_names():
     assert "filename:name" in text
     assert "const esc=" in text
     assert "${esc(x.file.name)}" in text
+
+
+def test_human_exam_ui_requests_direct_runtime_with_dino_support():
+    text = UI.read_text(encoding="utf-8")
+    assert "fd.append('include_dino','true')" in text
+    assert "fetch('/api/human-exams/analyze'" in text
+    assert "await r.text()" in text
 
 
 def test_human_exam_ui_does_not_present_measurement_evidence_as_cancer_probability():
