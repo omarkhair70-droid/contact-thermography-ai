@@ -207,6 +207,16 @@ def _sequence_index(value, fallback: int) -> int:
     return parsed
 
 
+def _eligible_mumguard_session_frame(tlc_profile_id: str, metadata: dict) -> bool:
+    """Keep the human session path profile-aware instead of binding it to one temporary profile id."""
+    return (
+        tlc_profile_id != "reference-publication-unknown"
+        and metadata.get("side") in {"LEFT", "RIGHT"}
+        and metadata.get("species") in {None, "human"}
+        and metadata.get("acquisition_type") in {None, "contact-LCT"}
+    )
+
+
 @app.post("/api/exams/analyze")
 async def analyze_exam(
     files: List[UploadFile] = File(...),
@@ -266,11 +276,7 @@ async def analyze_exam(
             raise HTTPException(status_code=400, detail=f"Empty file: {upload.filename}")
 
         sequence_index = _sequence_index(m.get("sequence_index"), upload_index)
-        if (
-            selected_tlc_profile_id == "client-device-tlc-pending"
-            and m.get("side") in {"LEFT", "RIGHT"}
-            and m.get("acquisition_type") in {None, "contact-LCT"}
-        ):
+        if _eligible_mumguard_session_frame(selected_tlc_profile_id, m):
             session_frames.append(
                 SessionFrameInput(
                     source=raw,
