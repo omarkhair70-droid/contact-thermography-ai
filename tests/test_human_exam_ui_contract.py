@@ -70,6 +70,17 @@ def test_human_exam_ui_requests_direct_runtime_with_dino_support():
     assert "await r.text()" in text
 
 
+def test_human_exam_ui_shows_indeterminate_activity_while_request_is_running():
+    text = UI.read_text(encoding="utf-8")
+    assert 'id="loading"' in text
+    assert 'class="loading-track"' in text
+    assert 'class="loading-bar"' in text
+    assert "startLoading()" in text
+    assert "stopLoading()" in text
+    assert "Analyzing…" in text
+    assert "Activity indicator only — not a fake percentage" in text
+
+
 def test_human_exam_ui_does_not_present_measurement_evidence_as_cancer_probability():
     text = UI.read_text(encoding="utf-8")
     assert "percentage cancer probability is not manufactured" in text
