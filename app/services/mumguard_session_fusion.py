@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+import json
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Sequence
 
 import cv2
@@ -49,10 +51,11 @@ def _dino_novelty_map(rgb: np.ndarray, response_mask: np.ndarray) -> tuple[np.nd
     """Return label-free patch novelty relative to the same frame's response field."""
     try:
         from app.services.dinov2_patch_encoder import encode_patches
-    except Exception:
-        return None, None
+        from app.services.dinov2_service import DINOv2UnavailableError
+        tokens, provenance = encode_patches(rgb)
+    except DINOv2UnavailableError as exc:
+        return None, {"status": "DINO_UNAVAILABLE", "reason": str(exc)}
 
-    tokens, provenance = encode_patches(rgb)
     th, tw, dim = tokens.shape
     support = _patch_support(response_mask, (th, tw))
     flat = tokens.reshape(-1, dim)
@@ -174,8 +177,6 @@ def analyze_bilateral_session(
         visual_evidence=right_visual.signal_map if right_visual is not None else None,
     )
 
-    left_ordered = sorted(left, key=lambda item: (int(item["input"].sequence_index), item["input"].source_name))
-    right_ordered = sorted(right, key=lambda item: (int(item["input"].sequence_index), item["input"].source_name))
     result = {
         "status": session.status,
         "architecture": "mumguard_session_fusion_v1",
@@ -225,3 +226,18 @@ def analyze_bilateral_session(
         "bilateral_joint_mask": session.bilateral.joint_mask.astype(np.uint8),
     }
     return result, arrays
+
+
+def persist_session_evidence(result: dict, arrays: dict[str, np.ndarray], directory: str | Path) -> dict:
+    """Persist numerical session evidence and return filenames for API/report wiring."""
+    out = Path(directory)
+    out.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(out / "session_maps.npz", **arrays)
+    (out / "session_evidence.json").write_text(
+        json.dumps(result, indent=2, allow_nan=False),
+        encoding="utf-8",
+    )
+    return {
+        "evidence_filename": "session_evidence.json",
+        "maps_filename": "session_maps.npz",
+    }
