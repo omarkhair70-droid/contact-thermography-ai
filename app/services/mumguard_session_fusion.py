@@ -16,6 +16,7 @@ from app.services.bilateral_session_engine import (
 )
 from app.services.client_device_domain import segment_client_response
 from app.services.contact_field import normalize_field
+from app.services.human_decision import HumanDecisionInput, build_human_decision
 from app.services.thermal_anomaly_engine import fuse_evidence_maps
 from app.services.tlc_signal_processing import build_relative_thermal_map
 
@@ -177,6 +178,15 @@ def analyze_bilateral_session(
         visual_evidence=right_visual.signal_map if right_visual is not None else None,
     )
 
+    ai_evidence_available = left_visual is not None and right_visual is not None
+    human_decision = build_human_decision(
+        HumanDecisionInput(
+            measurement_status=session.status,
+            measurement_scores=dict(session.scores),
+            ai_evidence_available=ai_evidence_available,
+        )
+    ).as_dict()
+
     result = {
         "status": session.status,
         "architecture": "mumguard_session_fusion_v1",
@@ -187,6 +197,7 @@ def analyze_bilateral_session(
         "contact_annotation_required_for_measurement": False,
         "response_support_semantics": "PROVISIONAL_VISIBLE_TLC_RESPONSE_NOT_CONFIRMED_TISSUE_CONTACT",
         "three_channel_scores": dict(session.scores),
+        "human_decision": human_decision,
         "left": _serialize_side(left_field),
         "right": _serialize_side(right_field),
         "bilateral": {
@@ -209,7 +220,7 @@ def analyze_bilateral_session(
         ],
         "left_offsets_xy": [list(value) for value in left_offsets],
         "right_offsets_xy": [list(value) for value in right_offsets],
-        "ai_evidence_available": left_visual is not None and right_visual is not None,
+        "ai_evidence_available": ai_evidence_available,
         "clinical_claim": "NONE",
     }
     arrays = {
