@@ -3,6 +3,7 @@ import json
 import pytest
 from fastapi import HTTPException
 
+from app import main
 from app.main import (
     _default_file_metadata,
     _eligible_mumguard_session_frame,
@@ -96,3 +97,53 @@ def test_human_exam_route_and_health_flags_are_live(client):
     assert payload["human_exam_ui"] is True
     assert payload["human_decision_contract"] is True
     assert payload["mumguard_session_fusion"] is True
+    assert payload["human_runtime_direct"] is True
+
+
+def test_direct_human_exam_4x4_skips_legacy_reference_pipeline(client, sample_png, monkeypatch):
+    def forbidden_legacy(*args, **kwargs):
+        raise AssertionError("legacy per-image analyzer must not run for direct human exams")
+
+    monkeypatch.setattr(main, "analyze_uploaded_image", forbidden_legacy)
+
+    files = []
+    metadata = []
+    for side in ("LEFT", "RIGHT"):
+        for index in range(1, 5):
+            name = f"{side.lower()}-{index:02d}.png"
+            files.append(("files", (name, sample_png, "image/png")))
+            metadata.append({
+                "filename": name,
+                "side": side,
+                "sequence_index": index,
+                "species": "human",
+                "acquisition_type": "contact-LCT",
+                "capture_role": "SPATIAL_TILE",
+                "tlc_profile_id": "client-device-tlc-pending",
+                "device_profile_id": "device-test",
+            })
+
+    response = client.post(
+        "/api/human-exams/analyze",
+        files=files,
+        data={
+            "exam_id": "human-4x4-direct",
+            "metadata_json": json.dumps(metadata),
+            "tlc_profile_id": "client-device-tlc-pending",
+            "device_profile_id": "device-test",
+            "include_dino": "false",
+        },
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["human_runtime"] == "DIRECT_SESSION_ONLY"
+    assert body["legacy_reference_analysis_executed"] is False
+    assert body["source_images"] == 8
+    assert body["bilateral_pairs_created"] == 0
+    assert body["sources"] == []
+    assert body["bilateral_analysis"] == []
+    assert body["mumguard_session_evidence"] is not None
+    assert len(body["mumguard_session_evidence"]["frames"]) == 8
+    assert body["model_status"] == "MUMGUARD_SESSION_EVIDENCE_RESEARCH"
+    assert body["clinical_risk"] is None
+    assert body["clinical_claim"] == "NONE"
