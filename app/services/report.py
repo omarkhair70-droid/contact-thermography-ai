@@ -47,7 +47,7 @@ def _decision_block(session: dict) -> str:
     decision = session.get("human_decision")
     if not isinstance(decision, dict):
         return ""
-    status = escape(str(decision.get("decision_status") or "NOT_CALIBRATED"))
+    status = escape(str(decision.get("decision_status") or decision.get("status") or "NOT_CALIBRATED"))
     indication = decision.get("indication")
     risk = decision.get("risk_score")
     reason = escape(str(decision.get("reason") or ""))
@@ -66,6 +66,34 @@ def _decision_block(session: dict) -> str:
     """
 
 
+def _session_preview_block(session: dict) -> str:
+    previews = session.get("preview_filenames")
+    maps_url = str(session.get("maps_url") or "")
+    if not isinstance(previews, dict) or not previews or "/" not in maps_url:
+        return ""
+    base = maps_url.rsplit("/", 1)[0]
+    labels = {
+        "left_thermal_evidence": "LEFT thermal evidence",
+        "right_thermal_evidence": "RIGHT thermal evidence",
+        "left_fused_evidence": "LEFT thermal + AI fused evidence",
+        "right_fused_evidence": "RIGHT thermal + AI fused evidence",
+        "bilateral_asymmetry": "Bilateral asymmetry",
+    }
+    cards = []
+    for key, label in labels.items():
+        filename = previews.get(key)
+        if not filename:
+            continue
+        url = escape(f"{base}/{filename}")
+        cards.append(
+            f'<figure class="map-card"><img src="{url}" alt="{escape(label)}">'
+            f'<figcaption>{escape(label)}</figcaption></figure>'
+        )
+    if not cards:
+        return ""
+    return '<h3>Explainable session maps</h3><div class="map-grid">' + "".join(cards) + "</div>"
+
+
 def _session_block(result: dict) -> str:
     session = result.get("mumguard_session_evidence")
     if not isinstance(session, dict):
@@ -81,7 +109,7 @@ def _session_block(result: dict) -> str:
     if evidence_url:
         links.append(f'<a href="{evidence_url}">session evidence JSON</a>')
     if maps_url:
-        links.append(f'<a href="{maps_url}">session evidence maps</a>')
+        links.append(f'<a href="{maps_url}">session numerical maps bundle</a>')
     links_html = " &nbsp; ".join(links)
     if links_html:
         links_html = f"<p>{links_html}</p>"
@@ -104,6 +132,7 @@ def _session_block(result: dict) -> str:
       <p><b>AI evidence:</b> {escape(ai_text)}</p>
       <p class="muted">{escape(str(session.get('response_support_semantics', '')))}</p>
       <p class="muted">These are research measurement-evidence scores, not cancer probabilities or a diagnosis.</p>
+      {_session_preview_block(session)}
       {links_html}
     </article>
     """
@@ -182,6 +211,10 @@ body{{font-family:Arial,sans-serif;margin:32px;color:#17202a}}
 .decision-block{{margin:14px 0;padding:12px;border:1px solid #91b8aa;border-radius:8px;background:#f5fbf8}}
 .score-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:12px 0}}
 .score-grid>div{{border:1px solid #ddd;border-radius:8px;padding:10px;background:#fafafa}}
+.map-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:12px 0}}
+.map-card{{margin:0;border:1px solid #ddd;border-radius:8px;overflow:hidden;background:#111}}
+.map-card img{{width:100%;height:180px;object-fit:contain;display:block}}
+.map-card figcaption{{padding:8px;background:#fafafa;font-size:12px}}
 .muted{{color:#6c757d}}
 </style></head><body>
 <h1>Contact Thermography Analysis Report</h1>
