@@ -1,0 +1,49 @@
+{
+  "semantics": "locked development ranking; no fitted disease head and no independent validation",
+  "feature_results": {
+    "core_hyperthermia_score": {
+      "negative_subject": "CLIENT-MOUSE-0038",
+      "negative_score": 0.20524105429649353,
+      "positive_subjects_compared": 8,
+      "positives_above_negative": 7,
+      "ties": 0,
+      "median_positive_minus_negative": 0.1754639744758606,
+      "min_positive_minus_negative": -0.06034524738788605,
+      "max_positive_minus_negative": 0.4463883936405182
+    },
+    "abnormal_skin_behavior_score": {
+      "negative_subject": "CLIENT-MOUSE-0038",
+      "negative_score": 0.8318243697285652,
+      "positive_subjects_compared": 8,
+      "positives_above_negative": 0,
+      "ties": 0,
+      "median_positive_minus_negative": -0.10760850505270902,
+      "min_positive_minus_negative": -0.3646394653915298,
+      "max_positive_minus_negative": -0.00718391031626886
+    },
+    "static_signal_evidence_score": {
+      "negative_subject": "CLIENT-MOUSE-0038",
+      "negative_score": 0.4684060467779636,
+      "positive_subjects_compared": 8,
+      "positives_above_negative": 6,
+      "ties": 0,
+      "median_positive_minus_negative": 0.06535760312997885,
+      "min_positive_minus_negative": -0.18814881894941637,
+      "max_positive_minus_negative": 0.24302262927738472
+    },
+    "global_anomaly_score": {
+      "negative_subject": "CLIENT-MOUSE-0038",
+      "negative_score": 1.0,
+      "positive_subjects_compared": 8,
+      "positives_above_negative": 0,
+      "ties": 4,
+      "median_positive_minus_negative": -0.013454943895339966,
+      "min_positive_minus_negative": -0.4347851276397705,
+      "max_positive_minus_negative": 0.0
+    }
+  },
+  "subject_count": 9,
+  "positive_subjects": 8,
+  "negative_subjects": 1,
+  "clinical_claim": "NONE"
+}
