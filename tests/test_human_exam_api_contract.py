@@ -84,3 +84,15 @@ def test_human_session_eligibility_rejects_reference_mouse_and_ir_domains():
         "client-device-tlc-pending",
         {"side": "LEFT", "species": "human", "acquisition_type": "radiometric-IR"},
     )
+
+
+def test_human_exam_route_and_health_flags_are_live(client):
+    page = client.get("/human-exam")
+    assert page.status_code == 200
+    assert "MumGuard Human Examination" in page.text
+    health = client.get("/health")
+    assert health.status_code == 200
+    payload = health.json()
+    assert payload["human_exam_ui"] is True
+    assert payload["human_decision_contract"] is True
+    assert payload["mumguard_session_fusion"] is True
