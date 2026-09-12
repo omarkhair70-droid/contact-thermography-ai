@@ -139,6 +139,7 @@ def test_direct_human_exam_4x4_skips_legacy_reference_pipeline(client, sample_pn
     assert body["human_runtime"] == "DIRECT_SESSION_ONLY"
     assert body["legacy_reference_analysis_executed"] is False
     assert body["source_images"] == 8
+    assert body["plates_detected"] == 0
     assert body["bilateral_pairs_created"] == 0
     assert body["sources"] == []
     assert body["bilateral_analysis"] == []
@@ -147,3 +148,11 @@ def test_direct_human_exam_4x4_skips_legacy_reference_pipeline(client, sample_pn
     assert body["model_status"] == "MUMGUARD_SESSION_EVIDENCE_RESEARCH"
     assert body["clinical_risk"] is None
     assert body["clinical_claim"] == "NONE"
+
+    history = client.get("/api/exams")
+    assert history.status_code == 200
+    assert history.json()["items"][0]["plates_detected"] == 0
+
+    report = client.get("/reports/human-4x4-direct")
+    assert report.status_code == 200
+    assert "MumGuard session evidence" in report.text
