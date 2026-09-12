@@ -33,7 +33,7 @@ def test_human_exam_ui_records_environment_and_preparation_context():
     assert "TEMPORAL_FRAME" in text
 
 
-def test_human_exam_ui_renders_session_decision_measurement_and_ai_outputs():
+def test_human_exam_ui_renders_session_decision_measurement_ai_and_maps():
     text = UI.read_text(encoding="utf-8")
     assert "mumguard_session_evidence" in text
     assert "human_decision" in text
@@ -44,6 +44,10 @@ def test_human_exam_ui_renders_session_decision_measurement_and_ai_outputs():
     assert "Measurement support" in text
     assert "Local AI / DINO evidence" in text
     assert "ai_evidence_available" in text
+    assert "preview_filenames" in text
+    assert "renderPreviews" in text
+    assert "LEFT thermal evidence" in text
+    assert "Bilateral asymmetry" in text
     assert "INCONCLUSIVE" in text
     assert "NOT_CALIBRATED" in text
     assert "INDICATION_" in text
