@@ -49,6 +49,15 @@ def test_human_exam_ui_renders_session_decision_measurement_and_ai_outputs():
     assert "INDICATION_" in text
 
 
+def test_human_exam_ui_makes_upload_names_unique_and_escapes_display_names():
+    text = UI.read_text(encoding="utf-8")
+    assert "const uploadName=" in text
+    assert "fd.append('files',item.file,name)" in text
+    assert "filename:name" in text
+    assert "const esc=" in text
+    assert "${esc(x.file.name)}" in text
+
+
 def test_human_exam_ui_does_not_present_measurement_evidence_as_cancer_probability():
     text = UI.read_text(encoding="utf-8")
     assert "percentage cancer probability is not manufactured" in text
