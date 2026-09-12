@@ -278,10 +278,6 @@ def persist_session_evidence(result: dict, arrays: dict[str, np.ndarray], direct
     out = Path(directory)
     out.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(out / "session_maps.npz", **arrays)
-    (out / "session_evidence.json").write_text(
-        json.dumps(result, indent=2, allow_nan=False),
-        encoding="utf-8",
-    )
 
     preview_keys = (
         "left_thermal_evidence",
@@ -297,6 +293,13 @@ def persist_session_evidence(result: dict, arrays: dict[str, np.ndarray], direct
         filename = f"{key}.png"
         _render_map_preview(arrays[key], out / filename)
         preview_filenames[key] = filename
+
+    # Persist preview identity inside the same evidence object returned by the API.
+    result["preview_filenames"] = dict(preview_filenames)
+    (out / "session_evidence.json").write_text(
+        json.dumps(result, indent=2, allow_nan=False),
+        encoding="utf-8",
+    )
 
     return {
         "evidence_filename": "session_evidence.json",
