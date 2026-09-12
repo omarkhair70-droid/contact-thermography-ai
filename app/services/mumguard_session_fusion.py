@@ -249,8 +249,32 @@ def analyze_bilateral_session(
     return result, arrays
 
 
+def _render_map_preview(array: np.ndarray, path: Path) -> None:
+    """Render a viewable PNG for an evidence array while keeping NaN support black."""
+    values = np.asarray(array, dtype=np.float32)
+    if values.ndim != 2:
+        raise ValueError("Session map previews require 2-D arrays")
+    finite = np.isfinite(values)
+    gray = np.zeros(values.shape, dtype=np.uint8)
+    if finite.any():
+        selected = values[finite]
+        lo, hi = np.percentile(selected, [5, 95])
+        if not np.isfinite([lo, hi]).all() or hi <= lo:
+            lo = float(np.min(selected))
+            hi = float(np.max(selected))
+        if hi > lo:
+            normalized = np.clip((values - float(lo)) / float(hi - lo), 0.0, 1.0)
+            gray[finite] = np.round(normalized[finite] * 255.0).astype(np.uint8)
+        else:
+            gray[finite] = 127
+    preview = cv2.applyColorMap(gray, cv2.COLORMAP_TURBO)
+    preview[~finite] = 0
+    if not cv2.imwrite(str(path), preview):
+        raise OSError(f"Could not write session map preview: {path}")
+
+
 def persist_session_evidence(result: dict, arrays: dict[str, np.ndarray], directory: str | Path) -> dict:
-    """Persist numerical session evidence and return filenames for API/report wiring."""
+    """Persist numerical evidence plus viewable session-map previews."""
     out = Path(directory)
     out.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(out / "session_maps.npz", **arrays)
@@ -258,7 +282,24 @@ def persist_session_evidence(result: dict, arrays: dict[str, np.ndarray], direct
         json.dumps(result, indent=2, allow_nan=False),
         encoding="utf-8",
     )
+
+    preview_keys = (
+        "left_thermal_evidence",
+        "right_thermal_evidence",
+        "left_fused_evidence",
+        "right_fused_evidence",
+        "bilateral_asymmetry",
+    )
+    preview_filenames = {}
+    for key in preview_keys:
+        if key not in arrays:
+            continue
+        filename = f"{key}.png"
+        _render_map_preview(arrays[key], out / filename)
+        preview_filenames[key] = filename
+
     return {
         "evidence_filename": "session_evidence.json",
         "maps_filename": "session_maps.npz",
+        "preview_filenames": preview_filenames,
     }
