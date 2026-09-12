@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 import joblib
@@ -21,6 +22,8 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import LinearSVC
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.services.human_research_transfer import SHARED_THERMAL_SHAPE_FEATURES
 
