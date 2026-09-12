@@ -14,6 +14,8 @@ def test_inconclusive_measurement_never_emits_risk():
     assert result.risk_score is None
     assert result.calibrated is False
     assert result.clinical_claim == "NONE"
+    assert result.as_dict()["status"] == "INCONCLUSIVE"
+    assert result.as_dict()["decision_status"] == "INCONCLUSIVE"
 
 
 def test_measurement_score_is_not_relabelled_as_risk_when_uncalibrated():
@@ -27,6 +29,7 @@ def test_measurement_score_is_not_relabelled_as_risk_when_uncalibrated():
     assert result.decision_status == "NOT_CALIBRATED"
     assert result.risk_score is None
     assert result.indication is None
+    assert result.as_dict()["status"] == "NOT_CALIBRATED"
 
 
 def test_calibrated_human_score_can_emit_low_intermediate_high():
@@ -57,6 +60,7 @@ def test_calibrated_human_score_can_emit_low_intermediate_high():
     assert high.risk_score == 0.82
     assert high.model_id == "human-head-v1"
     assert high.calibration_id == "human-calibration-v1"
+    assert high.as_dict()["status"] == "INDICATION_HIGH"
 
 
 def test_invalid_calibration_fails_closed():
