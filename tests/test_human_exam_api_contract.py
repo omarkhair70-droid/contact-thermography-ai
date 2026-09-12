@@ -3,7 +3,11 @@ import json
 import pytest
 from fastapi import HTTPException
 
-from app.main import _default_file_metadata, parse_metadata
+from app.main import (
+    _default_file_metadata,
+    _eligible_mumguard_session_frame,
+    parse_metadata,
+)
 
 
 def test_parse_metadata_carries_capture_context_for_human_session():
@@ -59,3 +63,24 @@ def test_default_metadata_keeps_unknown_acquisition_context_explicit():
     item = _default_file_metadata()
     assert item["acquisition_context"]["capture_role"] == "UNKNOWN"
     assert item["acquisition_context"]["room_temperature_c"] is None
+
+
+def test_human_session_eligibility_is_not_bound_to_pending_profile_name():
+    base = {"side": "LEFT", "species": "human", "acquisition_type": "contact-LCT"}
+    assert _eligible_mumguard_session_frame("client-device-tlc-pending", base)
+    assert _eligible_mumguard_session_frame("mumguard-calibrated-v2", base)
+
+
+def test_human_session_eligibility_rejects_reference_mouse_and_ir_domains():
+    assert not _eligible_mumguard_session_frame(
+        "reference-publication-unknown",
+        {"side": "LEFT", "species": "human", "acquisition_type": "contact-LCT"},
+    )
+    assert not _eligible_mumguard_session_frame(
+        "client-device-tlc-pending",
+        {"side": "LEFT", "species": "mouse", "acquisition_type": "contact-LCT"},
+    )
+    assert not _eligible_mumguard_session_frame(
+        "client-device-tlc-pending",
+        {"side": "LEFT", "species": "human", "acquisition_type": "radiometric-IR"},
+    )
