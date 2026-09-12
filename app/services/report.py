@@ -43,6 +43,29 @@ def _native_research_block(plate: dict) -> str:
     """
 
 
+def _decision_block(session: dict) -> str:
+    decision = session.get("human_decision")
+    if not isinstance(decision, dict):
+        return ""
+    status = escape(str(decision.get("decision_status") or "NOT_CALIBRATED"))
+    indication = decision.get("indication")
+    risk = decision.get("risk_score")
+    reason = escape(str(decision.get("reason") or ""))
+    indication_html = escape(str(indication)) if indication is not None else "not available"
+    risk_html = _fmt(risk) if risk is not None else "not available"
+    calibrated = "yes" if decision.get("calibrated") else "no"
+    return f"""
+      <div class="decision-block">
+        <h3>Human decision layer</h3>
+        <p><b>Decision status:</b> {status}</p>
+        <p><b>Indication:</b> {indication_html}</p>
+        <p><b>Risk score:</b> {risk_html}</p>
+        <p><b>Human calibration active:</b> {calibrated}</p>
+        <p class="muted">{reason}</p>
+      </div>
+    """
+
+
 def _session_block(result: dict) -> str:
     session = result.get("mumguard_session_evidence")
     if not isinstance(session, dict):
@@ -75,6 +98,7 @@ def _session_block(result: dict) -> str:
         <div><b>Abnormal skin behaviour</b><br>{_fmt(scores.get('abnormal_skin_behavior_score'))}</div>
         <div><b>Overall measurement evidence</b><br>{_fmt(scores.get('overall_measurement_evidence_score'))}</div>
       </div>
+      {_decision_block(session)}
       <p><b>LEFT observable field:</b> {_fmt(left.get('observable_fraction'))} &nbsp; <b>RIGHT observable field:</b> {_fmt(right.get('observable_fraction'))}</p>
       <p><b>Bilateral joint coverage:</b> {_fmt((bilateral.get('features') or {}).get('joint_fraction'))}</p>
       <p><b>AI evidence:</b> {escape(ai_text)}</p>
@@ -155,6 +179,7 @@ body{{font-family:Arial,sans-serif;margin:32px;color:#17202a}}
 .card img{{width:100%;max-height:260px;object-fit:contain;background:#111}}
 .pair img{{width:100%;object-fit:contain;background:#111}}
 .native-research{{margin:12px 0;padding:10px;border:1px solid #d1a84d;border-radius:8px;background:#fff9e9}}
+.decision-block{{margin:14px 0;padding:12px;border:1px solid #91b8aa;border-radius:8px;background:#f5fbf8}}
 .score-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:12px 0}}
 .score-grid>div{{border:1px solid #ddd;border-radius:8px;padding:10px;background:#fafafa}}
 .muted{{color:#6c757d}}
