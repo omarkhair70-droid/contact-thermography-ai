@@ -44,6 +44,7 @@ class HumanDecisionResult:
     def as_dict(self) -> dict:
         return {
             "decision_status": self.decision_status,
+            "status": self.decision_status,
             "indication": self.indication,
             "risk_score": self.risk_score,
             "calibrated": self.calibrated,
