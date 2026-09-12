@@ -24,7 +24,7 @@ REQUIRED = {
 
 ALLOWED_ROLES = {"REFERENCE_ONLY", "FROZEN_TARGET_EVAL", "TRAIN_CANDIDATE", "BLOCKED_RIGHTS"}
 POSITIVE_LABELS = {"CANCER", "MALIGNANT", "TUMOR_BEARING"}
-NEGATIVE_LABELS = {"HEALTHY", "BENIGN"}
+NEGATIVE_LABELS = {"HEALTHY"}
 PENDING_LABELS = {"PENDING_CLIENT_CLASS_MAP"}
 
 
@@ -79,6 +79,8 @@ def validate(path: Path) -> dict:
         )
 
     train = frame[frame["_train"]]
+    if train["label"].eq("BENIGN").any():
+        errors.append("BENIGN cannot be mapped to lesion absence; provide an explicit endpoint-specific label")
     train_pos = int(train["label"].isin(POSITIVE_LABELS).sum())
     train_neg = int(train["label"].isin(NEGATIVE_LABELS).sum())
     binary_training_ready = train_pos >= 2 and train_neg >= 2 and train["species"].nunique() == 1

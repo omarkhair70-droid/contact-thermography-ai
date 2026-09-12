@@ -16,3 +16,6 @@ app/static/generated/*
 .coverage
 htmlcov/
 .DS_Store
+private/
+work/
+*private-results*/

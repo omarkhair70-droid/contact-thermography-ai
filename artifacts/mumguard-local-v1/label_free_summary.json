@@ -1,0 +1,81 @@
+{
+  "conservative_chromatic": {
+    "available_subjects": [
+      "CLIENT-MOUSE-0034",
+      "CLIENT-MOUSE-0035",
+      "CLIENT-MOUSE-0036",
+      "CLIENT-MOUSE-0037"
+    ],
+    "missing_subjects": [
+      "CLIENT-MOUSE-0030",
+      "CLIENT-MOUSE-0031",
+      "CLIENT-MOUSE-0032",
+      "CLIENT-MOUSE-0033",
+      "CLIENT-MOUSE-0038"
+    ],
+    "physical_q90": {
+      "CLIENT-MOUSE-0030": null,
+      "CLIENT-MOUSE-0031": null,
+      "CLIENT-MOUSE-0032": null,
+      "CLIENT-MOUSE-0033": null,
+      "CLIENT-MOUSE-0034": 0.07416004049734362,
+      "CLIENT-MOUSE-0035": 0.1607120725257896,
+      "CLIENT-MOUSE-0036": 0.094457048122593,
+      "CLIENT-MOUSE-0037": 0.1253011945740504,
+      "CLIENT-MOUSE-0038": null
+    },
+    "dino_q90": {
+      "CLIENT-MOUSE-0030": null,
+      "CLIENT-MOUSE-0031": null,
+      "CLIENT-MOUSE-0032": null,
+      "CLIENT-MOUSE-0033": null,
+      "CLIENT-MOUSE-0034": null,
+      "CLIENT-MOUSE-0035": null,
+      "CLIENT-MOUSE-0036": null,
+      "CLIENT-MOUSE-0037": null,
+      "CLIENT-MOUSE-0038": null
+    },
+    "normal_bank_used": false,
+    "disease_labels_used_to_extract": false,
+    "contact_certainty": "UNKNOWN"
+  },
+  "unknown_full_field": {
+    "available_subjects": [
+      "CLIENT-MOUSE-0030",
+      "CLIENT-MOUSE-0031",
+      "CLIENT-MOUSE-0032",
+      "CLIENT-MOUSE-0033",
+      "CLIENT-MOUSE-0034",
+      "CLIENT-MOUSE-0035",
+      "CLIENT-MOUSE-0036",
+      "CLIENT-MOUSE-0037",
+      "CLIENT-MOUSE-0038"
+    ],
+    "missing_subjects": [],
+    "physical_q90": {
+      "CLIENT-MOUSE-0030": 0.2735356233740177,
+      "CLIENT-MOUSE-0031": 0.2925602958489128,
+      "CLIENT-MOUSE-0032": 0.19811346831353133,
+      "CLIENT-MOUSE-0033": 0.26963921130236224,
+      "CLIENT-MOUSE-0034": 0.22170617590953232,
+      "CLIENT-MOUSE-0035": 0.2725098785124695,
+      "CLIENT-MOUSE-0036": 0.25502292085696154,
+      "CLIENT-MOUSE-0037": 0.2548345899188995,
+      "CLIENT-MOUSE-0038": 0.29906581845164626
+    },
+    "dino_q90": {
+      "CLIENT-MOUSE-0030": null,
+      "CLIENT-MOUSE-0031": null,
+      "CLIENT-MOUSE-0032": 0.05512966760223563,
+      "CLIENT-MOUSE-0033": 0.12713366520439076,
+      "CLIENT-MOUSE-0034": 0.16615066298792638,
+      "CLIENT-MOUSE-0035": 0.21575488247256197,
+      "CLIENT-MOUSE-0036": 0.16908408725937038,
+      "CLIENT-MOUSE-0037": 0.21793225340011665,
+      "CLIENT-MOUSE-0038": null
+    },
+    "normal_bank_used": false,
+    "disease_labels_used_to_extract": false,
+    "contact_certainty": "UNKNOWN"
+  }
+}

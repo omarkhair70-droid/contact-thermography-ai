@@ -1,0 +1,23 @@
+{
+  "integration_snapshot": "c417da1f15146f6ab15974a0b7fbf399cb97842b",
+  "research_instruction_snapshot": "05e37ef36b07638bb913e0585ace8990ddfd16af",
+  "clinical_claim": "NONE",
+  "software_tests_passed": 14,
+  "software_cli_smoke": "PASS_ARTIFICIAL_PIXELS_ONLY",
+  "evidence_audit": "EXECUTED_ON_COMMITTED_CSV_JSON",
+  "biological_image_ablations": "NOT_RUN_PRIVATE_ORIGINALS_NOT_IN_GIT_CHECKOUT",
+  "dino_checkpoint_execution": "NOT_RUN",
+  "human_validation": "NOT_RUN",
+  "deployment": "NOT_MODIFIED",
+  "files": {
+    "research/mumguard/audit_current_evidence.py": "cf1613de6c28836dc91a042c67a83d90ce7d5746097d1b9451ca616cdb071919",
+    "research/mumguard/extract_tokens.py": "d0dd7d0733d149f2b03a731e51f00716fffd71405c8e24998c8d729f8c859f9a",
+    "research/mumguard/fit_subject_heads.py": "80f60201226c0b15b7fa21560ec978cee4b0a31359c33aec8a16afb2d7199ad4",
+    "research/mumguard/local_contrast.py": "17815166ff7afd4c2feae9d3b53d704172e9df75ee6a93405b961daf8f07a521",
+    "research/mumguard/test_local_contrast.py": "6fa0bbd88271a337567d08ff9e1d8f793d2b25bfab367582cf5a9cd08d4e1a8b",
+    "research/mumguard/test_subject_heads.py": "cbbb138a3b5a3cdedc2ebc8086cff03fcc159e75bb4d36da5122efd91ab45dec",
+    "research/mumguard/README.md": "39b7275c3e49506d4f2dc48dea54bf6178738e1d0b4eb124d48fa5bde6ee6b5f",
+    "research/mumguard/current_evidence_audit.json": "c23d8932ee63ef83ae59380e673365b6ed72a5bff3bcfcf31801ba15200a8b4d",
+    "docs/MUMGUARD_EXECUTABLE_RESEARCH_PROGRAM.md": "9353c037b3df9c50cafbdfef894263d2e5cacfaa98c42557fabbdd27354cb553"
+  }
+}

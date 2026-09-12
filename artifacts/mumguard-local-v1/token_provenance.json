@@ -1,0 +1,74 @@
+[
+  {
+    "subject_id": "CLIENT-MOUSE-0030",
+    "backbone": "dinov2_vits14",
+    "revision": "7764ea0f912e53c92e82eb78a2a1631e92725fc8",
+    "input_sha256": "08c067a8761f19eb89492dbac08bb5f6347ea7c28889f3cfba66a23859b65854",
+    "token_sha256": "3d550ebebfd33eec2ebd17689f845c71c073a135669674929fbc5c39fec28ae9",
+    "context": "full-image ViT context; not strictly local crop descriptors"
+  },
+  {
+    "subject_id": "CLIENT-MOUSE-0031",
+    "backbone": "dinov2_vits14",
+    "revision": "7764ea0f912e53c92e82eb78a2a1631e92725fc8",
+    "input_sha256": "934e69160d90a98a30ce4f979a814871be44bd0eb602d240a14af20a174f5ef2",
+    "token_sha256": "800ec4d2f83694d5939b43db8061f95e25a2782028ab23ffe0117826a86223d5",
+    "context": "full-image ViT context; not strictly local crop descriptors"
+  },
+  {
+    "subject_id": "CLIENT-MOUSE-0032",
+    "backbone": "dinov2_vits14",
+    "revision": "7764ea0f912e53c92e82eb78a2a1631e92725fc8",
+    "input_sha256": "a16cf6e3a16c8457430b0ea5efe130dd48eb72ba90442fd02f573ceebd7a3a4a",
+    "token_sha256": "a040d20fe09786c2512cd8535062f498b3c9fc0f7f272b158e267c37efc4efbb",
+    "context": "full-image ViT context; not strictly local crop descriptors"
+  },
+  {
+    "subject_id": "CLIENT-MOUSE-0033",
+    "backbone": "dinov2_vits14",
+    "revision": "7764ea0f912e53c92e82eb78a2a1631e92725fc8",
+    "input_sha256": "36ceccd8a520bc4e2b9ee52ced03c75199ab3c06abee9c84f991da34908367df",
+    "token_sha256": "65f09caba5d9aa51c742ab5b1526d3202195e140f5d6a85dc77c81f7be7a80cf",
+    "context": "full-image ViT context; not strictly local crop descriptors"
+  },
+  {
+    "subject_id": "CLIENT-MOUSE-0034",
+    "backbone": "dinov2_vits14",
+    "revision": "7764ea0f912e53c92e82eb78a2a1631e92725fc8",
+    "input_sha256": "9b803d1bdfa60f8126926a4e058db37c7ebc8e3f513b2e89f390ea316ee866e1",
+    "token_sha256": "c2521129b1aaff765759e9744cf697ed82c1da4866dc7095965a351d556d4929",
+    "context": "full-image ViT context; not strictly local crop descriptors"
+  },
+  {
+    "subject_id": "CLIENT-MOUSE-0035",
+    "backbone": "dinov2_vits14",
+    "revision": "7764ea0f912e53c92e82eb78a2a1631e92725fc8",
+    "input_sha256": "c169cca9e98138f7b3bddba15c01dc368551c57f2c33f517444fd49ac0b8f160",
+    "token_sha256": "1323bbf970bbab2d19533e161ae728bccd3c92470e238bc497f66f09015cedc3",
+    "context": "full-image ViT context; not strictly local crop descriptors"
+  },
+  {
+    "subject_id": "CLIENT-MOUSE-0036",
+    "backbone": "dinov2_vits14",
+    "revision": "7764ea0f912e53c92e82eb78a2a1631e92725fc8",
+    "input_sha256": "d28db39ffdb3fb4948e57b7ae55c51d45a9e0699f32d21bbe3d7143a32ccd970",
+    "token_sha256": "67613101e401ce83f62436781b8f107d9c224c6d230f8d9f64c59a0f572ad3d0",
+    "context": "full-image ViT context; not strictly local crop descriptors"
+  },
+  {
+    "subject_id": "CLIENT-MOUSE-0037",
+    "backbone": "dinov2_vits14",
+    "revision": "7764ea0f912e53c92e82eb78a2a1631e92725fc8",
+    "input_sha256": "fd6086f656bae04ef892a9458448d4a489d9f2475719e819f6f18a1cb937489b",
+    "token_sha256": "8400c1bf012148bb39f0238817995a7aab2c2f81142cb0cdc7e60c88ac0c84de",
+    "context": "full-image ViT context; not strictly local crop descriptors"
+  },
+  {
+    "subject_id": "CLIENT-MOUSE-0038",
+    "backbone": "dinov2_vits14",
+    "revision": "7764ea0f912e53c92e82eb78a2a1631e92725fc8",
+    "input_sha256": "c83223951b0eb23739dc5c930aed00a2d8b374d20965721be62955a3e7278fdd",
+    "token_sha256": "925195e4841e14a82281f42e9f41cd15eddd8bfdc03670d8131825c2bfbb04f4",
+    "context": "full-image ViT context; not strictly local crop descriptors"
+  }
+]

@@ -1,0 +1,38 @@
+{
+  "version": "mumguard-local-v1",
+  "features": [
+    {
+      "name": "physical_q90",
+      "unit": "dimensionless",
+      "required_channel": "photometric"
+    },
+    {
+      "name": "physical_median",
+      "unit": "dimensionless",
+      "required_channel": "photometric"
+    },
+    {
+      "name": "hue_js_q90",
+      "unit": "nats",
+      "required_channel": "photometric"
+    },
+    {
+      "name": "abs_saturation_delta_q90",
+      "unit": "dimensionless",
+      "required_channel": "photometric"
+    },
+    {
+      "name": "abs_value_delta_q90",
+      "unit": "dimensionless",
+      "required_channel": "photometric"
+    },
+    {
+      "name": "dino_distance_q90",
+      "unit": "dimensionless",
+      "required_channel": "dinov2"
+    }
+  ],
+  "missing_channel_policy": "skip dependent candidate; never zero-fill",
+  "temperature_channel": null,
+  "clinical_claim": "NONE"
+}

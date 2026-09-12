@@ -1,0 +1,180 @@
+{
+  "clinical_claim": "NONE",
+  "independent_subjects": 9,
+  "positive_subjects": 8,
+  "negative_subjects": 1,
+  "historical_blind_rule_audit": {
+    "tp": 6,
+    "fn": 2,
+    "tn": 1,
+    "fp": 0,
+    "positive_cases_flagged": "6/8",
+    "negative_cases_unflagged": "1/1",
+    "interpretation": "retrospective scoring of stored pre-map hypotheses; historical freeze not reverified; not clinical validation"
+  },
+  "stored_training_fit": {
+    "correct": 9,
+    "total": 9,
+    "smallest_positive_margin_to_threshold": 0.055279999999999996,
+    "threshold_separation_interval": {
+      "exclusive_lower": 0.400324,
+      "inclusive_upper": 0.55528
+    },
+    "interpretation": "resubstitution only; source embeddings absent from git checkout"
+  },
+  "label_permutation_resolution": {
+    "distinct_8v1_assignments": 9,
+    "minimum_one_sided_exhaustive_p": 0.1111111111111111,
+    "interpretation": "requires exchangeable subjects and full refit for each label assignment; no significance test executed"
+  },
+  "illustrative_fixed_threshold_independent_validation": {
+    "one_correct_negative_two_sided_95_lower": 0.025,
+    "all_eight_positives_correct_two_sided_95_lower": 0.6305833524471807,
+    "zero_false_positives_n_for_one_sided_95_upper_below_0_10": 29,
+    "zero_false_positives_n_for_one_sided_95_upper_below_0_05": 59,
+    "interpretation": "sample-size arithmetic only, not bounds on this training cohort"
+  },
+  "leave_one_positive_out_design": [
+    {
+      "held_out_positive": "CLIENT-MOUSE-0030",
+      "train_subjects": [
+        "CLIENT-MOUSE-0031",
+        "CLIENT-MOUSE-0032",
+        "CLIENT-MOUSE-0033",
+        "CLIENT-MOUSE-0034",
+        "CLIENT-MOUSE-0035",
+        "CLIENT-MOUSE-0036",
+        "CLIENT-MOUSE-0037",
+        "CLIENT-MOUSE-0038"
+      ],
+      "test_subjects": [
+        "CLIENT-MOUSE-0030"
+      ],
+      "independent_negative_test_subjects": 0
+    },
+    {
+      "held_out_positive": "CLIENT-MOUSE-0031",
+      "train_subjects": [
+        "CLIENT-MOUSE-0030",
+        "CLIENT-MOUSE-0032",
+        "CLIENT-MOUSE-0033",
+        "CLIENT-MOUSE-0034",
+        "CLIENT-MOUSE-0035",
+        "CLIENT-MOUSE-0036",
+        "CLIENT-MOUSE-0037",
+        "CLIENT-MOUSE-0038"
+      ],
+      "test_subjects": [
+        "CLIENT-MOUSE-0031"
+      ],
+      "independent_negative_test_subjects": 0
+    },
+    {
+      "held_out_positive": "CLIENT-MOUSE-0032",
+      "train_subjects": [
+        "CLIENT-MOUSE-0030",
+        "CLIENT-MOUSE-0031",
+        "CLIENT-MOUSE-0033",
+        "CLIENT-MOUSE-0034",
+        "CLIENT-MOUSE-0035",
+        "CLIENT-MOUSE-0036",
+        "CLIENT-MOUSE-0037",
+        "CLIENT-MOUSE-0038"
+      ],
+      "test_subjects": [
+        "CLIENT-MOUSE-0032"
+      ],
+      "independent_negative_test_subjects": 0
+    },
+    {
+      "held_out_positive": "CLIENT-MOUSE-0033",
+      "train_subjects": [
+        "CLIENT-MOUSE-0030",
+        "CLIENT-MOUSE-0031",
+        "CLIENT-MOUSE-0032",
+        "CLIENT-MOUSE-0034",
+        "CLIENT-MOUSE-0035",
+        "CLIENT-MOUSE-0036",
+        "CLIENT-MOUSE-0037",
+        "CLIENT-MOUSE-0038"
+      ],
+      "test_subjects": [
+        "CLIENT-MOUSE-0033"
+      ],
+      "independent_negative_test_subjects": 0
+    },
+    {
+      "held_out_positive": "CLIENT-MOUSE-0034",
+      "train_subjects": [
+        "CLIENT-MOUSE-0030",
+        "CLIENT-MOUSE-0031",
+        "CLIENT-MOUSE-0032",
+        "CLIENT-MOUSE-0033",
+        "CLIENT-MOUSE-0035",
+        "CLIENT-MOUSE-0036",
+        "CLIENT-MOUSE-0037",
+        "CLIENT-MOUSE-0038"
+      ],
+      "test_subjects": [
+        "CLIENT-MOUSE-0034"
+      ],
+      "independent_negative_test_subjects": 0
+    },
+    {
+      "held_out_positive": "CLIENT-MOUSE-0035",
+      "train_subjects": [
+        "CLIENT-MOUSE-0030",
+        "CLIENT-MOUSE-0031",
+        "CLIENT-MOUSE-0032",
+        "CLIENT-MOUSE-0033",
+        "CLIENT-MOUSE-0034",
+        "CLIENT-MOUSE-0036",
+        "CLIENT-MOUSE-0037",
+        "CLIENT-MOUSE-0038"
+      ],
+      "test_subjects": [
+        "CLIENT-MOUSE-0035"
+      ],
+      "independent_negative_test_subjects": 0
+    },
+    {
+      "held_out_positive": "CLIENT-MOUSE-0036",
+      "train_subjects": [
+        "CLIENT-MOUSE-0030",
+        "CLIENT-MOUSE-0031",
+        "CLIENT-MOUSE-0032",
+        "CLIENT-MOUSE-0033",
+        "CLIENT-MOUSE-0034",
+        "CLIENT-MOUSE-0035",
+        "CLIENT-MOUSE-0037",
+        "CLIENT-MOUSE-0038"
+      ],
+      "test_subjects": [
+        "CLIENT-MOUSE-0036"
+      ],
+      "independent_negative_test_subjects": 0
+    },
+    {
+      "held_out_positive": "CLIENT-MOUSE-0037",
+      "train_subjects": [
+        "CLIENT-MOUSE-0030",
+        "CLIENT-MOUSE-0031",
+        "CLIENT-MOUSE-0032",
+        "CLIENT-MOUSE-0033",
+        "CLIENT-MOUSE-0034",
+        "CLIENT-MOUSE-0035",
+        "CLIENT-MOUSE-0036",
+        "CLIENT-MOUSE-0038"
+      ],
+      "test_subjects": [
+        "CLIENT-MOUSE-0037"
+      ],
+      "independent_negative_test_subjects": 0
+    }
+  ],
+  "source_sha256": {
+    "data\\client_mouse_ground_truth_template.csv": "e5971ad499af3117b32f0f1b29afb303ce7d11df2e26ae3b963923dae9778716",
+    "data\\client_mouse_blind_predictions_v1.csv": "aa5fe4f613aff8c845e024c41a25b2d0c5ae0346cda19b88d5539688642e00d4",
+    "artifacts\\lct_native_exp8v1_dino.json": "13ae37942785ba9d7b81fbd9d7f901b310b36d5a3fd49c8060e211b33c4327d7"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "protocol_written_before_label_scoring": true,
+  "disease_head_fitted": false,
+  "threshold_selected": false,
+  "manifest_sha256": "4fdee5ad4cb08de79c3d62897a77e09d11db1f4feb322b03601508b323c11e2e",
+  "subjects": [
+    "CLIENT-MOUSE-0030",
+    "CLIENT-MOUSE-0031",
+    "CLIENT-MOUSE-0032",
+    "CLIENT-MOUSE-0033",
+    "CLIENT-MOUSE-0034",
+    "CLIENT-MOUSE-0035",
+    "CLIENT-MOUSE-0036",
+    "CLIENT-MOUSE-0037",
+    "CLIENT-MOUSE-0038"
+  ],
+  "source_hashes_verified": true,
+  "execution_note": "Locked protocol committed before this run; nine client-private originals matched the repository manifest hashes.",
+  "clinical_claim": "NONE"
+}

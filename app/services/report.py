@@ -43,6 +43,48 @@ def _native_research_block(plate: dict) -> str:
     """
 
 
+def _session_block(result: dict) -> str:
+    session = result.get("mumguard_session_evidence")
+    if not isinstance(session, dict):
+        return '<p>No complete MumGuard bilateral session was available for session-level fusion.</p>'
+    scores = session.get("three_channel_scores") or {}
+    left = session.get("left") or {}
+    right = session.get("right") or {}
+    bilateral = session.get("bilateral") or {}
+    evidence_url = escape(str(session.get("evidence_url") or ""))
+    maps_url = escape(str(session.get("maps_url") or ""))
+    ai_text = "available" if session.get("ai_evidence_available") else "not included in session fusion"
+    links = []
+    if evidence_url:
+        links.append(f'<a href="{evidence_url}">session evidence JSON</a>')
+    if maps_url:
+        links.append(f'<a href="{maps_url}">session evidence maps</a>')
+    links_html = " &nbsp; ".join(links)
+    if links_html:
+        links_html = f"<p>{links_html}</p>"
+    return f"""
+    <article class="session">
+      <h2>MumGuard session evidence</h2>
+      <p><b>Architecture:</b> {escape(str(session.get('architecture', 'unknown')))}</p>
+      <p><b>Status:</b> {escape(str(session.get('status', 'unknown')))}</p>
+      <p><b>Measurement mode:</b> {escape(str(session.get('measurement_mode', 'unknown')))}</p>
+      <p><b>Target species:</b> {escape(str(session.get('target_species', 'human')))}</p>
+      <div class="score-grid">
+        <div><b>Core hyperthermia evidence</b><br>{_fmt(scores.get('core_hyperthermia_score'))}</div>
+        <div><b>Bilateral asymmetry evidence</b><br>{_fmt(scores.get('bilateral_asymmetry_score'))}</div>
+        <div><b>Abnormal skin behaviour</b><br>{_fmt(scores.get('abnormal_skin_behavior_score'))}</div>
+        <div><b>Overall measurement evidence</b><br>{_fmt(scores.get('overall_measurement_evidence_score'))}</div>
+      </div>
+      <p><b>LEFT observable field:</b> {_fmt(left.get('observable_fraction'))} &nbsp; <b>RIGHT observable field:</b> {_fmt(right.get('observable_fraction'))}</p>
+      <p><b>Bilateral joint coverage:</b> {_fmt((bilateral.get('features') or {}).get('joint_fraction'))}</p>
+      <p><b>AI evidence:</b> {escape(ai_text)}</p>
+      <p class="muted">{escape(str(session.get('response_support_semantics', '')))}</p>
+      <p class="muted">These are research measurement-evidence scores, not cancer probabilities or a diagnosis.</p>
+      {links_html}
+    </article>
+    """
+
+
 def build_report_html(result: dict):
     exam_id = escape(str(result["exam_id"]))
     profile = result.get("profile_provenance") or {}
@@ -59,6 +101,13 @@ def build_report_html(result: dict):
     body = []
     for plate in plates:
         flags = ", ".join(plate.get("qc", {}).get("flags", [])) or "None"
+        local = plate.get("local_research_evidence")
+        local_html = ""
+        if isinstance(local, dict):
+            local_html = ('<p><b>MumGuard local research:</b> '
+                + escape(str(local.get('status', 'UNAVAILABLE')))
+                + '</p><p>Contact certainty: unknown. Disease decision: abstain.</p><p>'
+                + escape(', '.join(str(r) for r in local.get('quality_reasons', []))) + '</p>')
         body.append(f"""
         <article class="card">
           <img src="{escape(str(plate.get('image_url','')))}" />
@@ -74,6 +123,7 @@ def build_report_html(result: dict):
             {_score_line('DINOv2 reference unusualness score', plate.get('dinov2_reference_anomaly_score_0_1'))}
             {_score_line('Fused LCT + DINOv2 reference score', plate.get('dinov2_lct_fused_reference_score_0_1'))}
             {_native_research_block(plate)}
+            {local_html}
             <p class="muted">{escape(str(plate.get('dinov2_domain_notice', 'Reference unusualness only; not cancer probability.')))}</p>
           </div>
         </article>
@@ -101,10 +151,12 @@ def build_report_html(result: dict):
 body{{font-family:Arial,sans-serif;margin:32px;color:#17202a}}
 .banner{{padding:16px;border:1px solid #bbb;border-radius:10px;background:#f8f9fa}}
 .grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}}
-.card,.pair{{border:1px solid #ddd;border-radius:10px;padding:14px}}
+.card,.pair,.session{{border:1px solid #ddd;border-radius:10px;padding:14px;margin-bottom:16px}}
 .card img{{width:100%;max-height:260px;object-fit:contain;background:#111}}
 .pair img{{width:100%;object-fit:contain;background:#111}}
 .native-research{{margin:12px 0;padding:10px;border:1px solid #d1a84d;border-radius:8px;background:#fff9e9}}
+.score-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:12px 0}}
+.score-grid>div{{border:1px solid #ddd;border-radius:8px;padding:10px;background:#fafafa}}
 .muted{{color:#6c757d}}
 </style></head><body>
 <h1>Contact Thermography Analysis Report</h1>
@@ -113,11 +165,12 @@ body{{font-family:Arial,sans-serif;margin:32px;color:#17202a}}
 <p><b>TLC profile:</b> {tlc_profile_id}</p>
 <p><b>Device profile(s):</b> {device_text}</p>
 <p><b>Profile/domain status:</b> {domain_status}</p>
-<p><b>Source images:</b> {result.get('source_images', 0)} &nbsp; <b>Plates:</b> {result.get('plates_detected', 0)} &nbsp; <b>Bilateral pairs:</b> {result.get('bilateral_pairs_created', 0)}</p>
+<p><b>Source images:</b> {result.get('source_images', 0)} &nbsp; <b>Plates:</b> {result.get('plates_detected', 0)} &nbsp; <b>Legacy bilateral pairs:</b> {result.get('bilateral_pairs_created', 0)}</p>
 <p><b>Clinical claim:</b> NONE</p>
 <p>This report contains engineering/research analysis of liquid-crystal contact thermograms. Current model scores are not cancer probabilities.</p>
-<p>Colour interpretation is profile-dependent. Absolute temperature interpretation remains disabled until the selected TLC formulation is calibrated, and clinical inference remains disabled until a validated clinical model exists.</p>
+<p>Colour interpretation is profile-dependent. Absolute temperature interpretation remains disabled until the selected TLC formulation is calibrated.</p>
 </div>
+{_session_block(result)}
 <h2>Plate analysis</h2><div class="grid">{''.join(body)}</div>
-<h2>Bilateral analysis</h2><div>{''.join(pair_blocks) if pair_blocks else '<p>No true bilateral pairs were created for this exam.</p>'}</div>
+<h2>Legacy pairwise bilateral analysis</h2><div>{''.join(pair_blocks) if pair_blocks else '<p>No legacy pairwise bilateral pairs were created for this exam.</p>'}</div>
 </body></html>"""

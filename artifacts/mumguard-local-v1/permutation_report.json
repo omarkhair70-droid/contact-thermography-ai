@@ -1,0 +1,601 @@
+{
+  "assignments": 9,
+  "rows": [
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0030",
+      "candidate": "A_saved_global",
+      "positive_margins": 8,
+      "median_margin": 0.88748617279292
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0030",
+      "candidate": "M_response_morphology",
+      "positive_margins": 8,
+      "median_margin": 0.3824158668225504
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0030",
+      "candidate": "D_0038_global_anchor",
+      "positive_margins": 7,
+      "median_margin": 0.020873360451276857
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0030",
+      "candidate": "B_physical_unknown_full_field",
+      "positive_margins": 6,
+      "median_margin": 0.00907040270384657
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0030",
+      "candidate": "C_fixed_pool_unknown_full_field",
+      "positive_margins": 7,
+      "median_margin": 0.0750279059135415
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0030",
+      "candidate": "C_mean_unknown_full_field",
+      "positive_margins": 7,
+      "median_margin": 0.010118628526944923
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0030",
+      "candidate": "C_max_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.2087264831659443
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0030",
+      "candidate": "C_top3_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.19777510983767815
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0030",
+      "candidate": "F_photometric_unknown_full_field",
+      "positive_margins": 7,
+      "median_margin": 0.09504555910376666
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0030",
+      "candidate": "F_photometric_0038_anchor_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.11865809905928246
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0030",
+      "candidate": "A_reencoded_global",
+      "positive_margins": 8,
+      "median_margin": 0.9127421732775252
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0031",
+      "candidate": "A_saved_global",
+      "positive_margins": 8,
+      "median_margin": 0.8979500161229782
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0031",
+      "candidate": "M_response_morphology",
+      "positive_margins": 8,
+      "median_margin": 0.35399165892267465
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0031",
+      "candidate": "D_0038_global_anchor",
+      "positive_margins": 2,
+      "median_margin": -0.0035305546639066154
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0031",
+      "candidate": "B_physical_unknown_full_field",
+      "positive_margins": 7,
+      "median_margin": 0.05682349615800267
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0031",
+      "candidate": "C_fixed_pool_unknown_full_field",
+      "positive_margins": 7,
+      "median_margin": 0.11644581347982536
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0031",
+      "candidate": "C_mean_unknown_full_field",
+      "positive_margins": 7,
+      "median_margin": 0.11484687600129803
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0031",
+      "candidate": "C_max_unknown_full_field",
+      "positive_margins": 3,
+      "median_margin": -0.008923398197049265
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0031",
+      "candidate": "C_top3_unknown_full_field",
+      "positive_margins": 7,
+      "median_margin": 0.0489005689636374
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0031",
+      "candidate": "F_photometric_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.27581983770618823
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0031",
+      "candidate": "F_photometric_0038_anchor_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.26778863212573
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0031",
+      "candidate": "A_reencoded_global",
+      "positive_margins": 8,
+      "median_margin": 0.8553736392674047
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0032",
+      "candidate": "A_saved_global",
+      "positive_margins": 8,
+      "median_margin": 0.7415523359697165
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0032",
+      "candidate": "M_response_morphology",
+      "positive_margins": 7,
+      "median_margin": 0.1611577672918473
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0032",
+      "candidate": "D_0038_global_anchor",
+      "positive_margins": 6,
+      "median_margin": 0.006239823243949311
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0032",
+      "candidate": "B_physical_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.22145284447908317
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0032",
+      "candidate": "C_fixed_pool_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.21715194868767598
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0032",
+      "candidate": "C_mean_unknown_full_field",
+      "positive_margins": 6,
+      "median_margin": 0.008453979603110673
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0032",
+      "candidate": "C_max_unknown_full_field",
+      "positive_margins": 6,
+      "median_margin": 0.06903720562698673
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0032",
+      "candidate": "C_top3_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.15564988544452527
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0032",
+      "candidate": "F_photometric_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.36028519858141583
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0032",
+      "candidate": "F_photometric_0038_anchor_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.3579598296389971
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0032",
+      "candidate": "A_reencoded_global",
+      "positive_margins": 8,
+      "median_margin": 0.7888138958400877
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0033",
+      "candidate": "A_saved_global",
+      "positive_margins": 8,
+      "median_margin": 0.7713787075481839
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0033",
+      "candidate": "M_response_morphology",
+      "positive_margins": 8,
+      "median_margin": 0.20019999324741602
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0033",
+      "candidate": "D_0038_global_anchor",
+      "positive_margins": 8,
+      "median_margin": 0.04734319383829014
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0033",
+      "candidate": "B_physical_unknown_full_field",
+      "positive_margins": 4,
+      "median_margin": 0.0030876560287120824
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0033",
+      "candidate": "C_fixed_pool_unknown_full_field",
+      "positive_margins": 5,
+      "median_margin": 0.012260639307383164
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0033",
+      "candidate": "C_mean_unknown_full_field",
+      "positive_margins": 2,
+      "median_margin": -0.0035669845752274443
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0033",
+      "candidate": "C_max_unknown_full_field",
+      "positive_margins": 5,
+      "median_margin": 0.012310610666946414
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0033",
+      "candidate": "C_top3_unknown_full_field",
+      "positive_margins": 5,
+      "median_margin": 0.008291731212323517
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0033",
+      "candidate": "F_photometric_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.19271932881540754
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0033",
+      "candidate": "F_photometric_0038_anchor_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.2724226355708922
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0033",
+      "candidate": "A_reencoded_global",
+      "positive_margins": 8,
+      "median_margin": 0.8651809432116973
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0034",
+      "candidate": "A_saved_global",
+      "positive_margins": 8,
+      "median_margin": 0.8959739435251095
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0034",
+      "candidate": "M_response_morphology",
+      "positive_margins": 6,
+      "median_margin": 0.06109033259342206
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0034",
+      "candidate": "D_0038_global_anchor",
+      "positive_margins": 3,
+      "median_margin": -0.003166847091293973
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0034",
+      "candidate": "B_physical_unknown_full_field",
+      "positive_margins": 7,
+      "median_margin": 0.10222057842013355
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0034",
+      "candidate": "C_fixed_pool_unknown_full_field",
+      "positive_margins": 7,
+      "median_margin": 0.08685188839502639
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0034",
+      "candidate": "C_mean_unknown_full_field",
+      "positive_margins": 5,
+      "median_margin": 0.0020597688010768056
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0034",
+      "candidate": "C_max_unknown_full_field",
+      "positive_margins": 6,
+      "median_margin": 0.01574310052021269
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0034",
+      "candidate": "C_top3_unknown_full_field",
+      "positive_margins": 7,
+      "median_margin": 0.037115587543000844
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0034",
+      "candidate": "F_photometric_unknown_full_field",
+      "positive_margins": 7,
+      "median_margin": 0.14338950857766544
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0034",
+      "candidate": "F_photometric_0038_anchor_unknown_full_field",
+      "positive_margins": 7,
+      "median_margin": 0.1456661685878452
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0034",
+      "candidate": "A_reencoded_global",
+      "positive_margins": 8,
+      "median_margin": 0.8791460227215832
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0035",
+      "candidate": "A_saved_global",
+      "positive_margins": 8,
+      "median_margin": 0.6642591271183962
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0035",
+      "candidate": "M_response_morphology",
+      "positive_margins": 5,
+      "median_margin": 0.04325870286810965
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0035",
+      "candidate": "D_0038_global_anchor",
+      "positive_margins": 7,
+      "median_margin": 0.031441489228151515
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0035",
+      "candidate": "B_physical_unknown_full_field",
+      "positive_margins": 5,
+      "median_margin": 0.0075909219488087265
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0035",
+      "candidate": "C_fixed_pool_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.16190680323180728
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0035",
+      "candidate": "C_mean_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.14454684754147418
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0035",
+      "candidate": "C_max_unknown_full_field",
+      "positive_margins": 7,
+      "median_margin": 0.0403016624600514
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0035",
+      "candidate": "C_top3_unknown_full_field",
+      "positive_margins": 6,
+      "median_margin": 0.011410911845000732
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0035",
+      "candidate": "F_photometric_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.24645410865062367
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0035",
+      "candidate": "F_photometric_0038_anchor_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.2520073809917749
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0035",
+      "candidate": "A_reencoded_global",
+      "positive_margins": 8,
+      "median_margin": 0.6944283122416275
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0036",
+      "candidate": "A_saved_global",
+      "positive_margins": 8,
+      "median_margin": 0.7864021110792843
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0036",
+      "candidate": "M_response_morphology",
+      "positive_margins": 7,
+      "median_margin": 0.1269311016275233
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0036",
+      "candidate": "D_0038_global_anchor",
+      "positive_margins": 5,
+      "median_margin": 0.001225680843504301
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0036",
+      "candidate": "B_physical_unknown_full_field",
+      "positive_margins": 4,
+      "median_margin": 0.0006668965716567776
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0036",
+      "candidate": "C_fixed_pool_unknown_full_field",
+      "positive_margins": 1,
+      "median_margin": -0.014506913230965646
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0036",
+      "candidate": "C_mean_unknown_full_field",
+      "positive_margins": 1,
+      "median_margin": -0.002857218873938361
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0036",
+      "candidate": "C_max_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.07455101815463577
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0036",
+      "candidate": "C_top3_unknown_full_field",
+      "positive_margins": 6,
+      "median_margin": 0.035510984112975263
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0036",
+      "candidate": "F_photometric_unknown_full_field",
+      "positive_margins": 6,
+      "median_margin": 0.05928574533743128
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0036",
+      "candidate": "F_photometric_0038_anchor_unknown_full_field",
+      "positive_margins": 6,
+      "median_margin": 0.05883640289380396
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0036",
+      "candidate": "A_reencoded_global",
+      "positive_margins": 8,
+      "median_margin": 0.7459114046263928
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0037",
+      "candidate": "A_saved_global",
+      "positive_margins": 8,
+      "median_margin": 0.8019828820739634
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0037",
+      "candidate": "M_response_morphology",
+      "positive_margins": 8,
+      "median_margin": 0.1981797193302228
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0037",
+      "candidate": "D_0038_global_anchor",
+      "positive_margins": 5,
+      "median_margin": 0.003792536044496281
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0037",
+      "candidate": "B_physical_unknown_full_field",
+      "positive_margins": 5,
+      "median_margin": 0.0009789229649318498
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0037",
+      "candidate": "C_fixed_pool_unknown_full_field",
+      "positive_margins": 4,
+      "median_margin": 0.002690819707972608
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0037",
+      "candidate": "C_mean_unknown_full_field",
+      "positive_margins": 6,
+      "median_margin": 0.004920465428213505
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0037",
+      "candidate": "C_max_unknown_full_field",
+      "positive_margins": 7,
+      "median_margin": 0.0728279314001476
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0037",
+      "candidate": "C_top3_unknown_full_field",
+      "positive_margins": 5,
+      "median_margin": 0.029181388766468558
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0037",
+      "candidate": "F_photometric_unknown_full_field",
+      "positive_margins": 6,
+      "median_margin": 0.06724536978643264
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0037",
+      "candidate": "F_photometric_0038_anchor_unknown_full_field",
+      "positive_margins": 6,
+      "median_margin": 0.07351819367796919
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0037",
+      "candidate": "A_reencoded_global",
+      "positive_margins": 8,
+      "median_margin": 0.7970443672877195
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0038",
+      "candidate": "A_saved_global",
+      "positive_margins": 8,
+      "median_margin": 0.8205083387445644
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0038",
+      "candidate": "M_response_morphology",
+      "positive_margins": 7,
+      "median_margin": 0.166397630824385
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0038",
+      "candidate": "D_0038_global_anchor",
+      "positive_margins": 8,
+      "median_margin": 0.3012363220947674
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0038",
+      "candidate": "B_physical_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.08083997288210146
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0038",
+      "candidate": "C_fixed_pool_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.2787346798120738
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0038",
+      "candidate": "C_mean_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.16720829139269644
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0038",
+      "candidate": "C_max_unknown_full_field",
+      "positive_margins": 4,
+      "median_margin": -0.0042737609282690325
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0038",
+      "candidate": "C_top3_unknown_full_field",
+      "positive_margins": 3,
+      "median_margin": -0.0019087739635633705
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0038",
+      "candidate": "F_photometric_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.3535514708843821
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0038",
+      "candidate": "F_photometric_0038_anchor_unknown_full_field",
+      "positive_margins": 8,
+      "median_margin": 0.5192896180223823
+    },
+    {
+      "sole_negative_assignment": "CLIENT-MOUSE-0038",
+      "candidate": "A_reencoded_global",
+      "positive_margins": 8,
+      "median_margin": 0.8832467910620845
+    }
+  ],
+  "minimum_unrandomized_p": 0.1111111111111111,
+  "population_significance_claim": null
+}

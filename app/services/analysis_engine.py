@@ -22,6 +22,7 @@ from app.services.client_device_domain import (
     summarize_response,
 )
 from app.services.client_device_qc import assess_client_device_quality
+from app.services.mumguard_research_runtime import analyze_research, persist_evidence
 
 ROOT = Path(__file__).resolve().parents[2]
 ARTIFACTS = ROOT / "artifacts"
@@ -232,6 +233,7 @@ def analyze_plate(
     feature_override: dict | None = None,
     morphology_override: str | None = None,
     mask_override: np.ndarray | None = None,
+    qc_override: dict | None = None,
 ):
     if feature_override is None:
         f,morph,mask=signal_features(bgr, profile)
@@ -249,7 +251,7 @@ def analyze_plate(
     percentile=ref["reference_anomaly_percentile"]
     neighbors=ref["nearest_reference_plates"]
 
-    qc = assess_plate_quality(bgr, profile, float(f["response_area_fraction"]))
+    qc = qc_override if qc_override is not None else assess_plate_quality(bgr, profile, float(f["response_area_fraction"]))
     dino, embedding = dinov2_service.analyze_plate_rgb(
         cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB), f, profile.id
     )
@@ -279,6 +281,8 @@ def analyze_uploaded_image(
     exam_id,
     tlc_profile_id,
     device_profile_id=None,
+    acquisition_type=None,
+    species=None,
 ):
     profile = resolve_tlc_profile(tlc_profile_id)
     arr=np.frombuffer(file_bytes,dtype=np.uint8)
@@ -290,14 +294,34 @@ def analyze_uploaded_image(
     # generated plate/mask outputs remain served through /static/generated.
     storage.persist_upload(exam_id, source_name, file_bytes)
 
-    dets=detect_circular_plates(img)
+    exam_dir=storage.generated_exam_dir(exam_id)
+    local_metadata = {
+        "species": species,
+        "acquisition_type": acquisition_type,
+        "tlc_profile_id": profile.id,
+        "device_profile_id": device_profile_id,
+        "calibration_status": profile.calibration_status,
+        "contact_annotation_status": "UNAVAILABLE",
+        "contact_certainty": "UNKNOWN",
+    }
+    local_evidence, local_arrays = analyze_research(file_bytes, local_metadata)
+    local_folder = f"{uuid.uuid4().hex[:10]}_{Path(source_name).stem[:24]}_mumguard"
+    persist_evidence(local_evidence, local_arrays, exam_dir/local_folder)
+    local_evidence.update({
+        "normalized_image_url": storage.generated_url(exam_id, local_folder, "normalized.png"),
+        "evidence_overlay_url": storage.generated_url(exam_id, local_folder, "overlay.png"),
+        "evidence_json_url": storage.generated_url(exam_id, local_folder, "evidence.json"),
+        "maps_url": storage.generated_url(exam_id, local_folder, "maps.npz"),
+    })
+
+    # Client photographs use the full acquisition field even when setup artifacts
+    # happen to look circular. Decide the domain before publication circle search.
+    dets=[] if (profile.id==CLIENT_TLC_PROFILE_ID and acquisition_type=="contact-LCT") else detect_circular_plates(img)
     plates=[]
     mode="detected_circles"
     if not dets:
         dets=[([img.shape[1]//2,img.shape[0]//2,min(img.shape[:2])//2],None)]
         mode="whole_image_fallback"
-
-    exam_dir=storage.generated_exam_dir(exam_id)
 
     for idx,(c,_) in enumerate(dets,1):
         client_features=None
@@ -334,10 +358,9 @@ def analyze_uploaded_image(
             feature_override=client_features,
             morphology_override=client_morph,
             mask_override=client_mask,
+            qc_override=assess_client_device_quality(crop,client_mask,client_valid) if client_features is not None else None,
         )
-
-        if client_features is not None:
-            result["qc"]=assess_client_device_quality(crop,client_mask,client_valid)
+        result["local_research_evidence"] = local_evidence
 
         mask=result.pop("_mask")
 
@@ -367,6 +390,9 @@ def analyze_uploaded_image(
         "source_image":source_name,
         "tlc_profile_id":profile.id,
         "device_profile_id":device_profile_id,
+        "acquisition_type":acquisition_type,
+        "species":species,
+        "local_research_evidence":local_evidence,
         "tlc_profile_provenance":profile.provenance(),
         "extraction_mode":mode,
         "plates_detected":len(plates),

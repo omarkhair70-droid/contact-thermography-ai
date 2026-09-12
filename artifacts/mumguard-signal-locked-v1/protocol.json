@@ -1,0 +1,20 @@
+{
+  "version": "mumguard-signal-locked-v1",
+  "feature_contract": "relative TLC signal + multiscale local thermal anomaly",
+  "tlc_profile_id": "client-device-tlc-pending",
+  "relative_hue_span_deg": [0.0, 240.0],
+  "anomaly_radii_px": [3, 7, 15],
+  "hotter_is_higher_working_assumption": true,
+  "composite_weights": {
+    "core_hyperthermia_score": 0.58,
+    "abnormal_skin_behavior_score": 0.42
+  },
+  "rank_features": [
+    "core_hyperthermia_score",
+    "abnormal_skin_behavior_score",
+    "static_signal_evidence_score",
+    "global_anomaly_score"
+  ],
+  "selection": "No fitting and no threshold selection. Compare frozen scores with the sole negative only after every feature row is complete.",
+  "clinical_claim": "NONE"
+}
