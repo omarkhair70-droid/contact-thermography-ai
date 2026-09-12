@@ -81,6 +81,12 @@ def database_health():
 
 
 def save_exam(result: dict):
+    # Direct human-session analysis intentionally has no legacy publication
+    # "plate detection" stage. Keep the historical DB counters compatible by
+    # representing skipped legacy stages explicitly as zero.
+    result.setdefault("plates_detected", 0)
+    result.setdefault("bilateral_pairs_created", 0)
+
     now = datetime.now(timezone.utc).isoformat()
     payload = json.dumps(result, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
     params = {

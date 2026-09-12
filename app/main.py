@@ -1,5 +1,6 @@
 from pathlib import Path
 import json
+import logging
 import uuid
 from typing import List
 
@@ -8,6 +9,7 @@ from fastapi import FastAPI, Request, UploadFile, File, Form, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.concurrency import run_in_threadpool
 
 from app.services.reference_store import store
 from app.services.analysis_engine import analyze_uploaded_image
@@ -42,6 +44,7 @@ from app.services.mumguard_session_fusion import (
 ROOT = Path(__file__).resolve().parents[1]
 STATIC_DIR = ROOT / "app" / "static"
 STATIC_DIR.mkdir(parents=True, exist_ok=True)
+LOGGER = logging.getLogger("mumguard.human_runtime")
 
 app = FastAPI(
     title="Contact Thermography Intelligence Platform",
@@ -74,6 +77,7 @@ def health():
         "mumguard_session_fusion": True,
         "human_exam_ui": True,
         "human_decision_contract": True,
+        "human_runtime_direct": True,
         "live_dinov2_analysis": True,
         "dinov2_backbone": dinov2_service.BACKBONE_NAME,
         "dinov2_runtime_loaded": dinov2_service.runtime.ready,
@@ -446,6 +450,158 @@ async def analyze_exam(
     result = sanitize_for_json(result)
     result["saved_at"] = save_exam(result)
     result["report_url"] = f"/reports/{eid}"
+    return result
+
+
+@app.post("/api/human-exams/analyze")
+async def analyze_human_exam(
+    files: List[UploadFile] = File(...),
+    exam_id: str | None = Form(default=None),
+    metadata_json: str | None = Form(default=None),
+    tlc_profile_id: str | None = Form(default=None),
+    device_profile_id: str | None = Form(default=None),
+    include_dino: bool = Form(default=True),
+):
+    """Direct human-session runtime.
+
+    This route intentionally bypasses legacy per-image reference analysis and
+    legacy LEFT/RIGHT plate pairing. Human captures are persisted once, then the
+    complete bilateral session is reconstructed and analyzed as one examination.
+    """
+    eid = (exam_id or f"exam-{uuid.uuid4().hex[:10]}").replace("/", "_").replace("\\", "_")
+    if not files:
+        raise HTTPException(status_code=400, detail="At least one image is required")
+
+    metadata = parse_metadata(metadata_json)
+    form_tlc_profile_id = normalize_tlc_profile(tlc_profile_id) if tlc_profile_id is not None else None
+    form_device_profile_id = normalize_device_profile(device_profile_id) if device_profile_id is not None else None
+
+    upload_names = [upload.filename or "" for upload in files]
+    if len(upload_names) != len(set(upload_names)):
+        raise HTTPException(
+            status_code=400,
+            detail="Duplicate uploaded filenames are ambiguous for per-capture metadata. Rename captures uniquely.",
+        )
+
+    resolved = []
+    for upload in files:
+        name = upload.filename or ""
+        item = dict(metadata.get(name, _default_file_metadata()))
+        if form_tlc_profile_id is not None:
+            item["tlc_profile_id"] = form_tlc_profile_id
+        if device_profile_id is not None:
+            item["device_profile_id"] = form_device_profile_id
+        resolved.append((upload, item))
+
+    tlc_profiles = sorted({item["tlc_profile_id"] for _, item in resolved})
+    if len(tlc_profiles) != 1:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Mixed TLC profiles are not allowed in one human examination. "
+                f"Submit separate exams per tlc_profile_id: {', '.join(tlc_profiles)}"
+            ),
+        )
+    selected_tlc_profile_id = tlc_profiles[0]
+    if selected_tlc_profile_id == "reference-publication-unknown":
+        raise HTTPException(
+            status_code=400,
+            detail="The publication-reference TLC profile is not valid for a live MumGuard human session.",
+        )
+
+    device_profile_ids = sorted({
+        item["device_profile_id"] for _, item in resolved if item["device_profile_id"]
+    })
+    profile_provenance = build_profile_provenance(selected_tlc_profile_id, device_profile_ids)
+    session_frames: list[SessionFrameInput] = []
+
+    for upload_index, (upload, item) in enumerate(resolved, start=1):
+        name = upload.filename or f"image-{upload_index}"
+        if item.get("side") not in {"LEFT", "RIGHT"}:
+            raise HTTPException(status_code=400, detail=f"{name}: human session captures require LEFT or RIGHT side")
+        if item.get("species") not in {None, "human"}:
+            raise HTTPException(status_code=400, detail=f"{name}: human session captures must use species=human")
+        if item.get("acquisition_type") not in {None, "contact-LCT"}:
+            raise HTTPException(status_code=400, detail=f"{name}: human session captures must use acquisition_type=contact-LCT")
+
+        raw = await upload.read()
+        if not raw:
+            raise HTTPException(status_code=400, detail=f"Empty file: {name}")
+        storage.persist_upload(eid, name, raw)
+        session_frames.append(
+            SessionFrameInput(
+                source=raw,
+                source_name=name,
+                side=item["side"],
+                sequence_index=_sequence_index(item.get("sequence_index"), upload_index),
+                acquisition_context=item.get("acquisition_context"),
+            )
+        )
+
+    sides = {frame.side for frame in session_frames}
+    if sides != {"LEFT", "RIGHT"}:
+        raise HTTPException(
+            status_code=400,
+            detail="A complete MumGuard human examination requires at least one LEFT and one RIGHT capture.",
+        )
+
+    LOGGER.info(
+        "HUMAN_EXAM_RECEIVED exam_id=%s frames=%d left=%d right=%d include_dino=%s",
+        eid,
+        len(session_frames),
+        sum(frame.side == "LEFT" for frame in session_frames),
+        sum(frame.side == "RIGHT" for frame in session_frames),
+        include_dino,
+    )
+    try:
+        mumguard_session, session_arrays = await run_in_threadpool(
+            analyze_bilateral_session,
+            session_frames,
+            tlc_profile_id=selected_tlc_profile_id,
+            include_dino=include_dino,
+        )
+    except ValueError as exc:
+        LOGGER.warning("HUMAN_EXAM_REJECTED exam_id=%s reason=%s", eid, exc)
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    LOGGER.info("HUMAN_EXAM_FUSION_DONE exam_id=%s status=%s", eid, mumguard_session.get("status"))
+    session_folder = "mumguard-session"
+    persisted = await run_in_threadpool(
+        persist_session_evidence,
+        mumguard_session,
+        session_arrays,
+        storage.generated_exam_dir(eid) / session_folder,
+    )
+    mumguard_session.update({
+        "evidence_url": storage.generated_url(eid, session_folder, persisted["evidence_filename"]),
+        "maps_url": storage.generated_url(eid, session_folder, persisted["maps_filename"]),
+    })
+
+    result = {
+        "exam_id": eid,
+        "analysis_type": "contact_liquid_crystal_thermography",
+        "human_runtime": "DIRECT_SESSION_ONLY",
+        "legacy_reference_analysis_executed": False,
+        "tlc_profile_id": selected_tlc_profile_id,
+        "profile_provenance": profile_provenance,
+        "source_images": len(session_frames),
+        "metadata_items_supplied": len(metadata),
+        "bilateral_pairs_created": 0,
+        "bilateral_pairing_warnings": [],
+        "sources": [],
+        "bilateral_analysis": [],
+        "mumguard_session_evidence": mumguard_session,
+        "tlc_profile_ids": [selected_tlc_profile_id],
+        "device_profile_ids": device_profile_ids,
+        "tlc_profile_provenance": [resolve_tlc_profile(selected_tlc_profile_id).provenance()],
+        "clinical_risk": None,
+        "clinical_claim": "NONE",
+        "model_status": "MUMGUARD_SESSION_EVIDENCE_RESEARCH",
+    }
+    result = sanitize_for_json(result)
+    result["saved_at"] = save_exam(result)
+    result["report_url"] = f"/reports/{eid}"
+    LOGGER.info("HUMAN_EXAM_SAVED exam_id=%s", eid)
     return result
 
 
