@@ -19,6 +19,29 @@
       "artifact": "artifacts/mumguard-local-v1/model_card.json"
     },
     {
+      "name": "mumguard-human-research-transfer",
+      "version": "0.1.0",
+      "status": "READY_FOR_SOURCE_ARTIFACT",
+      "clinical_use": false,
+      "clinical_claim": "NONE",
+      "target_species": "human",
+      "source_domain": "DMR-IR_AUXILIARY_HUMAN_INFRARED",
+      "target_domain": "MUMGUARD_CONTACT_LCT_RELATIVE_SIGNAL",
+      "feature_contract_version": "offset_invariant_thermal_shape_v0",
+      "research_decisions": [
+        "SUSPICIOUS_RESEARCH",
+        "NOT_SUSPICIOUS_RESEARCH",
+        "INCONCLUSIVE"
+      ],
+      "research_concern_score": "0-100 only after active source-trained artifact passes OOD gate",
+      "clinical_risk_write": false,
+      "ood_abstention_required": true,
+      "runtime": "app/services/human_research_transfer.py",
+      "training_harness": "scripts/train_human_research_transfer_v0.py",
+      "artifact": null,
+      "activation_note": "Exact DMR-IR shared-feature source table/fitted artifact is not committed. Do not fabricate weights or activate from aggregate metrics."
+    },
+    {
       "name": "lct-reference-handcrafted",
       "version": "0.2.0",
       "status": "ACTIVE_REFERENCE",
