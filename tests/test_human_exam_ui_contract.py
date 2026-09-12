@@ -12,8 +12,25 @@ def test_human_exam_ui_exists_and_uses_bilateral_contract():
     assert "RIGHT breast captures" in text
     assert "species:'human'" in text
     assert "acquisition_type:'contact-LCT'" in text
-    assert "POST" not in text or "/api/exams/analyze" in text
     assert "/api/exams/analyze" in text
+
+
+def test_human_exam_ui_records_environment_and_preparation_context():
+    text = UI.read_text(encoding="utf-8")
+    for token in (
+        "room_temperature_c",
+        "room_humidity_percent",
+        "acclimatization_minutes",
+        "lighting_profile_id",
+        "camera_profile_id",
+        "tlc_batch_id",
+        "protocol_revision",
+        "preparation_flags",
+        "capture_role",
+    ):
+        assert token in text
+    assert "SPATIAL_TILE" in text
+    assert "TEMPORAL_FRAME" in text
 
 
 def test_human_exam_ui_renders_session_and_decision_outputs():
