@@ -151,9 +151,17 @@ def build_multiscale_thermal_anomaly(
         np.minimum(np.abs(z_stack), float(z_clip)) / float(z_clip),
         np.nan,
     )
-    with np.errstate(invalid="ignore"):
-        magnitude = np.nanmedian(clipped_abs_z, axis=0)
-        signed_contrast = np.nanmedian(contrast_stack, axis=0)
+    magnitude = np.full(signal.shape, np.nan, dtype=np.float32)
+    signed_contrast = np.full(signal.shape, np.nan, dtype=np.float32)
+    if aggregate_mask.any():
+        # Every selected column has at least one usable scale, avoiding all-NaN
+        # reductions outside the observable/comparable field.
+        magnitude[aggregate_mask] = np.nanmedian(
+            clipped_abs_z[:, aggregate_mask], axis=0
+        ).astype(np.float32)
+        signed_contrast[aggregate_mask] = np.nanmedian(
+            contrast_stack[:, aggregate_mask], axis=0
+        ).astype(np.float32)
 
     persistence = np.zeros(signal.shape, dtype=np.float32)
     if clean_radii:
@@ -220,6 +228,7 @@ def build_multiscale_thermal_anomaly(
             "z_clip": float(z_clip),
             "label_free": True,
             "species_specific": False,
+            "scales": scale_metadata,
         },
     )
 
