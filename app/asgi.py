@@ -24,9 +24,16 @@ def _warm_dinov2_runtime() -> None:
 
         dinov2_service.runtime.load_official()
     except Exception as exc:
-        UVICORN_LOGGER.warning("DINOV2_WARMUP_FAILED elapsed_s=%.3f reason=%s", time.perf_counter() - started, exc)
+        UVICORN_LOGGER.warning(
+            "DINOV2_WARMUP_FAILED elapsed_s=%.3f reason=%s",
+            time.perf_counter() - started,
+            exc,
+        )
     else:
-        UVICORN_LOGGER.info("DINOV2_WARMUP_READY elapsed_s=%.3f", time.perf_counter() - started)
+        UVICORN_LOGGER.info(
+            "DINOV2_WARMUP_READY elapsed_s=%.3f",
+            time.perf_counter() - started,
+        )
 
 
 if os.getenv("MUMGUARD_DINOV2_WARMUP", "0").strip().lower() in {"1", "true", "yes", "on"}:
@@ -37,7 +44,12 @@ if os.getenv("MUMGUARD_DINOV2_WARMUP", "0").strip().lower() in {"1", "true", "ye
 
 
 class HumanRequestObserver:
-    """Log the human-exam request before FastAPI parses multipart form data."""
+    """Observe upload-body and total request time without buffering the request.
+
+    This keeps the earlier timeout investigation measurable: a long upload/body
+    phase and a long model-compute phase are separate problems and should not be
+    guessed from one final request duration.
+    """
 
     def __init__(self, app):
         self.app = app
@@ -54,6 +66,8 @@ class HumanRequestObserver:
         request_id = uuid.uuid4().hex[:10]
         started = time.perf_counter()
         status_code = None
+        body_bytes = 0
+        body_complete_logged = False
 
         UVICORN_LOGGER.info(
             "HUMAN_HTTP_RECEIVED request_id=%s method=%s content_length=%s content_type=%s",
@@ -63,6 +77,21 @@ class HumanRequestObserver:
             headers.get("content-type", "unknown"),
         )
 
+        async def observed_receive():
+            nonlocal body_bytes, body_complete_logged
+            message = await receive()
+            if message.get("type") == "http.request":
+                body_bytes += len(message.get("body", b""))
+                if not message.get("more_body", False) and not body_complete_logged:
+                    body_complete_logged = True
+                    UVICORN_LOGGER.info(
+                        "HUMAN_BODY_COMPLETE request_id=%s bytes=%d elapsed_s=%.3f",
+                        request_id,
+                        body_bytes,
+                        time.perf_counter() - started,
+                    )
+            return message
+
         async def observed_send(message):
             nonlocal status_code
             if message.get("type") == "http.response.start":
@@ -70,19 +99,21 @@ class HumanRequestObserver:
             await send(message)
 
         try:
-            await self.app(scope, receive, observed_send)
+            await self.app(scope, observed_receive, observed_send)
         except Exception:
             UVICORN_LOGGER.exception(
-                "HUMAN_HTTP_EXCEPTION request_id=%s elapsed_s=%.3f",
+                "HUMAN_HTTP_EXCEPTION request_id=%s bytes=%d elapsed_s=%.3f",
                 request_id,
+                body_bytes,
                 time.perf_counter() - started,
             )
             raise
         else:
             UVICORN_LOGGER.info(
-                "HUMAN_HTTP_COMPLETED request_id=%s status=%s elapsed_s=%.3f",
+                "HUMAN_HTTP_COMPLETED request_id=%s status=%s bytes=%d elapsed_s=%.3f",
                 request_id,
                 status_code if status_code is not None else "unknown",
+                body_bytes,
                 time.perf_counter() - started,
             )
 
