@@ -21,6 +21,7 @@ from app.services.bilateral_session_engine import (
 from app.services.client_device_domain import segment_client_response
 from app.services.contact_field import normalize_field
 from app.services.human_decision import HumanDecisionInput, build_human_decision
+from app.services.human_transfer_domain_support import evaluate_session_source_support
 from app.services.thermal_anomaly_engine import fuse_evidence_maps
 from app.services.tlc_signal_processing import build_relative_thermal_map
 
@@ -194,6 +195,13 @@ def analyze_bilateral_session(
             ai_evidence_available=ai_evidence_available,
         )
     ).as_dict()
+    source_support = evaluate_session_source_support(
+        left_field.signal_map,
+        right_field.signal_map,
+        left_support=left_field.observable_mask,
+        right_support=right_field.observable_mask,
+        measurement_status=session.status,
+    )
 
     result = {
         "status": session.status,
@@ -206,6 +214,7 @@ def analyze_bilateral_session(
         "response_support_semantics": "PROVISIONAL_VISIBLE_TLC_RESPONSE_NOT_CONFIRMED_TISSUE_CONTACT",
         "three_channel_scores": dict(session.scores),
         "human_decision": human_decision,
+        "human_transfer_source_support": source_support,
         "left": _serialize_side(left_field),
         "right": _serialize_side(right_field),
         "bilateral": {
