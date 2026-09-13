@@ -1,196 +1,23 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Contact Thermography AI</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta http-equiv="refresh" content="0;url=/human-exam" />
+  <title>MumGuard</title>
   <style>
-    :root{
-      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      color-scheme:dark;
-      --bg:#07100f;--panel:#0b1715;--panel2:#0e1d1a;--line:#1b312d;--line2:#29443f;
-      --text:#f3f7f6;--muted:#96aaa5;--soft:#c8d6d2;--accent:#75e0c0;--accent2:#b7f3df;
-      --good:#7ee7b3;--warn:#f4cf72;--bad:#ff8f8f;--shadow:0 24px 70px rgba(0,0,0,.28)
-    }
-    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:linear-gradient(180deg,#07100f 0%,#081210 55%,#06100e 100%);color:var(--text);min-height:100vh}
-    button,input,select{font:inherit} button{cursor:pointer}.hidden{display:none!important}.muted{color:var(--muted)}
-    a{color:inherit;text-decoration:none}.mono{font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-    .app{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:100vh}
-    .sidebar{position:sticky;top:0;height:100vh;padding:24px 18px;border-right:1px solid var(--line);background:rgba(6,14,13,.94);backdrop-filter:blur(18px);display:flex;flex-direction:column;z-index:20}
-    .brand{display:flex;align-items:center;gap:11px;padding:4px 8px 25px}.mark{width:35px;height:35px;border:1px solid var(--line2);border-radius:12px;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#1c6351,#0b201b 55%,#07100f);box-shadow:inset 0 0 18px rgba(117,224,192,.18)}
-    .mark:after{content:"";width:13px;height:13px;border-radius:50%;border:2px solid var(--accent);box-shadow:0 0 14px rgba(117,224,192,.55)}
-    .brand strong{display:block;font-size:14px}.brand small{display:block;color:var(--muted);margin-top:2px;font-size:11px}
-    nav{display:grid;gap:5px}.nav-btn{border:0;background:transparent;color:#9fb0ac;text-align:left;padding:11px 12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between}.nav-btn:hover{background:#0d1b18;color:#fff}.nav-btn.active{background:#11231f;color:var(--accent2);box-shadow:inset 0 0 0 1px #1d3d35}.nav-btn span:last-child{font-size:11px;color:#60746f}
-    .sidebar-foot{margin-top:auto;padding:16px 9px 5px;border-top:1px solid var(--line);font-size:11px;line-height:1.55;color:#70837e}
-    .main{min-width:0}.topbar{height:76px;padding:0 34px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(27,49,45,.75);position:sticky;top:0;background:rgba(7,16,15,.82);backdrop-filter:blur(18px);z-index:10}.topbar h1{font-size:17px;margin:0;font-weight:650}.top-meta{display:flex;align-items:center;gap:10px}.chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);border-radius:999px;padding:6px 10px;font-size:11px;color:#bad0ca;background:#0b1715}.dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 10px rgba(126,231,179,.65)}
-    .content{max-width:1440px;margin:0 auto;padding:30px 34px 70px}.view{display:none}.view.active{display:block}
-    .hero{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.65fr);gap:20px;margin-bottom:22px}.hero-main,.hero-side,.surface{border:1px solid var(--line);background:linear-gradient(155deg,rgba(14,29,26,.96),rgba(8,18,16,.96));border-radius:20px;box-shadow:var(--shadow)}
-    .hero-main{padding:34px;min-height:260px;position:relative;overflow:hidden}.hero-main:after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-65px;top:-75px;background:radial-gradient(circle,rgba(117,224,192,.15),transparent 67%);pointer-events:none}.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:10px;color:var(--accent);font-weight:700}.hero h2{font-size:34px;line-height:1.08;margin:13px 0 14px;max-width:720px}.hero p{color:#9db1ac;max-width:720px;line-height:1.65;margin:0}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.btn{border:1px solid var(--line2);border-radius:11px;padding:10px 14px;background:#10211d;color:#eef8f5;font-weight:650;font-size:13px}.btn:hover{border-color:#3b5b54}.btn.primary{background:var(--accent);color:#062019;border-color:transparent}.btn.primary:hover{background:#8be9ce}.btn.ghost{background:transparent;color:#c1d0cc}.btn.danger{color:#ffb1b1}.btn:disabled{opacity:.5;cursor:not-allowed}
-    .hero-side{padding:25px}.status-line{display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}.status-line:last-child{border:0}.status-icon{width:32px;height:32px;border:1px solid var(--line2);border-radius:10px;display:grid;place-items:center;color:var(--accent);font-size:12px}.status-line b{display:block;font-size:13px}.status-line span{display:block;font-size:11px;color:var(--muted);margin-top:4px;line-height:1.45}
-    .section-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin:28px 0 13px}.section-head h2{font-size:18px;margin:0}.section-head p{margin:4px 0 0;color:var(--muted);font-size:12px}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.metric{border:1px solid var(--line);border-radius:15px;padding:17px;background:#0b1715}.metric small{font-size:11px;color:var(--muted)}.metric b{display:block;font-size:26px;margin-top:5px;letter-spacing:-.03em}.metric em{font-style:normal;color:#658079;font-size:10px}
-    .surface{padding:22px}.notice{display:flex;gap:12px;align-items:flex-start;border:1px solid #28443d;background:#0a1a16;border-radius:13px;padding:13px 15px;color:#b8cdc7;font-size:12px;line-height:1.55}.notice strong{color:#eaf5f2}.notice .nicon{color:var(--accent);font-weight:800}
-    .workspace{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px}.stepbar{display:flex;gap:8px;margin:0 0 18px}.step{flex:1;border:1px solid var(--line);padding:10px 11px;border-radius:10px;color:#6f837e;font-size:11px}.step.active{border-color:#376257;color:#d7eee7;background:#0d201b}.step b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#122722;margin-right:7px;color:#8ab9ac}
-    .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-size:11px;color:#91a59f;margin:0 0 6px}.input,.select{width:100%;border:1px solid #27403a;background:#07110f;color:#eaf3f0;border-radius:10px;padding:10px 11px;outline:none}.input:focus,.select:focus{border-color:#4f8779;box-shadow:0 0 0 3px rgba(117,224,192,.07)}.field small{display:block;color:#657a74;font-size:10px;margin-top:6px;line-height:1.4}
-    .dropzone{margin-top:16px;border:1px dashed #355d53;border-radius:15px;padding:30px;text-align:center;background:rgba(11,27,23,.5);transition:.15s}.dropzone.drag{background:#102b24;border-color:var(--accent)}.dropzone strong{display:block;font-size:14px}.dropzone span{display:block;color:var(--muted);font-size:11px;margin:6px 0 13px}.dropzone input{display:none}
-    .file-list{display:grid;gap:9px;margin-top:14px}.file-row{display:grid;grid-template-columns:54px minmax(130px,1.5fr) 115px 130px 64px 34px;gap:9px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:9px;background:#091512}.thumb{width:54px;height:54px;border-radius:9px;object-fit:cover;background:#030807;border:1px solid #1b302b}.file-name{min-width:0}.file-name b{font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.file-name small{font-size:10px;color:#6e837d}.file-row .input,.file-row .select{padding:8px;font-size:11px}.remove{width:30px;height:30px;border-radius:8px;border:1px solid #2a3d39;background:transparent;color:#78908a}.remove:hover{color:#ff9e9e;border-color:#6b3838}
-    .quick-tools{display:flex;gap:8px;align-items:center;margin:12px 0 0}.quick-tools button{font-size:10px;padding:7px 9px}.analyze-bar{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-top:18px;padding-top:17px;border-top:1px solid var(--line)}.analyze-note{font-size:10px;color:#6f827d;max-width:540px;line-height:1.5}
-    .side-card{border:1px solid var(--line);border-radius:15px;padding:16px;background:#0a1614;margin-bottom:12px}.side-card h3{font-size:12px;margin:0 0 12px}.check{display:flex;gap:9px;font-size:11px;color:#9eb1ac;margin:10px 0;line-height:1.4}.check i{font-style:normal;color:var(--accent)}
-    .progress{display:none;margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:13px;background:#081310}.progress.show{display:block}.progress-head{display:flex;justify-content:space-between;font-size:11px}.bar{height:5px;border-radius:99px;background:#14251f;overflow:hidden;margin-top:9px}.bar span{display:block;height:100%;width:35%;background:linear-gradient(90deg,#4fb497,#91ead0);animation:scan 1.35s infinite ease-in-out}@keyframes scan{0%{transform:translateX(-130%)}100%{transform:translateX(330%)}}
-    .result-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:16px}.summary-card{border:1px solid var(--line);border-radius:13px;padding:13px;background:#091512}.summary-card small{color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.08em}.summary-card b{display:block;margin-top:5px;font-size:16px}.score-bar{height:5px;background:#162622;border-radius:99px;overflow:hidden;margin-top:9px}.score-bar span{display:block;height:100%;background:#76dcbf;border-radius:99px}
-    .results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(295px,1fr));gap:13px}.plate-card,.pair-card{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#091512}.visual-pair{display:grid;grid-template-columns:1fr 1fr;background:#030807}.visual-pair figure{margin:0;position:relative}.visual-pair figure+figure{border-left:1px solid #15231f}.visual-pair img{width:100%;aspect-ratio:1/1;object-fit:contain;display:block}.visual-pair figcaption{position:absolute;left:8px;bottom:8px;background:rgba(3,8,7,.78);border:1px solid #243a35;border-radius:999px;padding:4px 7px;font-size:9px;color:#b7c9c4}.card-body{padding:13px}.title-row{display:flex;justify-content:space-between;gap:10px;align-items:center}.title-row h3{font-size:12px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.badge{border:1px solid #2c4942;border-radius:999px;padding:4px 7px;font-size:9px;color:#aac0ba;white-space:nowrap}.badge.good{color:#a4edc7;border-color:#315f4d}.badge.warn{color:#f3d891;border-color:#624f29}.badge.bad{color:#ffabab;border-color:#643636}.detail-list{display:grid;gap:7px;margin-top:11px}.detail{display:flex;justify-content:space-between;gap:12px;font-size:10px;color:#849a94}.detail span:last-child{color:#d0deda;text-align:right}.finding{margin-top:11px;border-top:1px solid var(--line);padding-top:10px;font-size:10px;color:#8fa39e;line-height:1.5}.pair-card .pair-hero{width:100%;aspect-ratio:4/1.15;object-fit:contain;background:#030807;display:block}.pair-mini{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line)}.pair-mini figure{margin:0}.pair-mini img{width:100%;height:130px;object-fit:contain;background:#030807;display:block}.pair-mini figure+figure{border-left:1px solid var(--line)}
-    .history-list{display:grid;gap:8px}.history-row{display:grid;grid-template-columns:minmax(150px,1.5fr) 120px 120px 160px 190px;gap:12px;align-items:center;padding:13px 14px;border:1px solid var(--line);border-radius:12px;background:#091512;font-size:11px}.history-row.header{background:transparent;border:0;color:#647a74;padding-top:3px;padding-bottom:3px}.history-row strong{font-size:12px}.history-actions{display:flex;gap:6px;justify-content:flex-end}.mini-btn{border:1px solid #2b443e;background:#0c1b18;color:#c5d5d1;border-radius:8px;padding:6px 8px;font-size:10px}.empty{padding:36px;border:1px dashed #29433c;border-radius:14px;text-align:center;color:#758a84;font-size:12px}
-    .reference-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px}.ref-card{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#091512}.ref-card img{width:100%;aspect-ratio:1/1;object-fit:contain;background:#030807;display:block}.ref-card .card-body{padding:10px}.ref-card strong{font-size:10px}.ref-card .detail{font-size:9px}
-    .toast{position:fixed;right:24px;bottom:24px;max-width:360px;border:1px solid #34564e;border-radius:12px;padding:12px 14px;background:#0b1b17;box-shadow:var(--shadow);font-size:11px;color:#cfe2dc;z-index:50;transform:translateY(20px);opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:translateY(0)}
-    @media(max-width:1080px){.app{grid-template-columns:78px minmax(0,1fr)}.sidebar{padding:22px 11px}.brand>div:last-child,.nav-btn span:first-child,.sidebar-foot{display:none}.brand{justify-content:center}.nav-btn{justify-content:center}.nav-btn span:last-child{font-size:13px}.hero{grid-template-columns:1fr}.workspace{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.result-summary{grid-template-columns:repeat(3,1fr)}}
-    @media(max-width:720px){.app{display:block}.sidebar{height:auto;position:fixed;left:12px;right:12px;bottom:12px;top:auto;border:1px solid var(--line);border-radius:16px;padding:7px;background:#07110ff2}.brand,.sidebar-foot{display:none}.sidebar nav{grid-template-columns:repeat(4,1fr);gap:3px}.nav-btn{padding:10px 4px}.nav-btn span:first-child{display:none}.topbar{height:64px;padding:0 18px}.content{padding:20px 16px 92px}.top-meta .chip:first-child{display:none}.hero-main{padding:24px}.hero h2{font-size:28px}.metrics{grid-template-columns:1fr 1fr}.field-grid{grid-template-columns:1fr}.file-row{grid-template-columns:48px minmax(0,1fr) 95px}.file-row .position,.file-row .sequence{grid-column:auto}.file-row .sequence{display:none}.file-row .remove{position:absolute;right:11px;margin-top:-48px}.file-row{position:relative}.result-summary{grid-template-columns:1fr 1fr}.history-row{grid-template-columns:1fr auto}.history-row.header,.history-row>span:nth-child(2),.history-row>span:nth-child(3),.history-row>span:nth-child(4){display:none}.history-actions{grid-column:2}}
+    :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:dark}
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#07100f;color:#eef8f5}
+    main{max-width:560px;padding:30px;text-align:center;border:1px solid #24423a;border-radius:18px;background:#0d1b18}
+    p{color:#9cb1ab;line-height:1.6}a{color:#7be2c2}
   </style>
+  <script>window.location.replace('/human-exam');</script>
 </head>
 <body>
-<div class="app">
-  <aside class="sidebar">
-    <div class="brand"><div class="mark"></div><div><strong>LCT Intelligence</strong><small>Contact Thermography AI</small></div></div>
-    <nav>
-      <button class="nav-btn active" data-view="dashboard"><span>Dashboard</span><span>01</span></button>
-      <button class="nav-btn" data-view="new-exam"><span>New Exam</span><span>02</span></button>
-      <button class="nav-btn" data-view="history"><span>History</span><span>03</span></button>
-      <button class="nav-btn" data-view="reference"><span>Reference</span><span>04</span></button>
-    </nav>
-    <div class="sidebar-foot">Research decision-support workspace.<br>Current outputs are not diagnostic claims.</div>
-  </aside>
-
-  <div class="main">
-    <header class="topbar">
-      <h1 id="page-title">Analysis Dashboard</h1>
-      <div class="top-meta">
-        <span class="chip"><span class="dot"></span> Engine ready</span>
-        <span class="chip">RC0.5 · Research mode</span>
-      </div>
-    </header>
-
-    <main class="content">
-      <section id="view-dashboard" class="view active">
-        <div class="hero">
-          <div class="hero-main">
-            <div class="eyebrow">Contact liquid crystal thermography</div>
-            <h2>From captured plates to structured visual analysis.</h2>
-            <p>Review image quality, thermochromic response, morphology, learned reference similarity and bilateral asymmetry in one examination workspace.</p>
-            <div class="actions"><button class="btn primary" onclick="openView('new-exam')">Start new examination</button><button class="btn ghost" onclick="openView('history')">Open examination history</button></div>
-          </div>
-          <div class="hero-side">
-            <div class="status-line"><div class="status-icon">QC</div><div><b>Acquisition quality</b><span>Focus, clipping, contrast and thermochromic-response checks.</span></div></div>
-            <div class="status-line"><div class="status-icon">AI</div><div><b>DINOv2 representation</b><span>Reference similarity and unusualness without a diagnostic claim.</span></div></div>
-            <div class="status-line"><div class="status-icon">L↔R</div><div><b>Bilateral comparison</b><span>Matched-position structural and colour-response asymmetry.</span></div></div>
-          </div>
-        </div>
-
-        <div class="notice"><span class="nicon">i</span><div><strong>Research analysis boundary.</strong> This platform analyzes contact LCT imagery. Current scores describe reference unusualness/asymmetry only and must not be interpreted as cancer probability. TLC formulation is preserved per examination because colour response can differ between materials.</div></div>
-
-        <div class="section-head"><div><h2>System snapshot</h2><p>Current reference baseline and learned representation.</p></div></div>
-        <div class="metrics">
-          <div class="metric"><small>Reference plates</small><b>{{ manifest.plates }}</b><em>publication-derived</em></div>
-          <div class="metric"><small>Bilateral pairs</small><b>{{ manifest.bilateral_pairs }}</b><em>reference layout pairs</em></div>
-          <div class="metric"><small>Feature vector</small><b>{{ manifest.feature_vector_dimension }}</b><em>analysis features</em></div>
-          <div class="metric"><small>Embedding</small><b>{{ manifest.embedding_dimension }}</b><em>reference representation</em></div>
-        </div>
-
-        <div class="section-head"><div><h2>Recent examinations</h2><p>Continue reviewing a saved examination or open its report.</p></div><button class="btn ghost" onclick="openView('history')">View all</button></div>
-        <div id="dashboard-history" class="history-list"><div class="empty">Loading saved examinations…</div></div>
-      </section>
-
-      <section id="view-new-exam" class="view">
-        <div class="section-head" style="margin-top:0"><div><h2>New examination</h2><p>Set the capture profile, add images and assign matching positions before analysis.</p></div></div>
-        <div class="workspace">
-          <div class="surface">
-            <div class="stepbar"><div class="step active"><b>1</b>Setup</div><div class="step active"><b>2</b>Assign images</div><div class="step"><b>3</b>Analyze & review</div></div>
-            <form id="analyze-form">
-              <div class="field-grid">
-                <div class="field"><label>Examination ID</label><input id="exam-id" class="input" name="exam_id" placeholder="Auto-generated if left blank"><small>Use a study/case ID rather than unnecessary personal information.</small></div>
-                <div class="field"><label>TLC profile</label><select id="tlc-profile" class="select"><option value="client-device-tlc-pending" selected>Client device — TLC pending calibration</option><option value="reference-publication-unknown">Publication reference — formulation unknown</option></select><small>Different TLC formulations are kept as separate colour-response domains.</small></div>
-                <div class="field"><label>Device profile (optional)</label><input id="device-profile" class="input" placeholder="e.g. prototype-01"><small>Useful when multiple capture devices or optics are used.</small></div>
-                <div class="field"><label>Pairing convention</label><select id="pair-mode" class="select"><option value="manual">Manual LEFT / RIGHT assignment</option><option value="alternate">Alternate files LEFT / RIGHT</option></select><small>Matching position labels create bilateral pairs.</small></div>
-              </div>
-
-              <div id="dropzone" class="dropzone">
-                <strong>Drop contact thermography images here</strong><span>or choose multiple images from the device</span>
-                <button type="button" class="btn" onclick="document.getElementById('files').click()">Choose images</button>
-                <input id="files" type="file" accept="image/*" multiple>
-              </div>
-              <div class="quick-tools"><button type="button" class="btn ghost" id="alternate-btn">Assign alternating L / R</button><button type="button" class="btn ghost" id="clear-btn">Clear images</button><span class="muted" id="file-count" style="font-size:10px">0 images selected</span></div>
-              <div id="file-list" class="file-list"></div>
-
-              <div id="progress" class="progress"><div class="progress-head"><strong>Analyzing examination</strong><span>QC → LCT → AI → bilateral</span></div><div class="bar"><span></span></div></div>
-              <div class="analyze-bar"><div class="analyze-note">The analysis output remains research/reference only. No cancer probability or diagnosis is generated by this workflow.</div><button id="analyze-btn" class="btn primary" type="submit" disabled>Analyze examination</button></div>
-            </form>
-          </div>
-          <aside>
-            <div class="side-card"><h3>Before you analyze</h3><div class="check"><i>✓</i><span>Use images captured with the same TLC/device profile for a bilateral comparison.</span></div><div class="check"><i>✓</i><span>Give LEFT and RIGHT images the same position label when they correspond.</span></div><div class="check"><i>✓</i><span>Keep client-device data separate from publication reference imagery.</span></div></div>
-            <div class="side-card"><h3>What the engine returns</h3><div class="check"><i>01</i><span>Image-quality status and acquisition flags.</span></div><div class="check"><i>02</i><span>Response mask, morphology and normalized signal features.</span></div><div class="check"><i>03</i><span>AI reference findings and nearest reference examples when available.</span></div><div class="check"><i>04</i><span>LEFT ↔ RIGHT difference maps for valid matched positions.</span></div></div>
-          </aside>
-        </div>
-
-        <div id="result-section" class="hidden">
-          <div class="section-head"><div><h2>Examination review</h2><p id="result-caption"></p></div><div class="actions" style="margin:0"><a id="report-link" class="btn ghost" target="_blank">Open report</a><button class="btn" onclick="resetExam()">New examination</button></div></div>
-          <div id="result-summary" class="result-summary"></div>
-          <div class="section-head"><div><h2>Plate findings</h2><p>Original image, response mask, QC and reference analysis.</p></div></div>
-          <div id="plate-results" class="results-grid"></div>
-          <div id="bilateral-block" class="hidden"><div class="section-head"><div><h2>Bilateral comparison</h2><p>Matched LEFT / RIGHT positions after geometric alignment.</p></div></div><div id="pair-results" class="results-grid"></div></div>
-        </div>
-      </section>
-
-      <section id="view-history" class="view">
-        <div class="section-head" style="margin-top:0"><div><h2>Examination history</h2><p>Saved analysis sessions with direct review and report access.</p></div><button class="btn primary" onclick="openView('new-exam')">New examination</button></div>
-        <div class="surface"><div id="history-list" class="history-list"><div class="empty">Loading…</div></div></div>
-        <div id="history-detail" class="hidden"><div class="section-head"><div><h2>Saved examination detail</h2><p id="history-detail-caption"></p></div><a id="history-report-link" target="_blank" class="btn ghost">Open report</a></div><div id="history-detail-body"></div></div>
-      </section>
-
-      <section id="view-reference" class="view">
-        <div class="section-head" style="margin-top:0"><div><h2>Reference workspace</h2><p>Dataset Zero used for software, representation and morphology development.</p></div></div>
-        <div class="notice"><span class="nicon">i</span><div><strong>Not a clinical training cohort.</strong> These publication-derived images do not establish diagnostic accuracy and their colour response must not be assumed to match the client device TLC formulation.</div></div>
-        <div class="section-head"><div><h2>Reference plates</h2><p>{{ manifest.plates }} extracted thermograms.</p></div></div>
-        <div class="reference-grid">
-          {% for p in plates %}
-          <article class="ref-card"><img src="{{ p.image_url }}" alt="{{ p.plate_id }}"><div class="card-body"><div class="title-row"><strong>{{ p.plate_id }}</strong><span class="badge">{{ "%.3f"|format(p.reference_anomaly_score_0_1) }}</span></div><div class="detail-list"><div class="detail"><span>Morphology</span><span>{{ p.heuristic_morphology_v0 }}</span></div><div class="detail"><span>Response area</span><span>{{ "%.3f"|format(p.response_area_fraction) }}</span></div><div class="detail"><span>Components</span><span>{{ p.component_count }}</span></div></div></div></article>
-          {% endfor %}
-        </div>
-      </section>
-    </main>
-  </div>
-</div>
-<div id="toast" class="toast"></div>
-
-<script>
-const state={files:[],history:[],latest:null};
-const titles={dashboard:'Analysis Dashboard','new-exam':'New Examination',history:'Examination History',reference:'Reference Workspace'};
-const $=id=>document.getElementById(id);
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-const fmt=n=>Number.isFinite(Number(n))?Number(n).toFixed(3):'—';
-function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3200)}
-function openView(name){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$('view-'+name).classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===name));$('page-title').textContent=titles[name]||'LCT Intelligence';window.scrollTo({top:0,behavior:'smooth'});if(name==='history')loadHistory();}
-document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>openView(b.dataset.view)));
-
-function addFiles(list){for(const file of list){if(!file.type.startsWith('image/'))continue;state.files.push({file,side:'UNKNOWN',position:'',sequence:state.files.length+1,url:URL.createObjectURL(file)});}if($('pair-mode').value==='alternate')assignAlternate();renderFiles();}
-function assignAlternate(){state.files.forEach((x,i)=>{x.side=i%2===0?'LEFT':'RIGHT';x.position='P'+String(Math.floor(i/2)+1).padStart(2,'0');x.sequence=Math.floor(i/2)+1});renderFiles();}
-function renderFiles(){const box=$('file-list');$('file-count').textContent=`${state.files.length} image${state.files.length===1?'':'s'} selected`;$('analyze-btn').disabled=!state.files.length;if(!state.files.length){box.innerHTML='';return;}box.innerHTML=state.files.map((x,i)=>`<div class="file-row"><img class="thumb" src="${x.url}"><div class="file-name"><b title="${esc(x.file.name)}">${esc(x.file.name)}</b><small>${(x.file.size/1024/1024).toFixed(2)} MB</small></div><select class="select side" data-i="${i}"><option value="UNKNOWN" ${x.side==='UNKNOWN'?'selected':''}>Unassigned</option><option value="LEFT" ${x.side==='LEFT'?'selected':''}>LEFT</option><option value="RIGHT" ${x.side==='RIGHT'?'selected':''}>RIGHT</option></select><input class="input position" data-i="${i}" value="${esc(x.position)}" placeholder="Position"><input class="input sequence" data-i="${i}" type="number" min="1" value="${x.sequence}"><button class="remove" type="button" data-remove="${i}">×</button></div>`).join('');box.querySelectorAll('.side').forEach(el=>el.onchange=e=>state.files[+e.target.dataset.i].side=e.target.value);box.querySelectorAll('.position').forEach(el=>el.oninput=e=>state.files[+e.target.dataset.i].position=e.target.value);box.querySelectorAll('.sequence').forEach(el=>el.oninput=e=>state.files[+e.target.dataset.i].sequence=Number(e.target.value)||1);box.querySelectorAll('[data-remove]').forEach(el=>el.onclick=()=>{const i=+el.dataset.remove;URL.revokeObjectURL(state.files[i].url);state.files.splice(i,1);state.files.forEach((x,j)=>x.sequence=j+1);renderFiles();});}
-const drop=$('dropzone');drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag')});drop.addEventListener('dragleave',()=>drop.classList.remove('drag'));drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag');addFiles(e.dataTransfer.files)});$('files').addEventListener('change',e=>addFiles(e.target.files));$('alternate-btn').onclick=assignAlternate;$('clear-btn').onclick=()=>{state.files.forEach(x=>URL.revokeObjectURL(x.url));state.files=[];renderFiles()};$('pair-mode').onchange=e=>{if(e.target.value==='alternate')assignAlternate()};
-
-function qcBadge(status){const s=String(status||'REVIEW');const cls=s==='PASS'?'good':(s.includes('REJECT')?'bad':'warn');return `<span class="badge ${cls}">${esc(s)}</span>`}
-function aiScore(p){const candidates=[p.dinov2_lct_fused_reference_score_0_1,p.dinov2_reference_anomaly_score_0_1,p.reference_anomaly_percentile];for(const v of candidates){if(Number.isFinite(Number(v)))return Number(v)}return null}
-function renderPlate(p){const score=aiScore(p);const flags=(p.qc?.flags||[]).filter(Boolean);const neighbours=(p.nearest_reference_plates||[]).slice(0,2);return `<article class="plate-card"><div class="visual-pair"><figure><img src="${esc(p.image_url)}" alt="${esc(p.plate_id)}"><figcaption>Original</figcaption></figure><figure><img src="${esc(p.response_mask_url)}" alt="Response mask"><figcaption>Response mask</figcaption></figure></div><div class="card-body"><div class="title-row"><h3>${esc(p.plate_id)}</h3>${qcBadge(p.qc?.status)}</div><div class="detail-list"><div class="detail"><span>Side / position</span><span>${esc(p.side||'UNKNOWN')} · ${esc(p.position||'—')}</span></div><div class="detail"><span>Morphology</span><span>${esc(p.morphology_descriptor||'—')}</span></div><div class="detail"><span>Response area</span><span>${fmt(p.signal_features?.response_area_fraction)}</span></div><div class="detail"><span>Reference AI</span><span>${score===null?'Pending live branch':fmt(score)}</span></div></div>${score===null?'':`<div class="score-bar"><span style="width:${Math.max(0,Math.min(100,score*100))}%"></span></div>`}<div class="finding">${flags.length?`QC note: ${esc(flags.join(', '))}. `:'No acquisition flags reported. '}${neighbours.length?`Nearest references: ${neighbours.map(n=>esc(n.plate_id)).join(', ')}. `:''}Reference findings describe visual unusualness only; not disease probability.</div></div></article>`}
-function renderPair(p){return `<article class="pair-card"><img class="pair-hero" src="${esc(p.panel_url)}" alt="Bilateral panel"><div class="pair-mini"><figure><img src="${esc(p.difference_url)}" alt="Difference map"></figure><figure><img src="${esc(p.right_aligned_url)}" alt="Aligned right"></figure></div><div class="card-body"><div class="title-row"><h3>${esc(p.bilateral_pair_id)}</h3><span class="badge">${esc(p.position||'Matched')}</span></div><div class="detail-list"><div class="detail"><span>LEFT ↔ RIGHT</span><span>${esc(p.left_plate_id)} ↔ ${esc(p.right_plate_id)}</span></div><div class="detail"><span>Asymmetry score</span><span>${fmt(p.reference_asymmetry_score_0_1)}</span></div><div class="detail"><span>Response-area Δ</span><span>${fmt(p.absolute_area_fraction_delta)}</span></div><div class="detail"><span>Jaccard similarity</span><span>${fmt(p.response_jaccard_similarity)}</span></div></div><div class="finding">Matched-position research comparison. Same-profile bilateral analysis is more meaningful than cross-formulation colour comparison.</div></div></article>`}
-function flattenPlates(body){return (body.sources||[]).flatMap(s=>s.plates||[])}
-function renderResult(body,target='new'){
-  const plates=flattenPlates(body),pairs=body.bilateral_analysis||[],qpass=plates.filter(p=>p.qc?.status==='PASS').length;
-  const summary=`<div class="summary-card"><small>Exam</small><b>${esc(body.exam_id)}</b></div><div class="summary-card"><small>Plates</small><b>${body.plates_detected??plates.length}</b></div><div class="summary-card"><small>QC pass</small><b>${qpass}/${plates.length}</b></div><div class="summary-card"><small>Bilateral pairs</small><b>${body.bilateral_pairs_created??pairs.length}</b></div><div class="summary-card"><small>TLC profile</small><b style="font-size:11px;line-height:1.4">${esc(body.tlc_profile_id||'profile not recorded')}</b></div>`;
-  if(target==='new'){$('result-summary').innerHTML=summary;$('plate-results').innerHTML=plates.map(renderPlate).join('')||'<div class="empty">No plates detected.</div>';$('pair-results').innerHTML=pairs.map(renderPair).join('');$('bilateral-block').classList.toggle('hidden',!pairs.length);$('result-caption').textContent=`${plates.length} plates · ${pairs.length} bilateral pairs · research mode`;$('report-link').href=body.report_url||`/reports/${encodeURIComponent(body.exam_id)}`;$('result-section').classList.remove('hidden');$('result-section').scrollIntoView({behavior:'smooth',block:'start'});}else{$('history-detail-caption').textContent=`${plates.length} plates · ${pairs.length} bilateral pairs`;$('history-report-link').href=body.report_url||`/reports/${encodeURIComponent(body.exam_id)}`;$('history-detail-body').innerHTML=`<div class="result-summary">${summary}</div><div class="results-grid">${plates.map(renderPlate).join('')}</div>${pairs.length?`<div class="section-head"><div><h2>Bilateral comparison</h2></div></div><div class="results-grid">${pairs.map(renderPair).join('')}</div>`:''}`;$('history-detail').classList.remove('hidden');$('history-detail').scrollIntoView({behavior:'smooth'});}
-}
-
-$('analyze-form').addEventListener('submit',async e=>{e.preventDefault();if(!state.files.length)return;const btn=$('analyze-btn');btn.disabled=true;$('progress').classList.add('show');const fd=new FormData();const eid=$('exam-id').value.trim();if(eid)fd.append('exam_id',eid);fd.append('tlc_profile_id',$('tlc-profile').value);const device=$('device-profile').value.trim();if(device)fd.append('device_profile_id',device);const metadata=state.files.map((x,i)=>({filename:x.file.name,side:x.side,position:x.position||null,sequence_index:x.sequence||i+1}));fd.append('metadata_json',JSON.stringify(metadata));state.files.forEach(x=>fd.append('files',x.file));try{const r=await fetch('/api/exams/analyze',{method:'POST',body:fd});let body;try{body=await r.json()}catch{throw new Error('Server returned an unreadable response')}if(!r.ok)throw new Error(body.detail||'Analysis failed');state.latest=body;renderResult(body,'new');loadHistory();toast('Examination analyzed and saved.');}catch(err){toast(err.message||'Analysis failed.');}finally{$('progress').classList.remove('show');btn.disabled=!state.files.length;}});
-function resetExam(){$('exam-id').value='';$('device-profile').value='';$('result-section').classList.add('hidden');$('clear-btn').click();window.scrollTo({top:0,behavior:'smooth'})}
-
-function historyMarkup(items,limit){const rows=(limit?items.slice(0,limit):items);if(!rows.length)return '<div class="empty">No saved examinations yet. Start a new examination to create the first record.</div>';const head=limit?'':'<div class="history-row header"><span>Examination</span><span>Plates</span><span>Pairs</span><span>Saved</span><span></span></div>';return head+rows.map(x=>`<div class="history-row"><strong>${esc(x.exam_id)}</strong><span>${x.plates_detected??'—'} plates</span><span>${x.bilateral_pairs_created??'—'} pairs</span><span class="muted">${esc(x.saved_at||'saved')}</span><div class="history-actions"><button class="mini-btn" onclick="openSavedExam('${encodeURIComponent(x.exam_id)}')">Review</button><a class="mini-btn" target="_blank" href="/reports/${encodeURIComponent(x.exam_id)}">Report</a></div></div>`).join('')}
-async function loadHistory(){try{const r=await fetch('/api/exams?limit=30');const body=await r.json();state.history=body.items||[];$('history-list').innerHTML=historyMarkup(state.history);$('dashboard-history').innerHTML=historyMarkup(state.history,4);}catch{$('history-list').innerHTML='<div class="empty">Could not load examination history.</div>';$('dashboard-history').innerHTML='<div class="empty">Could not load examination history.</div>'}}
-async function openSavedExam(encoded){const id=decodeURIComponent(encoded);openView('history');try{const r=await fetch('/api/exams/'+encodeURIComponent(id));const item=await r.json();if(!r.ok)throw new Error(item.detail||'Exam not found');renderResult(item.result||item,'history');}catch(err){toast(err.message)}}
-loadHistory();
-</script>
+  <main>
+    <h1>MumGuard</h1>
+    <p>Opening the human examination workspace…</p>
+    <p><a href="/human-exam">Continue to MumGuard Human Examination</a></p>
+  </main>
 </body>
 </html>
