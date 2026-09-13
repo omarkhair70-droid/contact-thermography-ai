@@ -15,6 +15,7 @@ from app.services.acquisition_context import (
 )
 from app.services.bilateral_session_engine import (
     SideFieldResult,
+    analyze_bilateral_asymmetry,
     build_three_channel_session_evidence,
     compose_side_signal,
     infer_sequential_offsets,
@@ -22,6 +23,7 @@ from app.services.bilateral_session_engine import (
 from app.services.client_device_domain import segment_client_response
 from app.services.contact_field import normalize_field
 from app.services.human_decision import HumanDecisionInput, build_human_decision
+from app.services.human_native_research_decision import build_native_research_decision
 from app.services.human_transfer_domain_support import evaluate_session_source_support
 from app.services.thermal_anomaly_engine import fuse_evidence_maps
 from app.services.tlc_signal_processing import build_relative_thermal_map
@@ -213,7 +215,13 @@ def _peak_location(array: np.ndarray, side: str) -> dict | None:
     }
 
 
-def _research_finding(source_support: dict, scores: dict, left_fused: np.ndarray, right_fused: np.ndarray) -> dict:
+def _research_finding(
+    native_decision: dict,
+    source_support: dict,
+    scores: dict,
+    left_fused: np.ndarray,
+    right_fused: np.ndarray,
+) -> dict:
     channel_items = [
         ("focal/core hyperthermia", float(scores.get("core_hyperthermia_score", 0.0) or 0.0)),
         ("bilateral asymmetry", float(scores.get("bilateral_asymmetry_score", 0.0) or 0.0)),
@@ -228,18 +236,23 @@ def _research_finding(source_support: dict, scores: dict, left_fused: np.ndarray
     candidates = [item for item in (left_peak, right_peak) if item is not None]
     peak = max(candidates, key=lambda item: item["evidence"]) if candidates else None
     return {
-        "status": source_support.get("research_decision", "INCONCLUSIVE"),
-        "research_concern_score": source_support.get("research_concern_score"),
+        "status": native_decision.get("status", "INCONCLUSIVE"),
+        "research_concern_score": native_decision.get("research_concern_score"),
+        "decision_origin": native_decision.get("decision_origin", "MUMGUARD_NATIVE_RESEARCH_V0"),
         "domain_status": source_support.get("status"),
-        "decision_model_executed": bool(source_support.get("decision_model_executed")),
+        "transfer_used": bool(native_decision.get("transfer_used")),
+        "transfer_reference_status": native_decision.get("transfer_reference_status"),
+        "human_transfer_model_executed": bool(source_support.get("decision_model_executed")),
+        "dino_bilateral_used": bool(native_decision.get("dino_bilateral_used")),
         "dominant_channels": dominant,
         "likely_side": peak.get("side") if peak else None,
         "normalized_peak": peak,
-        "reason": source_support.get("reason"),
-        "score_semantics": source_support.get(
+        "reason": native_decision.get("reason"),
+        "score_semantics": native_decision.get(
             "score_semantics",
             "research concern only; not a cancer probability or clinical diagnosis",
         ),
+        "calibration_status": native_decision.get("calibration_status"),
         "clinical_risk": None,
         "clinical_claim": "NONE",
     }
@@ -299,6 +312,13 @@ def analyze_bilateral_session(
     )
 
     ai_evidence_available = left_visual is not None and right_visual is not None
+    dino_bilateral = None
+    dino_bilateral_score = None
+    if ai_evidence_available:
+        dino_bilateral = analyze_bilateral_asymmetry(left_visual, right_visual)
+        if dino_bilateral.features.get("status") == "OK":
+            dino_bilateral_score = float(np.clip(dino_bilateral.score / 4.0, 0.0, 1.0))
+
     human_decision = build_human_decision(
         HumanDecisionInput(
             measurement_status=session.status,
@@ -313,7 +333,14 @@ def analyze_bilateral_session(
         right_support=right_field.observable_mask,
         measurement_status=session.status,
     )
+    native_decision = build_native_research_decision(
+        measurement_status=session.status,
+        measurement_scores=dict(session.scores),
+        dino_bilateral_score=dino_bilateral_score,
+        transfer_reference=source_support,
+    )
     finding = _research_finding(
+        native_decision,
         source_support,
         dict(session.scores),
         left_fused,
@@ -333,8 +360,19 @@ def analyze_bilateral_session(
         "response_support_semantics": "PROVISIONAL_VISIBLE_TLC_RESPONSE_NOT_CONFIRMED_TISSUE_CONTACT",
         "three_channel_scores": dict(session.scores),
         "research_finding": finding,
+        "native_research_decision": native_decision,
         "human_decision": human_decision,
         "human_transfer_source_support": source_support,
+        "dino_bilateral_reference": {
+            "available": dino_bilateral is not None,
+            "score_0_1": round(dino_bilateral_score, 6) if dino_bilateral_score is not None else None,
+            "status": (
+                dino_bilateral.features.get("status")
+                if dino_bilateral is not None
+                else "NOT_AVAILABLE"
+            ),
+            "semantics": "optional visual-pattern bilateral corroboration; not a disease classifier",
+        },
         "left": _serialize_side(left_field),
         "right": _serialize_side(right_field),
         "bilateral": {
@@ -387,6 +425,8 @@ def analyze_bilateral_session(
         "bilateral_signed_difference": session.bilateral.signed_difference_map,
         "bilateral_joint_mask": session.bilateral.joint_mask.astype(np.uint8),
     }
+    if dino_bilateral is not None:
+        arrays["dino_bilateral_asymmetry"] = dino_bilateral.asymmetry_map
     return result, arrays
 
 
