@@ -5,7 +5,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     HOME=/app/runtime \
     TORCH_HOME=/var/lib/lct/storage/torch-cache \
-    XDG_CACHE_HOME=/var/lib/lct/storage/.cache
+    XDG_CACHE_HOME=/var/lib/lct/storage/.cache \
+    MUMGUARD_DINOV2_WARMUP=1 \
+    DINOV2_BATCH_SIZE=4
 
 WORKDIR /app
 
