@@ -56,8 +56,8 @@ def test_concordant_high_native_evidence_is_suspicious_without_transfer():
 def test_gray_band_abstains_instead_of_forcing_binary_result():
     result = build_native_research_decision(
         measurement_status="OK",
-        measurement_scores=_scores(core=0.60, bilateral=0.48, pattern=0.60, left_core=0.65, right_core=0.45),
-        dino_bilateral_score=0.50,
+        measurement_scores=_scores(core=0.65, bilateral=0.58, pattern=0.65, left_core=0.70, right_core=0.45),
+        dino_bilateral_score=0.60,
         transfer_reference={"status": "ABSTAIN_OOD", "decision_model_executed": False},
     )
     assert result["status"] == "INCONCLUSIVE"
