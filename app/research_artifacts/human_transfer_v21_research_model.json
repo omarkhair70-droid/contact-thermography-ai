@@ -1,0 +1,58 @@
+{
+  "artifact_type": "MUMGUARD_HUMAN_RESEARCH_TRANSFER_V21_LOGISTIC",
+  "model_id": "mumguard-human-research-transfer-v21",
+  "model_version": "0.2.1",
+  "source_domain": "DMR-IR_AUXILIARY_HUMAN_INFRARED",
+  "target_domain": "MUMGUARD_CONTACT_LCT_RELATIVE_SIGNAL",
+  "feature_contract": "dimensionless_local_spatial_v0_2_1",
+  "feature_names": [
+    "std_z",
+    "hotspot_peak_z",
+    "local_contrast_p95",
+    "gradient_p90",
+    "hotspot_coherence",
+    "hotspot_center_distance",
+    "center_periphery_abs_diff",
+    "left_right_abs_diff",
+    "top_bottom_abs_diff"
+  ],
+  "selected_model": "logistic_regression",
+  "standardization": "use_source_support_scaler",
+  "coefficients": [
+    0.16630991,
+    -0.90442302,
+    1.46215730,
+    0.23281125,
+    0.63927688,
+    0.84524552,
+    -0.34773593,
+    0.43756491,
+    -0.32133202
+  ],
+  "intercept": 0.49763503,
+  "decision_threshold": 0.5,
+  "source_oof_metrics": {
+    "subjects": 56,
+    "positives": 37,
+    "negatives": 19,
+    "balanced_accuracy": 0.8392603129445235,
+    "sensitivity": 0.7837837837837838,
+    "specificity": 0.8947368421052632,
+    "auroc": 0.8477951635846372,
+    "auprc": 0.9025002651256442,
+    "brier": 0.15650404916929134,
+    "confusion_matrix": [[17, 2], [8, 29]]
+  },
+  "source_side_availability_used": false,
+  "source_bilateral_features_used": false,
+  "requires_source_support_status": "IN_SOURCE_SUPPORT",
+  "output_statuses": [
+    "SUSPICIOUS_RESEARCH",
+    "NOT_SUSPICIOUS_RESEARCH",
+    "INCONCLUSIVE"
+  ],
+  "score_semantics": "auxiliary human-IR research transfer concern index only; not a cancer probability and not validation of MumGuard",
+  "target_domain_calibration": "NOT_AVAILABLE",
+  "clinical_risk": null,
+  "clinical_claim": "NONE"
+}
