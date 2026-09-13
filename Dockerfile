@@ -44,7 +44,10 @@ RUN addgroup --system app \
 USER app
 EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=3 \
+# The production ASGI import performs a real DINO patch forward pass before
+# serving. On a cold CPU host this may legitimately take a few minutes once
+# after deployment, so the health grace period must cover that startup cost.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=240s --retries=3 \
   CMD curl --fail --silent --show-error http://127.0.0.1:8000/health >/dev/null || exit 1
 
 CMD ["uvicorn", "app.asgi:app", "--host", "0.0.0.0", "--port", "8000"]

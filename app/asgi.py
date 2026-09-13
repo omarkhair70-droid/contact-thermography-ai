@@ -6,6 +6,8 @@ import threading
 import time
 import uuid
 
+import numpy as np
+
 from app.main import app as fastapi_app
 
 
@@ -17,35 +19,56 @@ if UVICORN_LOGGER.handlers:
 HUMAN_LOGGER.propagate = False
 
 
-def _warm_dinov2_runtime() -> None:
+def _warm_dinov2_runtime(*, fail_hard: bool = False) -> None:
+    """Load DINO and execute the same patch path used by live human exams.
+
+    Loading model weights alone was not sufficient on the CPU-only Oracle host:
+    the first real `forward_features` call could still pay a large one-time cost.
+    Production therefore warms a representative batch before the ASGI app is
+    exposed. Blocking warmup fails closed so a broken warmup never becomes a
+    client-visible 2-3 minute first examination.
+    """
     started = time.perf_counter()
+    warm_batch = 1
     try:
         from app.services import dinov2_service
+        from app.services.dinov2_patch_encoder import encode_patches_batch
 
         dinov2_service.runtime.load_official()
+        try:
+            configured = int(os.getenv("DINOV2_BATCH_SIZE", "4"))
+        except (TypeError, ValueError):
+            configured = 4
+        warm_batch = max(1, min(configured, 4))
+        frame = np.zeros((224, 224, 3), dtype=np.uint8)
+        encode_patches_batch(
+            [frame.copy() for _ in range(warm_batch)],
+            batch_size=warm_batch,
+        )
     except Exception as exc:
         UVICORN_LOGGER.warning(
             "DINOV2_WARMUP_FAILED elapsed_s=%.3f reason=%s",
             time.perf_counter() - started,
             exc,
         )
+        if fail_hard:
+            raise
     else:
         UVICORN_LOGGER.info(
-            "DINOV2_WARMUP_READY elapsed_s=%.3f",
+            "DINOV2_WARMUP_READY elapsed_s=%.3f inference_batch=%d",
             time.perf_counter() - started,
+            warm_batch,
         )
 
 
 if os.getenv("MUMGUARD_DINOV2_WARMUP", "0").strip().lower() in {"1", "true", "yes", "on"}:
     warmup_mode = os.getenv("MUMGUARD_DINOV2_WARMUP_MODE", "background").strip().lower()
     if warmup_mode == "blocking":
-        # Production can pay the model-load cost once during container startup,
-        # before the proxy exposes the app to a user. This avoids making the
-        # first examination wait on the DINO runtime load lock after a redeploy.
-        _warm_dinov2_runtime()
+        # Production pays both model-load and first-forward costs once during
+        # container startup, before a client can submit an examination.
+        _warm_dinov2_runtime(fail_hard=True)
     else:
-        # Background mode remains available for development or environments
-        # where startup readiness must not wait for model loading.
+        # Background mode remains available for development environments.
         threading.Thread(
             target=_warm_dinov2_runtime,
             name="dinov2-warmup",
