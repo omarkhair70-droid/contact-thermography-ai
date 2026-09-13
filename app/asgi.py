@@ -37,10 +37,20 @@ def _warm_dinov2_runtime() -> None:
 
 
 if os.getenv("MUMGUARD_DINOV2_WARMUP", "0").strip().lower() in {"1", "true", "yes", "on"}:
-    # Warm in the background so service readiness is not blocked by model loading.
-    # Production keeps TORCH_HOME on durable storage, so the pinned weights survive
-    # container restarts and the first examination does not pay the cold-load cost.
-    threading.Thread(target=_warm_dinov2_runtime, name="dinov2-warmup", daemon=True).start()
+    warmup_mode = os.getenv("MUMGUARD_DINOV2_WARMUP_MODE", "background").strip().lower()
+    if warmup_mode == "blocking":
+        # Production can pay the model-load cost once during container startup,
+        # before the proxy exposes the app to a user. This avoids making the
+        # first examination wait on the DINO runtime load lock after a redeploy.
+        _warm_dinov2_runtime()
+    else:
+        # Background mode remains available for development or environments
+        # where startup readiness must not wait for model loading.
+        threading.Thread(
+            target=_warm_dinov2_runtime,
+            name="dinov2-warmup",
+            daemon=True,
+        ).start()
 
 
 class HumanRequestObserver:

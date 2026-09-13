@@ -7,6 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     TORCH_HOME=/var/lib/lct/storage/torch-cache \
     XDG_CACHE_HOME=/var/lib/lct/storage/.cache \
     MUMGUARD_DINOV2_WARMUP=1 \
+    MUMGUARD_DINOV2_WARMUP_MODE=blocking \
     DINOV2_BATCH_SIZE=4
 
 WORKDIR /app
@@ -43,7 +44,7 @@ RUN addgroup --system app \
 USER app
 EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=3 \
   CMD curl --fail --silent --show-error http://127.0.0.1:8000/health >/dev/null || exit 1
 
 CMD ["uvicorn", "app.asgi:app", "--host", "0.0.0.0", "--port", "8000"]
