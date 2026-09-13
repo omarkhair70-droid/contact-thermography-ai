@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
@@ -54,15 +55,12 @@ def _patch_support(mask: np.ndarray, token_shape: tuple[int, int]) -> np.ndarray
     return support
 
 
-def _dino_novelty_map(rgb: np.ndarray, response_mask: np.ndarray) -> tuple[np.ndarray | None, dict | None]:
-    """Return label-free patch novelty relative to the same frame's response field."""
-    try:
-        from app.services.dinov2_patch_encoder import encode_patches
-        from app.services.dinov2_service import DINOv2UnavailableError
-        tokens, provenance = encode_patches(rgb)
-    except DINOv2UnavailableError as exc:
-        return None, {"status": "DINO_UNAVAILABLE", "reason": str(exc)}
-
+def _dino_novelty_from_tokens(
+    tokens: np.ndarray,
+    provenance: dict,
+    response_mask: np.ndarray,
+    output_shape: tuple[int, int],
+) -> tuple[np.ndarray | None, dict]:
     th, tw, dim = tokens.shape
     support = _patch_support(response_mask, (th, tw))
     flat = tokens.reshape(-1, dim)
@@ -80,12 +78,68 @@ def _dino_novelty_map(rgb: np.ndarray, response_mask: np.ndarray) -> tuple[np.nd
     lo, hi = np.percentile(active_values, [50, 95])
     denom = max(float(hi - lo), 1e-6)
     novelty = np.clip((distance.reshape(th, tw) - float(lo)) / denom, 0.0, 1.0)
-    up = cv2.resize(novelty.astype(np.float32), (rgb.shape[1], rgb.shape[0]), interpolation=cv2.INTER_LINEAR)
+    height, width = output_shape
+    up = cv2.resize(novelty.astype(np.float32), (width, height), interpolation=cv2.INTER_LINEAR)
     up[~response_mask] = np.nan
     return up, {**provenance, "status": "OK", "reference": "same_frame_response_mean"}
 
 
-def _prepare_frame(frame: SessionFrameInput, tlc_profile_id: str, include_dino: bool) -> dict:
+def _attach_batched_dino(prepared: list[dict]) -> dict:
+    candidates = [item for item in prepared if item["response_mask"].any()]
+    if not candidates:
+        return {
+            "requested_frames": 0,
+            "encoded_frames": 0,
+            "batched_inference": True,
+            "elapsed_s": 0.0,
+        }
+
+    started = time.perf_counter()
+    try:
+        from app.services.dinov2_patch_encoder import encode_patches_batch
+
+        outputs = encode_patches_batch(
+            [cv2.cvtColor(item["bgr"], cv2.COLOR_BGR2RGB) for item in candidates]
+        )
+        if len(outputs) != len(candidates):
+            raise RuntimeError("DINO batch output count did not match input frame count")
+        encoded = 0
+        for item, (tokens, provenance) in zip(candidates, outputs):
+            visual_map, visual_provenance = _dino_novelty_from_tokens(
+                tokens,
+                provenance,
+                item["response_mask"],
+                item["bgr"].shape[:2],
+            )
+            item["visual_map"] = visual_map
+            item["visual_provenance"] = visual_provenance
+            if visual_map is not None:
+                encoded += 1
+        return {
+            "requested_frames": len(candidates),
+            "encoded_frames": encoded,
+            "batched_inference": True,
+            "elapsed_s": round(time.perf_counter() - started, 4),
+        }
+    except Exception as exc:
+        for item in candidates:
+            item["visual_map"] = None
+            item["visual_provenance"] = {
+                "status": "DINO_UNAVAILABLE",
+                "reason": str(exc),
+                "batched_inference": True,
+            }
+        return {
+            "requested_frames": len(candidates),
+            "encoded_frames": 0,
+            "batched_inference": True,
+            "elapsed_s": round(time.perf_counter() - started, 4),
+            "status": "DINO_UNAVAILABLE",
+            "reason": str(exc),
+        }
+
+
+def _prepare_frame(frame: SessionFrameInput, tlc_profile_id: str) -> dict:
     side = str(frame.side).upper()
     if side not in {"LEFT", "RIGHT"}:
         raise ValueError("Each session frame side must be LEFT or RIGHT")
@@ -98,17 +152,13 @@ def _prepare_frame(frame: SessionFrameInput, tlc_profile_id: str, include_dino: 
         response_mask,
         tlc_profile_id=tlc_profile_id,
     )
-    visual_map = visual_provenance = None
-    if include_dino and response_mask.any():
-        rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
-        visual_map, visual_provenance = _dino_novelty_map(rgb, response_mask)
     return {
         "input": frame,
         "bgr": bgr,
         "response_mask": response_mask,
         "signal": signal,
-        "visual_map": visual_map,
-        "visual_provenance": visual_provenance,
+        "visual_map": None,
+        "visual_provenance": None,
         "component_count": len(components),
         "transform": transform,
         "acquisition_context": acquisition_context,
@@ -146,6 +196,55 @@ def _serialize_side(field: SideFieldResult) -> dict:
     }
 
 
+def _peak_location(array: np.ndarray, side: str) -> dict | None:
+    values = np.asarray(array, dtype=np.float32)
+    finite = np.isfinite(values)
+    if not finite.any():
+        return None
+    masked = np.where(finite, values, -np.inf)
+    y, x = np.unravel_index(int(np.argmax(masked)), values.shape)
+    h, w = values.shape
+    return {
+        "side": side,
+        "x_fraction": round(float(x / max(w - 1, 1)), 4),
+        "y_fraction": round(float(y / max(h - 1, 1)), 4),
+        "evidence": round(float(values[y, x]), 4),
+        "coordinate_semantics": "normalized reconstructed-side field; not anatomical coordinates",
+    }
+
+
+def _research_finding(source_support: dict, scores: dict, left_fused: np.ndarray, right_fused: np.ndarray) -> dict:
+    channel_items = [
+        ("focal/core hyperthermia", float(scores.get("core_hyperthermia_score", 0.0) or 0.0)),
+        ("bilateral asymmetry", float(scores.get("bilateral_asymmetry_score", 0.0) or 0.0)),
+        ("abnormal thermal distribution", float(scores.get("abnormal_skin_behavior_score", 0.0) or 0.0)),
+    ]
+    dominant = [
+        {"channel": name, "evidence": round(value, 4)}
+        for name, value in sorted(channel_items, key=lambda item: item[1], reverse=True)
+    ]
+    left_peak = _peak_location(left_fused, "LEFT")
+    right_peak = _peak_location(right_fused, "RIGHT")
+    candidates = [item for item in (left_peak, right_peak) if item is not None]
+    peak = max(candidates, key=lambda item: item["evidence"]) if candidates else None
+    return {
+        "status": source_support.get("research_decision", "INCONCLUSIVE"),
+        "research_concern_score": source_support.get("research_concern_score"),
+        "domain_status": source_support.get("status"),
+        "decision_model_executed": bool(source_support.get("decision_model_executed")),
+        "dominant_channels": dominant,
+        "likely_side": peak.get("side") if peak else None,
+        "normalized_peak": peak,
+        "reason": source_support.get("reason"),
+        "score_semantics": source_support.get(
+            "score_semantics",
+            "research concern only; not a cancer probability or clinical diagnosis",
+        ),
+        "clinical_risk": None,
+        "clinical_claim": "NONE",
+    }
+
+
 def analyze_bilateral_session(
     frames: Sequence[SessionFrameInput],
     *,
@@ -153,23 +252,35 @@ def analyze_bilateral_session(
     hotter_is_higher: bool = True,
     include_dino: bool = True,
 ) -> tuple[dict, dict[str, np.ndarray]]:
-    """Run the unified human-first MumGuard measurement/evidence pipeline.
-
-    Independent contact annotations remain useful provenance but are not required
-    to execute the TLC response measurement channel. The response mask here means
-    visible, high-confidence TLC response only; it is never relabeled as confirmed
-    tissue contact or healthy tissue.
-    """
+    """Run the unified human-first MumGuard measurement/evidence pipeline."""
     if not frames:
         raise ValueError("At least one session frame is required")
-    prepared = [_prepare_frame(frame, tlc_profile_id, include_dino) for frame in frames]
+
+    total_started = time.perf_counter()
+    prepared_started = time.perf_counter()
+    prepared = [_prepare_frame(frame, tlc_profile_id) for frame in frames]
+    frame_preparation_s = time.perf_counter() - prepared_started
+
+    dino_meta = {
+        "requested_frames": 0,
+        "encoded_frames": 0,
+        "batched_inference": True,
+        "elapsed_s": 0.0,
+    }
+    if include_dino:
+        dino_meta = _attach_batched_dino(prepared)
+
     left = [item for item in prepared if item["input"].side.upper() == "LEFT"]
     right = [item for item in prepared if item["input"].side.upper() == "RIGHT"]
     if not left or not right:
         raise ValueError("A bilateral session requires LEFT and RIGHT frames")
 
+    reconstruction_started = time.perf_counter()
     left_field, left_visual, left_offsets = _build_side(left)
     right_field, right_visual, right_offsets = _build_side(right)
+    reconstruction_s = time.perf_counter() - reconstruction_started
+
+    evidence_started = time.perf_counter()
     session = build_three_channel_session_evidence(
         left_field,
         right_field,
@@ -202,6 +313,14 @@ def analyze_bilateral_session(
         right_support=right_field.observable_mask,
         measurement_status=session.status,
     )
+    finding = _research_finding(
+        source_support,
+        dict(session.scores),
+        left_fused,
+        right_fused,
+    )
+    evidence_s = time.perf_counter() - evidence_started
+    total_s = time.perf_counter() - total_started
 
     result = {
         "status": session.status,
@@ -213,6 +332,7 @@ def analyze_bilateral_session(
         "contact_annotation_required_for_measurement": False,
         "response_support_semantics": "PROVISIONAL_VISIBLE_TLC_RESPONSE_NOT_CONFIRMED_TISSUE_CONTACT",
         "three_channel_scores": dict(session.scores),
+        "research_finding": finding,
         "human_decision": human_decision,
         "human_transfer_source_support": source_support,
         "left": _serialize_side(left_field),
@@ -240,6 +360,18 @@ def analyze_bilateral_session(
         "left_offsets_xy": [list(value) for value in left_offsets],
         "right_offsets_xy": [list(value) for value in right_offsets],
         "ai_evidence_available": ai_evidence_available,
+        "performance": {
+            "frame_count": len(frames),
+            "frame_preparation_s": round(frame_preparation_s, 4),
+            "dino_batch_s": round(float(dino_meta.get("elapsed_s", 0.0)), 4),
+            "side_reconstruction_s": round(reconstruction_s, 4),
+            "evidence_and_decision_s": round(evidence_s, 4),
+            "total_analysis_s": round(total_s, 4),
+            "dino_frames_requested": int(dino_meta.get("requested_frames", 0)),
+            "dino_frames_encoded": int(dino_meta.get("encoded_frames", 0)),
+            "dino_batched_inference": bool(dino_meta.get("batched_inference", False)),
+            "dino_status": dino_meta.get("status", "OK" if include_dino else "NOT_REQUESTED"),
+        },
         "clinical_claim": "NONE",
     }
     arrays = {
@@ -303,7 +435,6 @@ def persist_session_evidence(result: dict, arrays: dict[str, np.ndarray], direct
         _render_map_preview(arrays[key], out / filename)
         preview_filenames[key] = filename
 
-    # Persist preview identity inside the same evidence object returned by the API.
     result["preview_filenames"] = dict(preview_filenames)
     (out / "session_evidence.json").write_text(
         json.dumps(result, indent=2, allow_nan=False),
