@@ -109,8 +109,8 @@ def build_human_decision(input_data: HumanDecisionInput) -> HumanDecisionResult:
             calibrated=False,
             measurement_status=measurement_status,
             reason=(
-                "MumGuard measurement evidence is available, but no validated human "
-                "outcome-linked decision score/calibration is active."
+                "MumGuard session evidence is available, but no validated human "
+                "outcome-linked clinical decision score/calibration is active."
             ),
             model_id=None,
             calibration_id=None,
